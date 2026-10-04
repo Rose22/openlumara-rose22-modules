@@ -972,6 +972,243 @@ body:has(.ext-time-pet) {
     letter-spacing: 2px;
 }
 
+/* ==================== ACTIVEX PROMPT BAR ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-time-ie-activex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 8px;
+    background: #f3f1e8;
+    border-bottom: 2px solid #e0a030;
+    font-size: 11px;
+}
+
+/* ==================== MINESWEEPER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-ms-win {
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+    color: #000;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+    padding-bottom: 4px;
+}
+
+.ext-bloat-ms-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 6px;
+    padding: 4px 6px;
+    border: 2px inset #fff;
+}
+
+.ext-bloat-ms-count {
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    background: #000;
+    color: #f00;
+    padding: 0 4px;
+    letter-spacing: 2px;
+}
+
+.ext-bloat-ms-face {
+    font-size: 16px;
+    padding: 1px 4px;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+}
+
+.ext-bloat-ms-face:active {
+    border-style: inset;
+}
+
+.ext-bloat-ms-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 24px);
+    border: 3px inset #fff;
+    margin: 0 6px;
+    background: #c0c0c0;
+}
+
+.ext-bloat-ms-cell {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    border: 2px outset #fff;
+    background: #c0c0c0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ext-bloat-ms-cell.open {
+    border: 1px solid #808080;
+    background: #c0c0c0;
+    cursor: default;
+}
+
+.ext-bloat-ms-cell.mine {
+    background: #f00;
+}
+
+.ext-bloat-ms-cell.n1 { color: #0000ff; }
+.ext-bloat-ms-cell.n2 { color: #008000; }
+.ext-bloat-ms-cell.n3 { color: #ff0000; }
+
+/* ==================== WINAMP 2 ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-winamp {
+    position: fixed;
+    z-index: 99991;
+    width: 232px;
+    background: #202020;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    border: 1px solid #555;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.6);
+}
+
+.ext-bloat-wa-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #333, #666);
+    color: #00ff00;
+    padding: 2px 4px;
+    cursor: move;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.ext-bloat-wa-vis {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 50px;
+    margin: 4px;
+    padding: 2px;
+    background: #000;
+    border: 1px inset #444;
+}
+
+.ext-bloat-wa-vis span {
+    flex: 1;
+    background: linear-gradient(#00ff00 60%, #ffff00 85%, #ff0000);
+    min-height: 2px;
+    transition: height 0.1s linear;
+}
+
+.ext-bloat-wa-track {
+    margin: 0 4px;
+    padding: 2px 4px;
+    background: #000;
+    border: 1px inset #444;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #00ff00;
+}
+
+.ext-bloat-wa-pos {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px;
+    padding: 0 4px;
+}
+
+.ext-bloat-wa-btns {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px;
+}
+
+.ext-bloat-wa-btns button {
+    background: #333;
+    color: #00ff00;
+    border: 1px outset #666;
+    cursor: pointer;
+    padding: 2px 10px;
+    font-size: 11px;
+}
+
+.ext-bloat-wa-btns button:active {
+    border-style: inset;
+}
+
+/* ==================== MOUSE TRAILS ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-trail {
+    position: fixed;
+    z-index: 99990;
+    pointer-events: none;
+    font-size: 12px;
+    opacity: 0.5;
+    animation: ext-bloat-trail-fade 0.42s linear forwards;
+}
+
+@keyframes ext-bloat-trail-fade {
+    to { opacity: 0; transform: scale(0.5); }
+}
+
+/* ==================== FAKE BIOS BOOT ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-boot {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    background: #000;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    padding: 16px;
+    line-height: 1.5;
+}
+
+.ext-bloat-boot-logo {
+    margin-top: 30px;
+    text-align: center;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 42px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.ext-bloat-boot-logo span {
+    color: #ff8000;
+    margin-left: 6px;
+}
+
+/* ==================== 2D "3D" PIPES ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-pipe-host {
+    position: absolute;
+    inset: 0;
+}
+
+.ext-bloat-pipe {
+    position: absolute;
+    border: 6px solid;
+    border-radius: 10px;
+    opacity: 0.9;
+    animation: ext-bloat-pipe-in 1.6s ease-out forwards;
+}
+
+@keyframes ext-bloat-pipe-in {
+    from { transform: scale(0.1); opacity: 0; }
+    20% { opacity: 0.9; }
+    to { transform: scale(1); opacity: 0.85; }
+}
+
 /* ==================== TOAST ==================== */
 .ext-time-toast {
     position: fixed;
@@ -1421,3 +1658,404 @@ body:has(.ext-time-pet) {
     font-variant-numeric: tabular-nums;
     opacity: 0.8;
 }
+
+/* ==================== WINDOWS UPDATE FROM HELL ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   fullscreen XP blue, 99% forever. */
+.ext-bloat-wu {
+    position: fixed;
+    inset: 0;
+    z-index: 100004;
+    background: linear-gradient(180deg, #7eb3e8 0%, #5c8fd4 40%, #3a6bbf 100%);
+    color: #fff;
+    font-family: Tahoma, 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    padding: 2em;
+}
+.ext-bloat-wu-head {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    max-width: 560px;
+}
+.ext-bloat-wu-logo {
+    font-size: 52px;
+    animation: ext-bloat-wu-spin 3s linear infinite;
+}
+@keyframes ext-bloat-wu-spin { to { transform: rotate(360deg); } }
+.ext-bloat-wu-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+.ext-bloat-wu-sub { font-size: 12px; margin-top: 4px; }
+.ext-bloat-wu-name { font-size: 11px; opacity: 0.85; margin-top: 6px; font-style: italic; }
+.ext-bloat-wu-bar {
+    width: min(560px, 80vw);
+    height: 22px;
+    background: #2c4e80;
+    border: 1px solid #1a3a66;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+.ext-bloat-wu-fill {
+    height: 100%;
+    background: repeating-linear-gradient(90deg, #6cc24a 0 14px, #8fe06e 14px 16px);
+    transition: width 0.6s;
+}
+.ext-bloat-wu-pct { font-size: 26px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); }
+.ext-bloat-wu-hint { font-size: 11px; opacity: 0.75; max-width: 480px; text-align: center; }
+.ext-bloat-wu-restart { text-align: center; display: flex; flex-direction: column; gap: 12px; }
+
+/* ==================== AUTOPLAY OPTIONS ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-ap-opt {
+    padding: 5px 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 12px;
+}
+.ext-bloat-ap-opt:hover {
+    background: #0a246a;
+    color: #fff;
+    border-color: #a6b6d8;
+}
+
+/* ==================== ALT+TAB SWITCHER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-attab {
+    position: fixed;
+    inset: 0;
+    z-index: 100003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+}
+.ext-bloat-attab-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 460px;
+    padding: 16px;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5);
+}
+.ext-bloat-attab-cell {
+    width: 64px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    padding: 4px;
+}
+.ext-bloat-attab-cell.sel {
+    border: 1px dotted #000;
+    background: rgba(10, 36, 106, 0.15);
+}
+.ext-bloat-attab-icon { font-size: 30px; }
+
+/* ==================== MSN MESSENGER WINDOW ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-msnwin {
+    position: fixed;
+    right: 14px;
+    bottom: 44px;
+    width: 320px;
+    z-index: 99994;
+    background: #fff;
+    border: 2px solid #7b8de0;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-msnwin-status {
+    background: linear-gradient(180deg, #fffbe6, #ffe89a);
+    padding: 4px 8px;
+    border-bottom: 1px solid #d8c46a;
+}
+.ext-bloat-msnwin-log {
+    height: 190px;
+    overflow-y: auto;
+    padding: 6px 8px;
+    background: #fdfdfd;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.ext-bloat-msnwin-them { color: #b00080; }
+.ext-bloat-msnwin-me { color: #003399; text-align: right; }
+.ext-bloat-msnwin-typing { color: #888; font-size: 10px; }
+.ext-bloat-msnwin-input {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    border-top: 1px solid #ccc;
+}
+.ext-bloat-msnwin-input input { flex: 1; }
+.ext-bloat-msnwin-smileys {
+    display: flex;
+    gap: 10px;
+    padding: 4px 8px 6px;
+    background: #eef1fb;
+    border-top: 1px solid #d4daf0;
+    cursor: pointer;
+}
+
+/* ==================== FLOPPY ERROR ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-floppy {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    z-index: 99995;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== KLONDIKE SOLITAIRE ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-sol {
+    width: min(640px, 94vw);
+    background: #0a7e3c;
+    border: 2px outset #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    padding-bottom: 6px;
+}
+.ext-bloat-sol-top {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px 4px;
+    flex-wrap: wrap;
+}
+.ext-bloat-sol-pile {
+    width: 58px;
+    height: 80px;
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+}
+.ext-bloat-sol-pile-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+}
+.ext-bloat-sol-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    justify-content: space-between;
+}
+.ext-bloat-sol-col {
+    width: 58px;
+    min-height: 220px;
+    position: relative;
+}
+.ext-bloat-sol-card {
+    position: absolute;
+    left: 0;
+    width: 56px;
+    height: 78px;
+    background: #fff;
+    border: 1px solid #666;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 3px 5px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    user-select: none;
+}
+.ext-bloat-sol-card.red { color: #cc0000; }
+.ext-bloat-sol-card.back {
+    background: repeating-linear-gradient(45deg, #2b4d9e 0 4px, #4a6fc4 4px 8px);
+}
+.ext-bloat-sol-card.sel {
+    outline: 2px solid #ffd24d;
+    box-shadow: 0 0 8px #ffd24d;
+}
+.ext-bloat-sol-status {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 2px 12px;
+    color: #fff;
+}
+
+/* ==================== DESKTOP CONTEXT MENU ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-bloat-ctx {
+    position: fixed;
+    z-index: 100005;
+    min-width: 210px;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    padding: 2px;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+}
+.ext-bloat-ctx-item {
+    padding: 4px 18px;
+    cursor: pointer;
+}
+.ext-bloat-ctx-item:hover {
+    background: #0a246a;
+    color: #fff;
+}
+.ext-bloat-ctx-sep {
+    border-top: 1px solid #908c85;
+    border-bottom: 1px solid #fff;
+    margin: 2px 1px;
+}
+
+/* ==================== WU TRAY ICON ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-time-wu-tray { animation: ext-bloat-wu-blink 1.6s steps(2) infinite; }
+@keyframes ext-bloat-wu-blink { 50% { opacity: 0.35; } }
+
+/* ==================== AIM / ICQ / mIRC WINDOWS ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   the messenger trinity. all three pester simultaneously, as intended. */
+.ext-bloat-aim {
+    position: fixed;
+    left: 14px;
+    bottom: 44px;
+    width: 460px;
+    max-width: 94vw;
+    z-index: 99993;
+    background: #fff;
+    border: 2px solid #f0a030;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-aim-cols { display: flex; height: 260px; }
+.ext-bloat-aim-buddies {
+    width: 150px;
+    border-right: 1px solid #ddd;
+    background: #fdf6ec;
+    overflow-y: auto;
+    padding: 4px;
+}
+.ext-bloat-aim-group {
+    font-weight: bold;
+    font-size: 10px;
+    color: #7a5c2e;
+    padding: 3px 2px;
+    border-bottom: 1px solid #eeddc0;
+}
+.ext-bloat-aim-buddy { padding: 3px 4px; cursor: pointer; }
+.ext-bloat-aim-buddy:hover { background: #ffe9c4; }
+.ext-bloat-aim-chat { flex: 1; display: flex; flex-direction: column; }
+.ext-bloat-aim-head {
+    padding: 4px 8px;
+    background: linear-gradient(180deg, #fff3df, #ffdca8);
+    border-bottom: 1px solid #e0b878;
+    font-weight: bold;
+}
+.ext-bloat-aim-them { color: #b46400; }
+.ext-bloat-aim-nudge { padding: 4px 8px; border-top: 1px solid #eee; }
+.ext-bloat-aim .ext-bloat-msnwin-log { height: auto; flex: 1; }
+
+.ext-bloat-icq {
+    position: fixed;
+    right: 14px;
+    bottom: 260px;
+    width: 300px;
+    max-width: 92vw;
+    z-index: 99992;
+    background: #fff;
+    border: 2px solid #54b23c;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-icq-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 8px;
+    background: linear-gradient(180deg, #eef9e8, #cdecbf);
+    border-bottom: 1px solid #a3d48f;
+}
+.ext-bloat-icq-flower { font-size: 24px; animation: ext-bloat-sway 2.4s ease-in-out infinite; }
+@keyframes ext-bloat-sway { 50% { transform: rotate(12deg); } }
+.ext-bloat-icq-them { color: #227a10; }
+.ext-bloat-icq .ext-bloat-msnwin-log { height: 150px; }
+
+.ext-bloat-irc {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(620px, 94vw);
+    z-index: 99996;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-irc-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 3px 4px 0;
+    background: #d4d0c8;
+}
+.ext-bloat-irc-tab {
+    padding: 2px 12px;
+    background: #b8b4ac;
+    border: 1px outset #fff;
+    border-bottom: none;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: Tahoma, sans-serif;
+}
+.ext-bloat-irc-tab.active { background: #fff; font-weight: bold; }
+.ext-bloat-irc-log {
+    height: 260px;
+    overflow-y: auto;
+    background: #000;
+    color: #c8c8c8;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 6px 8px;
+    border: 2px inset #fff;
+    margin: 3px;
+}
+.ext-bloat-irc-line { white-space: pre-wrap; word-break: break-word; }
+.irc-sys { color: #909090; }
+.irc-srv { color: #f0d040; }
+.irc-chat { color: #6ec86e; }
+.irc-chat b { color: #58a0ff; }
+.irc-act { color: #c890e0; font-style: italic; }
+.irc-pm-out { color: #f08040; }
+.ext-bloat-irc .ext-bloat-msnwin-input { background: #d4d0c8; border-top: 2px inset #fff; }
+.ext-bloat-irc .ext-bloat-msnwin-input input { font-family: 'Courier New', monospace; }

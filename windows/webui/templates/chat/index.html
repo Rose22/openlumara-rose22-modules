@@ -13,6 +13,9 @@
         adCount: 0,
         ads: [],
         moreOpen: false,
+        // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+        // rows installed by the ActiveX prompt, one per install
+        installedRows: [],
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            the toolbars nobody asked for, bundled with every free download. */
         extraBars: [
@@ -45,19 +48,42 @@
             // ...and whenever the taskbar layer asks for one
             this.adWatcher = () => this.spawnAd();
             document.addEventListener('ext-time-ad', this.adWatcher);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+            // ActiveX installs add another toolbar row. forever.
+            this.rowWatcher = (e) => { this.installedRows.push(e.detail || 'Surf Toolbar'); };
+            window.addEventListener('ext-bloat-install', this.rowWatcher);
+            // ...and they bounce. forever. like DVD screensaver popups.
+            this.bounce = () => {
+                this.ads.forEach(ad => {
+                    if (!ad.dragging) {
+                        ad.x += ad.vx;
+                        ad.y += ad.vy;
+                        const maxX = window.innerWidth - ad.w - 4;
+                        const maxY = window.innerHeight - 170;
+                        if (ad.x <= 4 || ad.x >= maxX) { ad.vx = -ad.vx; ad.x = Math.max(4, Math.min(maxX, ad.x)); }
+                        if (ad.y <= 4 || ad.y >= maxY) { ad.vy = -ad.vy; ad.y = Math.max(4, Math.min(maxY, ad.y)); }
+                    }
+                });
+                this.rafBounce = requestAnimationFrame(this.bounce);
+            };
+            this.bounce();
         },
         destroy() {
             clearInterval(this.timer);
             clearInterval(this.adTimer);
+            cancelAnimationFrame(this.rafBounce);
             document.removeEventListener('click', this.modalWatcher);
             document.removeEventListener('ext-time-ad', this.adWatcher);
+            window.removeEventListener('ext-bloat-install', this.rowWatcher);
         },
         go() {
             // the address bar goes exactly where it always goes: nowhere.
             window.location.reload();
         },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           popup ads: unlimited quantity, and they bounce around the
+           screen like they're in a screensaver. */
         spawnAd() {
-            if (this.ads.length >= 4) return;
             const ad = this.adPool[this.adCount % this.adPool.length];
             this.adCount++;
             this.ads.push({
@@ -66,7 +92,10 @@
                 body: ad.body,
                 x: 60 + Math.floor(Math.random() * Math.max(120, window.innerWidth - 420)),
                 y: 80 + Math.floor(Math.random() * Math.max(100, window.innerHeight - 360)),
+                vx: (Math.random() - 0.5) * 3,
+                vy: (Math.random() - 0.5) * 3,
                 w: 270,
+                dragging: false,
                 dodges: 0
             });
         },
@@ -256,6 +285,18 @@
             <input class="ext-time-ie-tb-search" type="text" placeholder="conduit search" @keydown.enter="spawnAd()">
         </div>
 
+        {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           rows installed via ActiveX, one per click of "Install" #}
+        <template x-for="row in installedRows" :key="row">
+            <div class="ext-time-ie-linksbar bundled-row conduit">
+                <span class="ext-time-ie-links-label" x-text="'🌐 ' + row"></span>
+                <span class="ext-time-ie-tb-btn" @click="spawnAd()">🏠 Homepage (locked)</span>
+                <span class="ext-time-ie-tb-btn" @click="spawnAd()">🔍 Search the Surf</span>
+                <span class="ext-time-ie-tb-blink" @click="spawnAd()">THANK YOU FOR INSTALLING</span>
+                <span style="opacity: 0.6;" x-text="'installed without asking. you\'re welcome'"></span>
+            </div>
+        </template>
+
         {# the eternal overflow row: every extra install lands here #}
         <div class="ext-time-ie-linksbar">
             <span class="ext-time-ie-links-label" style="font-style: italic;">toolbar</span>
@@ -293,6 +334,25 @@
         </div>
     </template>
 
+    {# ---------- ActiveX install prompt bar ---------- #}
+    {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       the orange bar of doom. installing adds an 8th toolbar row. #}
+    <div class="ext-time-ie-activex"
+        x-data="{
+            show: false,
+            init() { setTimeout(() => { this.show = true; }, 8000); },
+            install() {
+                this.show = false;
+                window.dispatchEvent(new CustomEvent('ext-bloat-install', { detail: 'ToolbarSurf' }));
+                window.dispatchEvent(new CustomEvent('ext-time-ad'));
+            }
+        }"
+        x-show="show" x-cloak>
+        <span>⚠ This website wants to install an <b>ActiveX control</b> (LumaraSurf Helper Object) to make everything worse.</span>
+        <button type="button" class="ext-time-ie-go" @click="install()">Install</button>
+        <button type="button" class="ext-time-ie-go" @click="show = false; setTimeout(() => { show = true; }, 12000)">Don't install (ask again in 12s)</button>
+    </div>
+
     {# ---------- popup ads, teleported over the whole app ---------- #}
     <template x-teleport="body">
         <div>
@@ -300,11 +360,11 @@
                 <div class="ext-time-ad"
                     x-data="{ drag: null }"
                     @mousemove.window="if (drag) { ad.x = drag.px + ($event.clientX - drag.mx); ad.y = drag.py + ($event.clientY - drag.my); }"
-                    @mouseup.window="drag = null"
+                    @mouseup.window="drag = null; ad.dragging = false"
                     :style="{ left: ad.x + 'px', top: ad.y + 'px' }">
                     {# title bar: drag me #}
                     <div class="ext-time-ad-titlebar"
-                        @mousedown="drag = { mx: $event.clientX, my: $event.clientY, px: ad.x, py: ad.y }">
+                        @mousedown="drag = { mx: $event.clientX, my: $event.clientY, px: ad.x, py: ad.y }; ad.dragging = true">
                         <span class="ext-time-ad-title"
                             x-text="'ℹ️ ' + ad.title + ' - Internet Explorer'"></span>
                         <span class="ext-time-ad-winbtns">
