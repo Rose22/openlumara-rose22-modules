@@ -738,13 +738,43 @@ body:has(.ext-time-pet) {
     50% { opacity: 0.55; }
 }
 
-/* ==================== NAVASHIELD (ROGUE AV) ====================
+/* ==================== MALWARE BUILDUP GATING ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+   the desktop starts clean: every element tagged mbloat-lN stays hidden
+   until the story engine raises data-threat (on <body>) to level N. */
+.mbloat { display: none !important; }
+body[data-threat="1"] .mbloat, body[data-threat="2"] .mbloat,
+body[data-threat="3"] .mbloat, body[data-threat="4"] .mbloat,
+body[data-threat="5"] .mbloat { display: block !important; }
+.mbloat-l1, .mbloat-l2, .mbloat-l3, .mbloat-l4, .mbloat-l5 { display: none !important; }
+body[data-threat="1"] .mbloat-l1, body[data-threat="2"] .mbloat-l1,
+body[data-threat="3"] .mbloat-l1, body[data-threat="4"] .mbloat-l1,
+body[data-threat="5"] .mbloat-l1 { display: block !important; }
+body[data-threat="2"] .mbloat-l2, body[data-threat="3"] .mbloat-l2,
+body[data-threat="4"] .mbloat-l2, body[data-threat="5"] .mbloat-l2 { display: block !important; }
+body[data-threat="3"] .mbloat-l3, body[data-threat="4"] .mbloat-l3,
+body[data-threat="5"] .mbloat-l3 { display: block !important; }
+body[data-threat="4"] .mbloat-l4, body[data-threat="5"] .mbloat-l4 { display: block !important; }
+body[data-threat="5"] .mbloat-l5 { display: block !important; }
+/* flex/block elements keep their real display type when revealed.
+   bundled toolbars creep in two per level: l1=2, l2=4, l3=6, l4=8 */
+body[data-threat="1"] .ext-time-ie-linksbar.mbloat-l1,
+body[data-threat="2"] .ext-time-ie-linksbar.mbloat-l2,
+body[data-threat="3"] .ext-time-ie-linksbar.mbloat-l3,
+body[data-threat="4"] .ext-time-ie-linksbar.mbloat-l4 { display: flex !important; }
+body[data-threat="1"] .ext-time-ie-clippy.mbloat-l1 { display: flex !important; }
+body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !important; }
+/* dragging title bars must never select their text */
+.ext-bloat-msn-title { user-select: none; -webkit-user-select: none; }
+
+/* ==================== CYBERGAURD (ROGUE AV) ====================
    -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
 .ext-time-ns-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99994;
-    background: rgba(0,0,0,0.35);
+    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) overlays outrank every app window; no dimming, the desktop stays bright */
+    z-index: 100010;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -830,8 +860,8 @@ body:has(.ext-time-pet) {
 .ext-time-arp-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99994;
-    background: rgba(0,0,0,0.35);
+    z-index: 100010;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1407,8 +1437,8 @@ body:has(.ext-time-pet) {
 .ext-time-shutdown-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99995;
-    background: rgba(0,0,0,0.3);
+    z-index: 100010;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1659,57 +1689,6 @@ body:has(.ext-time-pet) {
     opacity: 0.8;
 }
 
-/* ==================== WINDOWS UPDATE FROM HELL ====================
-   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-   fullscreen XP blue, 99% forever. */
-.ext-bloat-wu {
-    position: fixed;
-    inset: 0;
-    z-index: 100004;
-    background: linear-gradient(180deg, #7eb3e8 0%, #5c8fd4 40%, #3a6bbf 100%);
-    color: #fff;
-    font-family: Tahoma, 'Segoe UI', sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    padding: 2em;
-}
-.ext-bloat-wu-head {
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    max-width: 560px;
-}
-.ext-bloat-wu-logo {
-    font-size: 52px;
-    animation: ext-bloat-wu-spin 3s linear infinite;
-}
-@keyframes ext-bloat-wu-spin { to { transform: rotate(360deg); } }
-.ext-bloat-wu-title {
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-}
-.ext-bloat-wu-sub { font-size: 12px; margin-top: 4px; }
-.ext-bloat-wu-name { font-size: 11px; opacity: 0.85; margin-top: 6px; font-style: italic; }
-.ext-bloat-wu-bar {
-    width: min(560px, 80vw);
-    height: 22px;
-    background: #2c4e80;
-    border: 1px solid #1a3a66;
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-.ext-bloat-wu-fill {
-    height: 100%;
-    background: repeating-linear-gradient(90deg, #6cc24a 0 14px, #8fe06e 14px 16px);
-    transition: width 0.6s;
-}
-.ext-bloat-wu-pct { font-size: 26px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); }
-.ext-bloat-wu-hint { font-size: 11px; opacity: 0.75; max-width: 480px; text-align: center; }
-.ext-bloat-wu-restart { text-align: center; display: flex; flex-direction: column; gap: 12px; }
-
 /* ==================== AUTOPLAY OPTIONS ====================
    -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
 .ext-bloat-ap-opt {
@@ -1765,8 +1744,6 @@ body:has(.ext-time-pet) {
    -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
 .ext-bloat-msnwin {
     position: fixed;
-    right: 14px;
-    bottom: 44px;
     width: 320px;
     z-index: 99994;
     background: #fff;
@@ -1932,18 +1909,11 @@ body:has(.ext-time-pet) {
     margin: 2px 1px;
 }
 
-/* ==================== WU TRAY ICON ====================
-   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
-.ext-time-wu-tray { animation: ext-bloat-wu-blink 1.6s steps(2) infinite; }
-@keyframes ext-bloat-wu-blink { 50% { opacity: 0.35; } }
-
 /* ==================== AIM / ICQ / mIRC WINDOWS ====================
    -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
    the messenger trinity. all three pester simultaneously, as intended. */
 .ext-bloat-aim {
     position: fixed;
-    left: 14px;
-    bottom: 44px;
     width: 460px;
     max-width: 94vw;
     z-index: 99993;
@@ -1983,8 +1953,6 @@ body:has(.ext-time-pet) {
 
 .ext-bloat-icq {
     position: fixed;
-    right: 14px;
-    bottom: 260px;
     width: 300px;
     max-width: 92vw;
     z-index: 99992;
@@ -2011,9 +1979,9 @@ body:has(.ext-time-pet) {
 
 .ext-bloat-irc {
     position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) draggable: left/top now come from Alpine (ircX/ircY) */
+    left: 120px;
+    top: 90px;
     width: min(620px, 94vw);
     z-index: 99996;
     background: #d4d0c8;
@@ -2057,5 +2025,32 @@ body:has(.ext-time-pet) {
 .irc-chat b { color: #58a0ff; }
 .irc-act { color: #c890e0; font-style: italic; }
 .irc-pm-out { color: #f08040; }
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) incoming PMs */
+.irc-pm-in { color: #e0a0ff; }
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) unread dots on tray icons */
+.ext-bloat-tray { position: relative; }
+.ext-bloat-unread {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ff2020;
+    border: 1px solid #fff;
+    animation: ext-bloat-blink 1s steps(2) infinite;
+}
+@keyframes ext-bloat-blink { 50% { opacity: 0.2; } }
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) clickable irc:// links inside chat windows */
+.ext-bloat-chatlink {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #40a0ff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.ext-bloat-chatlink:hover { color: #80c0ff; }
 .ext-bloat-irc .ext-bloat-msnwin-input { background: #d4d0c8; border-top: 2px inset #fff; }
 .ext-bloat-irc .ext-bloat-msnwin-input input { font-family: 'Courier New', monospace; }

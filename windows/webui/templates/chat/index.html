@@ -4,7 +4,10 @@
    Macros-only file; styling lives in assets/css/ie.css. #}
 
 {% macro below_header() %}
-<div class="ext-time-ie"
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+   mbloat classes: the malware chrome stays hidden until the story
+   engine raises the infection level (data-threat on <body>) #}
+<div class="ext-time-ie mbloat"
     x-data="{
         address: window.location.href,
         throb: 0,
@@ -84,6 +87,8 @@
            popup ads: unlimited quantity, and they bounce around the
            screen like they're in a screensaver. */
         spawnAd() {
+            // -- no popups on a clean machine: ads wait for level 1
+            if ((parseInt(document.body.getAttribute('data-threat') || '0', 10)) < 1) return;
             const ad = this.adPool[this.adCount % this.adPool.length];
             this.adCount++;
             this.ads.push({
@@ -156,7 +161,7 @@
         {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            clippy, promoted to the IE toolbar. he lives next to the
            throbber now and whispers into a speech bubble. #}
-        <div class="ext-time-ie-clippy" title="it looks like you need help!"
+        <div class="ext-time-ie-clippy mbloat-l1" title="it looks like you need help!"
             x-data="{
                 tip: 0,
                 timer: null,
@@ -212,7 +217,7 @@
            no close buttons: you never agreed to that. #}
 
         {# AOL: instant messenger, always signed in, always online #}
-        <div class="ext-time-ie-linksbar bundled-row aol">
+        <div class="ext-time-ie-linksbar bundled-row aol mbloat-l1">
             <span class="ext-time-ie-links-label">🕶 AOL</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">📨 Mail <b>(999+)</b></span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">💬 AIM</span>
@@ -222,7 +227,7 @@
         </div>
 
         {# Napster: now playing whether you like it or not #}
-        <div class="ext-time-ie-linksbar bundled-row napster">
+        <div class="ext-time-ie-linksbar bundled-row napster mbloat-l1">
             <span class="ext-time-ie-links-label">🎵 Napster</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">⏮</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">▶</span>
@@ -232,7 +237,7 @@
         </div>
 
         {# Lycos: a search box that searches nothing #}
-        <div class="ext-time-ie-linksbar bundled-row lycos">
+        <div class="ext-time-ie-linksbar bundled-row lycos mbloat-l2">
             <span class="ext-time-ie-links-label">🐕 Lycos</span>
             <input class="ext-time-ie-tb-search" type="text" placeholder="search the whole internet (slowly)" @keydown.enter="spawnAd()">
             <button type="button" class="ext-time-ie-go" @click="spawnAd()">Search!</button>
@@ -241,7 +246,7 @@
         </div>
 
         {# BonziBuddy: he lives here now #}
-        <div class="ext-time-ie-linksbar bundled-row bonzo">
+        <div class="ext-time-ie-linksbar bundled-row bonzo mbloat-l2">
             <span class="ext-time-ie-parrot">🦜</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">Talk to Bonzo!</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">Bonzo Jokes</span>
@@ -250,7 +255,7 @@
         </div>
 
         {# WeatherBug: local weather, wrong city, sponsored #}
-        <div class="ext-time-ie-linksbar bundled-row weather">
+        <div class="ext-time-ie-linksbar bundled-row weather mbloat-l3">
             <span class="ext-time-ie-links-label">⛅ WeatherBug</span>
             <span class="ext-time-ie-tb-weather">🌧 7°C — your city: ATLANTIS (?)</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">🌡 forecast: RAIN. always.</span>
@@ -259,7 +264,7 @@
         </div>
 
         {# WhenU SaveNow: the deal of the day, every day #}
-        <div class="ext-time-ie-linksbar bundled-row whenu">
+        <div class="ext-time-ie-linksbar bundled-row whenu mbloat-l3">
             <span class="ext-time-ie-links-label">💰 SaveNow</span>
             <span class="ext-time-ie-tb-deal" @click="spawnAd()">DEAL OF THE DAY: 90% OFF a thing you don't want!</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">🛒 Shop</span>
@@ -268,7 +273,7 @@
         </div>
 
         {# GameBar: solitaire costs three toolbars #}
-        <div class="ext-time-ie-linksbar bundled-row game">
+        <div class="ext-time-ie-linksbar bundled-row game mbloat-l4">
             <span class="ext-time-ie-links-label">🎮 GameBar</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">🂡 Solitaire</span>
             <span class="ext-time-ie-tb-btn" @click="spawnAd()">💣 Minesweeper (2)</span>
@@ -278,7 +283,7 @@
         </div>
 
         {# Conduit: it moved your homepage. it will move it again #}
-        <div class="ext-time-ie-linksbar bundled-row conduit">
+        <div class="ext-time-ie-linksbar bundled-row conduit mbloat-l4">
             <span class="ext-time-ie-links-label">🔧 Conduit</span>
             <span style="flex: 1; overflow: hidden; white-space: nowrap;">your homepage &amp; new-tab page are now <b>conduit.com</b> (you're welcome)</span>
             <button type="button" class="ext-time-ie-go" @click="spawnAd()">Restore (no)</button>
@@ -298,7 +303,7 @@
         </template>
 
         {# the eternal overflow row: every extra install lands here #}
-        <div class="ext-time-ie-linksbar">
+        <div class="ext-time-ie-linksbar mbloat-l2">
             <span class="ext-time-ie-links-label" style="font-style: italic;">toolbar</span>
             <div class="ext-time-ie-links-scroll">
                 <template x-for="bar in extraBars" :key="bar">
@@ -340,7 +345,11 @@
     <div class="ext-time-ie-activex"
         x-data="{
             show: false,
-            init() { setTimeout(() => { this.show = true; }, 8000); },
+            init() {
+                // -- the orange bar waits for the infection to start
+                if ((parseInt(document.body.getAttribute('data-threat') || '0', 10)) >= 1) setTimeout(() => { this.show = true; }, 8000);
+                else window.addEventListener('ext-bloat-threat', () => { setTimeout(() => { this.show = true; }, 6000); }, { once: true });
+            },
             install() {
                 this.show = false;
                 window.dispatchEvent(new CustomEvent('ext-bloat-install', { detail: 'ToolbarSurf' }));
@@ -356,7 +365,7 @@
     {# ---------- popup ads, teleported over the whole app ---------- #}
     <template x-teleport="body">
         <div>
-            <template x-for="ad in ads" :key="ad.id">
+            <template x-for="ad in (parseInt(document.body.getAttribute('data-threat') || '0', 10) >= 1 ? ads : [])" :key="ad.id">
                 <div class="ext-time-ad"
                     x-data="{ drag: null }"
                     @mousemove.window="if (drag) { ad.x = drag.px + ($event.clientX - drag.mx); ad.y = drag.py + ($event.clientY - drag.my); }"

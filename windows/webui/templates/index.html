@@ -49,10 +49,16 @@
         offStage: 0,
         bsod: false,
         balloon: false,
+        // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+        // infection level 0-5: the malware chrome stays hidden until the
+        // story slowly wakes it up (see mbloat-l1..l5 rules in ie.css)
+        threat: 0,
         // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) tray mute switch
         muted: localStorage.getItem('extBloatMuted') === '1',
+        // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) unread dots, pinged from the bloat layer's story engine
+        unreadAim: false, unreadIcq: false, unreadIrc: false,
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-           NavaShield fake antivirus + Add/Remove Programs uninstaller. */
+           CyberGaurd fake antivirus + Add/Remove Programs uninstaller. */
         navOpen: false, navScan: 0, navFiles: 0, navThreats: 0,
         navDone: false, navLog: [], navMsg: '', navTimer: null, navBalloon: false,
         arpOpen: false, arpErr: '',
@@ -61,7 +67,7 @@
         arpItems: [
             'AOL Toolbar', 'Napster MusicBar', 'Lycos SideSearch', 'BonziBuddy',
             'WeatherBug', 'WhenU SaveNow', 'eZiSearch Toolbar', 'Gator.com GAIN',
-            'MSNBChat', 'HotBar', 'BearShare', 'NavaShield (trial)'
+            'MSNBChat', 'HotBar', 'BearShare', 'CyberGaurd (trial)'
         ],
         threatPool: [
             'Adware.BonziBuddy', 'Trojan.ToolbarHelper', 'SpyWare.WeatherBug',
@@ -72,19 +78,27 @@
             this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
             this.timer = setInterval(() => { this.now = new Date(); }, 10000);
             setTimeout(() => { this.balloon = true; setTimeout(() => { this.balloon = false; }, 7000); }, 6000);
-            // NavaShield introduces itself like any good rogue AV
+            // CyberGaurd introduces itself like any good rogue AV
             setTimeout(() => { this.navBalloon = true; }, 11000);
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-            // low disk space balloon: NavaShield quarantines take 3.7 GB
+            // low disk space balloon: CyberGaurd quarantines take 3.7 GB
             this.lowDiskCycle = () => {
                 this.lowDisk = true;
                 setTimeout(() => { this.lowDisk = false; }, 7000);
             };
             setTimeout(this.lowDiskCycle, 20000);
             setInterval(this.lowDiskCycle, 95000);
-            // context menu buy-navashield reaches navStart in this scope
+            // context menu buy-cybergaurd reaches navStart in this scope
             this.navWatcher = () => this.navStart();
             document.addEventListener('ext-time-nav', this.navWatcher);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // story engine pings the tray when a chat window is closed
+            this.pingWatcher = (e) => {
+                if (e.detail === 'aim') this.unreadAim = true;
+                else if (e.detail === 'icq') this.unreadIcq = true;
+                else if (e.detail === 'irc') this.unreadIrc = true;
+            };
+            document.addEventListener('ext-bloat-ping', this.pingWatcher);
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // minesweeper detonations (bloat layer) crash the whole machine
             this.bsodWatcher = () => { this.bsod = true; };
@@ -94,10 +108,11 @@
             clearInterval(this.timer); if (this.navTimer) clearInterval(this.navTimer);
             document.removeEventListener('ext-time-bsod', this.bsodWatcher);
             document.removeEventListener('ext-time-nav', this.navWatcher);
+            document.removeEventListener('ext-bloat-ping', this.pingWatcher);
             clearInterval(this.lowDiskTimer);
         },
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-           NavaShield scan simulation. */
+           CyberGaurd scan simulation. */
         navStart() {
             this.navOpen = true;
             if (this.navTimer) return;
@@ -130,11 +145,11 @@
                 this.arpErr = '';
                 return;
             }
-            if (item.startsWith('NavaShield')) {
-                this.arpErr = 'NavaShield cannot be removed during protection mode. Please purchase NavaShield PRO to unlock removal.';
+            if (item.startsWith('CyberGaurd')) {
+                this.arpErr = 'CyberGaurd cannot be removed during protection mode. Please purchase CyberGaurd PRO to unlock removal.';
                 return;
             }
-            this.arpErr = 'C:\\Program Files\\' + item.replace(/[ .]/g, '') + '\\UNINSTALL.EXE could not be found. It may have been removed by a virus. We recommend NavaShield\u2122 \u2014 click here to buy!';
+            this.arpErr = 'C:\\Program Files\\' + item.replace(/[ .]/g, '') + '\\UNINSTALL.EXE could not be found. It may have been removed by a virus. We recommend CyberGaurd\u2122 \u2014 click here to buy!';
             this.navStart();
         },
         ad() { document.dispatchEvent(new CustomEvent('ext-time-ad')); },
@@ -149,7 +164,7 @@
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // games + task manager live in the bloat layer's scope
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) solitaire, windows update, msn window
-            else if (['ms', 'taskmgr', 'sol', 'wu', 'msnwin', 'aim', 'icq', 'irc'].includes(what)) window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: what }));
+            else if (['ms', 'taskmgr', 'sol', 'msnwin', 'aim', 'icq', 'irc'].includes(what)) window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: what }));
             else this.ad();
         },
         doShutdown() {
@@ -187,15 +202,15 @@
             </span>
             <span class="ext-time-tray-icon" title="Winamp 2: it really whips the llama's ass" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'winamp' }))">🎛</span>
             <span class="ext-time-tray-icon" title="connection: 56k (do not disturb)" @click="ad()">📶</span>
-            <span class="ext-time-tray-icon" title="NavaShield 2003: 27 threats (click to panic)" @click="navStart()">🛡</span>
+            <span class="ext-time-tray-icon mbloat-l3" title="CyberGaurd 2003: 27 threats" @click="navStart()">🛡</span>
             {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) windows update tray icon #}
-            <span class="ext-time-tray-icon ext-time-wu-tray" title="Installing updates - do not turn off your computer" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'wu' }))">⏳</span>
             {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) msn tray icon #}
             <span class="ext-time-tray-icon" title="MSN Messenger - xX_darkangel_Xx is waiting" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'msnwin' }))">💌</span>
             {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) the messenger trinity tray icons #}
-            <span class="ext-time-tray-icon" title="AIM - xXx_SkateOrDie_xX is online" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'aim' }))">🏃</span>
-            <span class="ext-time-tray-icon" title="ICQ #48291755 - you have a new flower" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'icq' }))">🌸</span>
-            <span class="ext-time-tray-icon" title="mIRC - WAREZNET (this copy of windows came from here)" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'irc' }))">📡</span>
+            {# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) tray icons grow an unread dot when the story messages you #}
+            <span class="ext-time-tray-icon ext-bloat-tray" :title="unreadAim ? 'AIM - you have unread messages!!' : 'AIM - xXx_SkateOrDie_xX is online'" @click="unreadAim = false; window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'aim' }))">🏃<i class="ext-bloat-unread" x-show="unreadAim" x-cloak></i></span>
+            <span class="ext-time-tray-icon ext-bloat-tray" :title="unreadIcq ? 'ICQ - URGENT INTEL' : 'ICQ #48291755 - your informant is online'" @click="unreadIcq = false; window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'icq' }))">🌸<i class="ext-bloat-unread" x-show="unreadIcq" x-cloak></i></span>
+            <span class="ext-time-tray-icon ext-bloat-tray" :title="unreadIrc ? 'mIRC - drama in #crackz4free' : 'mIRC - WAREZNET (this copy of windows came from here)'" @click="unreadIrc = false; window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'irc' }))">📡<i class="ext-bloat-unread" x-show="unreadIrc" x-cloak></i></span>
             <span class="ext-time-tray-clock" x-text="fmt.format(now)"></span>
         </div>
     </div>
@@ -217,10 +232,9 @@
                     { icon: '💌', label: 'MSN Messenger', act: 'msnwin' },
                     { icon: '🏃', label: 'AIM', act: 'aim' },
                     { icon: '🌸', label: 'ICQ', act: 'icq' },
-                    { icon: '📡', label: 'mIRC (definitely legal)', act: 'irc' },
-                    { icon: '🛡', label: 'NavaShield 2003', act: 'nav' },
+                    { icon: '📡', label: 'mIRC', act: 'irc' },
+                    { icon: '🛡', label: 'CyberGaurd 2003', act: 'nav' },
                     { icon: '📊', label: 'Task Manager', act: 'taskmgr' },
-                    { icon: '💀', label: 'Blue Screen (for fun)', act: 'bsod' },
                     { icon: '🔌', label: 'Shut Down...', act: 'shutdown' }
                 ]" :key="item.label">
                     <div class="ext-time-start-item" @click="menuAction(item.act)">
@@ -289,31 +303,31 @@
         subject: ur app looks 2 windows 2 much
     </div>
 
-    {# ==================== NAVASHIELD BALLOON ====================
+    {# ==================== CYBERGAURD BALLOON ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
     <div class="ext-time-balloon" x-show="navBalloon" x-cloak @click="navBalloon = false; navStart()">
-        <div class="ext-time-balloon-title">🛡 NavaShield has detected 27 threats!</div>
+        <div class="ext-time-balloon-title">🛡 CyberGaurd has detected 27 threats!</div>
         Your computer is at RISK. Click here to run a FREE scan now!<br>
         <span style="opacity: 0.6">(only €9.99/mo to actually fix it)</span>
     </div>
 
     {# ==================== LOW DISK SPACE BALLOON ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-       NavaShield quarantines take 3.7 GB. the drive does not. #}
+       CyberGaurd quarantines take 3.7 GB. the drive does not. #}
     <div class="ext-time-balloon" x-show="lowDisk" x-cloak @click="lowDisk = false">
         <div class="ext-time-balloon-title">💾 Low Disk Space</div>
         Only 3 MB free on Local Disk (C:).<br>
-        NavaShield quarantines are using 3.7 GB. Deleting them is not possible,
+        CyberGaurd quarantines are using 3.7 GB. Deleting them is not possible,
         they are evidence. Buy PRO for bigger evidence storage.
     </div>
 
-    {# ==================== NAVASHIELD SCANNER ====================
+    {# ==================== CYBERGAURD SCANNER ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
        the rogue AV everyone "accidentally" installed. #}
     <div class="ext-time-ns-overlay" x-show="navOpen" x-cloak>
         <div class="ext-time-ns-win">
             <div class="ext-time-shutdown-title">
-                <span>🛡 NavaShield 2003 — TOTAL PROTECTION™</span>
+                <span>🛡 CyberGaurd 2003 — TOTAL PROTECTION™</span>
                 <span class="ext-time-shutdown-x" title="nice try" @click="navOpen = false">✕</span>
             </div>
             <div class="ext-time-ns-body">
@@ -363,7 +377,7 @@
             </div>
             <div class="ext-time-shutdown-actions">
                 <button type="button" class="ext-time-shutdown-btn" @click="arpOpen = false">OK</button>
-                <button type="button" class="ext-time-shutdown-btn" @click="navStart()">Buy NavaShield™</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navStart()">Buy CyberGaurd™</button>
             </div>
         </div>
     </div>
@@ -376,7 +390,7 @@
         err: null,
         msn: false, msnSnd: false, msnTimer: null,
         dl: false, dlPct: 0, dlTimer: null, dlName: 'Free_Cursor_Pack.exe',
-        dlNames: ['Free_Cursor_Pack.exe', 'screensaver_baby.exe', 'toolbar_setup.exe', 'codec_pack_FINAL2.exe', 'NavaShield_Silent.msi'],
+        dlNames: ['Free_Cursor_Pack.exe', 'screensaver_baby.exe', 'toolbar_setup.exe', 'codec_pack_FINAL2.exe', 'CyberGaurd_Silent.msi'],
         ss: false, ssTimer: null, raf: null, bx: 120, by: 140, vx: 3.4, vy: 2.7,
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            minesweeper, winamp, task manager, mouse trails,
@@ -390,23 +404,17 @@
         waTimer: null,
         tm: false, tmProc: 0, tmTimer: null, tmPhase: 'list',
         pipes: false,
-        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-           windows update from hell, autoplay, run dialog, alt+tab,
-           msn messenger window, floppy errors, klondike solitaire. */
-        wu: false, wuPct: 0, wuNum: 1, wuTotal: 12, wuPhase: 'install', wuRst: 3, wuTimer: null, wuNextTimer: null,
-        wuNames: [
-            'Update for Windows (KB8196510)', 'Security Rollup (KB8241410)',
-            'Critical Update (KB8239806)', 'Update for Outlook Express (KB823353)',
-            'Windows Media Player 9 (KB828026)', 'Security Update (KB823182)',
-            'Windows XP Service Pack 2 (KB835732)', 'Critical Update (KB826939)'
-        ],
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           autoplay, run dialog, alt+tab, msn messenger window,
+           floppy errors, klondike solitaire. (windows update removed
+           for good: it kept hijacking the whole desktop) */
         ap: false, apDisc: 'AUTOPLAY', apQuick: false, apTimer: null,
         apDiscs: ['DISK1', 'MY_HOLIDAY_PHOTOS_2003', 'PONY_COLLECTION_VOL4', 'EMO_WALLPAPERS_FINAL', 'SYSTEM_RECOVERY_DO_NOT_OPEN'],
         runOpen: false, runCmd: '',
         atTab: false, atSel: 0, altHeld: false,
         atTasks: [
             { icon: '\ud83c\udf10', name: 'OpenLumara - Internet Explorer' },
-            { icon: '\ud83d\udee1', name: 'NavaShield 2003' },
+            { icon: '\ud83d\udee1', name: 'CyberGaurd 2003' },
             { icon: '\ud83d\udcce', name: 'Clippy Agent' },
             { icon: '\ud83e\udd9c', name: 'BonziBuddy' },
             { icon: '\ud83d\udd76', name: 'AIM - xX_darkangel_Xx' },
@@ -421,6 +429,16 @@
         aim: false, aimLog: [], aimInput: '', aimTyping: false, aimQ: [], aimT: null, aimAway: false,
         icq: false, icqLog: [], icqInput: '', icqTyping: false, icqQ: [], icqT: null,
         irc: false, ircBuf: [], ircInput: '', ircNet: false, ircT: null, ircChan: '#crackz4free',
+        ircX: 120, ircY: 90, ircDrag: null,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           every chat window is draggable now, grab any title bar */
+        msnX: 10, msnY: 10, msnDrag: null,
+        aimX: 10, aimY: 10, aimDrag: null,
+        icqX: 10, icqY: 10, icqDrag: null,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           story engine: ambient narrative queue fed by /api/ext/windows/story */
+        storyQ: [], storyT: null, storyProt: 'Anonemous', storyWarned: false,
+        msnReqMsg: 'omg add me pls, ur screenname is so cute ;-)', msnSayMsg: 'please add me. i need to make sure ur new windows cd did not break u',
         floppy: false,
         sol: false, solStock: [], solWaste: [], solFound: [[], [], [], []], solTab: [],
         solSel: null, solWin: false, solScore: 0,
@@ -445,6 +463,25 @@
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // exposed globally so the chat layer (clippy, toolbars) can beep too
             window.extBloatBeep = () => this.beep(980, 0.09);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               incoming-message jingles: each messenger gets its own tune.
+               msn: the classic two-tone. icq: the descending trill.
+               aim: the gong. irc keeps its humble key click. */
+            this.notifMsn = () => { this.beep(880, 0.13, 0, 'sine', 0.06); this.beep(1174, 0.2, 0.15, 'sine', 0.06); };
+            this.notifIcq = () => { this.beep(1568, 0.09, 0, 'triangle', 0.06); this.beep(1318, 0.09, 0.11, 'triangle', 0.06); this.beep(1046, 0.16, 0.22, 'triangle', 0.06); };
+            this.notifAim = () => { this.beep(392, 0.3, 0, 'sine', 0.07); this.beep(523, 0.35, 0.12, 'sine', 0.05); };
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // park the draggable windows at their old corners to start
+            this.msnX = Math.max(10, window.innerWidth - 336);
+            this.msnY = Math.max(10, window.innerHeight - 430);
+            this.aimX = 14;
+            this.aimY = Math.max(10, window.innerHeight - 420);
+            this.icqX = Math.max(10, window.innerWidth - 316);
+            this.icqY = Math.max(10, window.innerHeight - 640);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // publish the infection level on <body> so BOTH templates
+            // (desktop + ie toolbar) can gate their malware chrome on it
+            document.body.setAttribute('data-threat', '0');
             this.chime = () => { this.beep(523, 0.3, 0, 'sine', 0.08); this.beep(784, 0.45, 0.12, 'sine', 0.08); };
             // the chime and MSN nudge only fire once the user has clicked
             // anywhere (browsers block audio before a gesture anyway)
@@ -454,26 +491,36 @@
             document.addEventListener('click', () => { if (this.armed && !this.msn && !this.msnTimer) this.msnTimer = setTimeout(() => { this.msn = true; this.beep(880, 0.12, 0, 'triangle'); }, 14000); });
             document.addEventListener('ext-time-ad', () => this.beep(980, 0.09));
             // fake download manager: starts after first click, forever cycle
-            document.addEventListener('click', () => { if (!this.dl && !this.dlTimer) this.queueDl(); });
+            // (only once the infection has reached level 2)
+            document.addEventListener('click', () => { if (this.threat >= 2 && !this.dl && !this.dlTimer) this.queueDl(); });
             // screensaver: bounces after 45s of stillness
             this.wake = () => {
                 if (this.ss) { this.ss = false; this.pipes = false; clearInterval(this.pipeTimer); cancelAnimationFrame(this.raf); }
                 clearTimeout(this.ssTimer);
-                this.ssTimer = setTimeout(() => this.startSS(), 45000);
+                // -- screensaver only invades once the infection is real
+                if (this.threat >= 3) this.ssTimer = setTimeout(() => this.startSS(), 45000);
             };
             ['mousemove', 'keydown', 'scroll', 'click'].forEach(ev => window.addEventListener(ev, this.wake));
             this.wake();
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // fake BIOS boot on every page load: a refresh IS a reboot
             this.bootRun();
-            // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-            // windows update: rare, quick, ends in a real fake reboot
-            this.wuSchedule();
-            // autoplay disc roulette
-            setTimeout(() => this.apOpen(), 20000);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // the story engine: after 45s of peace, the plot starts unfolding
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // one plot beat every 30s; it's the ambient nudges that are
+            // throttled down, not the story itself
+            setTimeout(() => { this.storyTick(); this.storyT = setInterval(() => this.storyTick(), 30000); }, 45000);
+            // darkangel composes her contact request before the popup shows
+            setTimeout(() => this.popupFetch(), 5000);
+            // -- version banner: if this is missing from the console, the
+            // browser is running a cached copy of the desktop (hard refresh!)
+            console.log('%c[windows] story engine v2 loaded', 'color: #b00080');
+            // autoplay disc roulette (level 3+: the disc tray gets haunted)
+            setTimeout(() => { if (this.threat >= 3) this.apOpen(); }, 20000);
             // floppy disk errors, because it's 1999 inside this machine
             setInterval(() => {
-                if (!this.floppy && !this.boot) {
+                if (this.threat >= 2 && !this.floppy && !this.boot) {
                     this.floppy = true;
                     this.beep(200, 0.3, 0, 'square', 0.05);
                     setTimeout(() => { this.floppy = false; }, 9000);
@@ -498,13 +545,15 @@
             // desktop right-click context menu (skips inputs and module windows)
             this.ctxHandler = (e) => {
                 const t = e.target;
-                if (t.closest && t.closest('input, textarea, .ext-time-ad, .ext-bloat-ms-win, .ext-time-arp-win, .ext-time-ns-win, .ext-time-shutdown-dlg, .ext-bloat-winamp, .ext-bloat-sol, .ext-bloat-msnwin, .ext-bloat-ctx, .ext-time-bsod, .ext-bloat-wu, .ext-time-offscreen, .ext-bloat-aim, .ext-bloat-icq, .ext-bloat-irc')) return;
+                if (t.closest && t.closest('input, textarea, .ext-time-ad, .ext-bloat-ms-win, .ext-time-arp-win, .ext-time-ns-win, .ext-time-shutdown-dlg, .ext-bloat-winamp, .ext-bloat-sol, .ext-bloat-msnwin, .ext-bloat-ctx, .ext-time-bsod, .ext-time-offscreen, .ext-bloat-aim, .ext-bloat-icq, .ext-bloat-irc')) return;
                 e.preventDefault();
                 this.ctxX = e.clientX; this.ctxY = e.clientY; this.ctxMenu = true;
             };
             window.addEventListener('contextmenu', this.ctxHandler);
             // mouse trails: six ghosts, pure suffering
             this.trailMove = (e) => {
+                // -- ghost cursors only haunt you from level 4 on
+                if (this.threat < 4) return;
                 if (this.trails.length >= 6) this.trails.shift();
                 this.trails.push({ id: Date.now() + '' + Math.random(), x: e.clientX, y: e.clientY });
                 setTimeout(() => { this.trails = this.trails.slice(1); }, 420);
@@ -520,7 +569,6 @@
                 else if (e.detail === 'winamp') this.waToggle();
                 // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
                 else if (e.detail === 'sol') this.solStart();
-                else if (e.detail === 'wu') this.wuOpen();
                 else if (e.detail === 'msnwin') this.msnOpen();
                 else if (e.detail === 'aim') this.aimOpen();
                 else if (e.detail === 'icq') this.icqOpen();
@@ -530,7 +578,6 @@
         },
         destroy() {
             clearTimeout(this.ssTimer); clearTimeout(this.dlTimer); clearTimeout(this.bootTimer);
-            clearTimeout(this.wuNextTimer);
             cancelAnimationFrame(this.raf);
             window.removeEventListener('mousemove', this.trailMove);
             window.removeEventListener('keydown', this.cadHandler);
@@ -538,11 +585,15 @@
             window.removeEventListener('keydown', this.keyHandler);
             window.removeEventListener('keyup', this.keyUpHandler);
             clearTimeout(this.msnT); clearTimeout(this.aimT); clearTimeout(this.icqT); clearInterval(this.ircT);
+            clearInterval(this.storyT);
             window.removeEventListener('ext-bloat-menu', this.menuWatcher);
             document.removeEventListener('ext-time-bsod', this.bsodWatcher);
             clearInterval(this.msTimer); clearInterval(this.waTimer); clearInterval(this.tmTimer); clearInterval(this.pipeTimer);
         },
         startSS() {
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // the baby sleeps until the infection reaches level 3
+            if (this.threat < 3) return;
             this.ss = true;
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // the baby shares the stage with 2D 3D pipes
@@ -572,7 +623,7 @@
         },
         dlOpen() {
             this.dl = false;
-            this.err = 'Illegal operation performed by ' + this.dlName + '. The program will now close. NavaShield has quarantined 3 new threats in your honor.';
+            this.err = 'Illegal operation performed by ' + this.dlName + '. The program will now close. CyberGaurd has quarantined 3 new threats in your honor.';
             this.beep(300, 0.25, 0, 'sawtooth', 0.06);
             document.dispatchEvent(new CustomEvent('ext-time-ad'));
             this.queueDl();
@@ -615,7 +666,7 @@
             if (c.mine) {
                 this.msOver = true;
                 this.msBoard.forEach(s => { if (s.mine) s.open = true; });
-                this.err = 'You hit a mine. NavaShield considers this a cyberattack.';
+                this.err = 'You hit a mine. CyberGaurd considers this a cyberattack.';
                 this.beep(150, 0.5, 0, 'sawtooth', 0.08);
                 setTimeout(() => { this.ms = false; document.dispatchEvent(new CustomEvent('ext-time-bsod')); }, 1400);
                 return;
@@ -623,7 +674,7 @@
             this.msFlood(i);
             if (this.msBoard.filter(s => !s.mine && s.open).length === 71) {
                 this.msOver = true;
-                this.err = 'You won Minesweeper. Your prize: NavaShield PRO (trial).';
+                this.err = 'You won Minesweeper. Your prize: CyberGaurd PRO (trial).';
                 this.beep(1046, 0.3, 0, 'triangle');
             }
         },
@@ -691,7 +742,7 @@
                 '',
                 'Memory Test : 65536K OK',
                 '',
-                'Detecting IDE Primary Master ... NAVAShield HDD 4.2GB',
+                'Detecting IDE Primary Master ... CyberGaurd HDD 4.2GB',
                 'Detecting IDE Primary Slave  ... AOL_CD-ROM_50x',
                 'Detecting IDE Secondary Master ... [NONE]',
                 'Detecting IDE Secondary Slave ... BONZI_FLOPPY',
@@ -712,44 +763,6 @@
             }, 160);
         },
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-           WINDOWS UPDATE: rare, finishes in under a minute, then it
-           reboots the machine for real (page reload = BIOS plays again). */
-        wuOpen() {
-            if (this.wu) return;
-            this.wu = true;
-            if (!this.wuTimer) {
-                this.wuPhase = 'install'; this.wuPct = 0; this.wuNum = 1;
-                this.wuTimer = setInterval(this.wuStep, 700);
-            }
-        },
-        wuStep() {
-            if (this.wuPhase === 'install') {
-                // each update takes roughly 3 seconds, the whole thing about 40
-                this.wuPct += 18 + Math.floor(Math.random() * 22);
-                if (this.wuPct >= 100) {
-                    this.wuNum++;
-                    if (this.wuNum > this.wuTotal) {
-                        this.wuPhase = 'done';
-                        clearInterval(this.wuTimer); this.wuTimer = null;
-                        this.beep(880, 0.15, 0, 'triangle'); this.beep(1175, 0.25, 0.15, 'triangle');
-                        this.wu = true;
-                        // auto-reboot into the BIOS unless Rosie hits finish first
-                        setTimeout(() => { if (this.wuPhase === 'done') window.location.reload(); }, 3500);
-                    } else {
-                        this.wuPct = 0;
-                        if (this.wu) this.beep(880, 0.06, 0, 'triangle', 0.02);
-                    }
-                }
-            }
-        },
-        wuSchedule() {
-            // rare and random: first visit 3-6 minutes in, then every 15-35
-            const ms = this.wuNextTimer === null
-                ? 180000 + Math.random() * 180000
-                : 900000 + Math.random() * 1200000;
-            this.wuNextTimer = setTimeout(() => { this.wuOpen(); this.wuSchedule(); }, ms);
-        },
-        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            autoplay disc roulette. 'not this time' makes it faster. */
         apOpen() {
             this.apDisc = this.apDiscs[Math.floor(Math.random() * this.apDiscs.length)];
@@ -763,7 +776,7 @@
             if (what === 'notnow') this.apQuick = true;
             if (what === 'autoplay') document.dispatchEvent(new CustomEvent('ext-time-ad'));
             else if (what === 'explore') {
-                this.err = 'Explorer cannot open ' + this.apDisc + '. 214 files were found, and all of them are NavaShield quarantines.';
+                this.err = 'Explorer cannot open ' + this.apDisc + '. 214 files were found, and all of them are CyberGaurd quarantines.';
             }
         },
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
@@ -772,7 +785,7 @@
             const cmd = this.runCmd.trim().toLowerCase();
             this.runOpen = false; this.runCmd = '';
             if (cmd === 'format' || cmd === 'format c:' || cmd === 'format c:\\') {
-                this.err = 'FORMAT is not allowed while NavaShield\u2122 real-time protection is active. NavaShield detected 12 new threats caused by you even THINKING about formatting.';
+                this.err = 'FORMAT is not allowed while CyberGaurd\u2122 real-time protection is active. CyberGaurd detected 12 new threats caused by you even THINKING about formatting.';
                 this.beep(180, 0.4, 0, 'sawtooth', 0.07);
                 document.dispatchEvent(new CustomEvent('ext-time-bsod'));
                 return;
@@ -781,7 +794,7 @@
             if (cmd === 'sol' || cmd === 'solitaire') { this.solStart(); return; }
             if (cmd === 'taskmgr') { this.tmOpen(); return; }
             if (cmd === 'msconfig') {
-                this.err = 'msconfig.exe not found. It was quarantined by NavaShield as a suspicious attempt to disable NavaShield.';
+                this.err = 'msconfig.exe not found. It was quarantined by CyberGaurd as a suspicious attempt to disable CyberGaurd.';
                 return;
             }
             if (cmd) this.err = '\u0022' + cmd + '\u0022 is not recognized as an internal or external command, operable program or party favor.';
@@ -808,7 +821,7 @@
             this.msnMsgs = [
                 { me: false, t: '*nudge nudge*' },
                 { me: false, t: 'omg u accepted!! \ud83d\ude31' },
-                { me: false, t: 'u luv camellia right. RIGHT.' }
+                { me: false, t: 'ur new windows cd. the one from ur friend. we need to talk about it.' }
             ];
             this.msnQ = [
                 'i sent u 47 wallpapers. reply with \u0022nice\u0022 or i unsubscribe u from aim',
@@ -820,17 +833,213 @@
             ];
             clearTimeout(this.msnT); clearTimeout(this.aimT); clearTimeout(this.icqT); clearInterval(this.ircT);
             this.msnNudge();
+            if (!this.seededMsn) { this.seededMsn = true; this.seedLine('msn', this.msnMsgs); }
         },
         msnNudge() {
             this.msnT = setTimeout(() => {
-                this.msnTyping = true;
-                this.msnT = setTimeout(() => {
+                this.aiAmbient('msn', this.msnMsgs, this.msnQ, 'u totally gonna reply, i can feel it through the internet \ud83d\udc95', () => {
                     this.msnTyping = false;
-                    if (this.msnQ.length) this.msnMsgs.push({ me: false, t: this.msnQ.shift() });
-                    else this.msnMsgs.push({ me: false, t: 'u totally gonna reply, i can feel it through the internet \ud83d\udc95' });
                     this.msnNudge();
-                }, 1600);
-            }, 6000 + Math.random() * 5000);
+                }, 'msnTyping');
+            }, 25000 + Math.random() * 20000);
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           unprompted chatter: ask the story engine for a line; when the
+           llama is down, fall back to the scripted queue instead. */
+        aiAmbient(client, log, queue, lastLine, done, typingFlag, who, tries) {
+            tries = tries || 0;
+            const deliver = (t) => {
+                if (who) log.push({ me: false, t: t, who: who, kind: 'chat' });
+                else log.push({ me: false, t: t, name: client === 'icq' ? '48291755' : (client === 'aim' ? 'xXx_SkateOrDie_xX' : 'xX_darkangel_Xx'), who: client === 'msn' ? 'xX_darkangel_Xx' : undefined });
+            };
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // NO canned chatter: busy means wait and retry (indicator stays
+            // on); errors stay silent in the window, logged to console only.
+            const scripted = () => {};
+            const retry = () => {
+                if (tries > 12) { if (done) done(); return; }
+                setTimeout(() => this.aiAmbient(client, log, queue, lastLine, done, typingFlag, who, tries + 1), 3000);
+            };
+            if (this['ambBusy' + client] && tries === 0) {
+                if (typingFlag) this[typingFlag] = true;
+                retry();
+                return;
+            }
+            if (tries === 0) this['ambBusy' + client] = true;
+            const hist = log.slice(-8).map((m) => ({ who: m.me ? this.storyProt : (m.who || m.name || client), text: m.t }));
+            if (typingFlag) this[typingFlag] = true;
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // one-time loud failure: console + error balloon, so a dead or
+            // unregistered story endpoint can never fail silently again
+            const oops = (why) => {
+                console.warn('[windows] story ambient failed (' + client + '): ' + why);
+                if (!this.storyWarned) {
+                    this.storyWarned = true;
+                    this.err = 'story engine unreachable (' + why + '). falling back to scripted lines. see console F12.';
+                }
+            };
+            fetch('/api/ext/windows/story/ambient', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client: client, history: hist, who: who || '' })
+            }).then((r) => {
+                if (r.status === 404) { oops('route 404 - module not reloaded?'); return null; }
+                return r.json();
+            }).then((j) => {
+                this['ambBusy' + client] = false;
+                if (typingFlag) this[typingFlag] = false;
+                const d = (j && j.data) || {};
+                if (j && j.success && d.status === 'ok' && d.text) deliver(d.text);
+                else if (d.status === 'waiting') { retry(); return; }
+                else if (j && !j.success) oops(String(j.data || j.message || 'api error'));
+                if (done) done();
+            }).catch((e) => {
+                this['ambBusy' + client] = false;
+                if (typingFlag) this[typingFlag] = false;
+                oops(String(e));
+                if (done) done();
+            });
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           NO canned replies, ever: while the engine is busy the request
+           quietly retries (typing indicator stays up); on error the user
+           gets a windows-style balloon, never a fake in-character line. */
+        aiReply(client, text, log, opts, tries) {
+            opts = opts || {};
+            tries = tries || 0;
+            const hist = log.slice(-8).map((m) => ({ who: m.me ? this.storyProt : (m.who || m.name || client), text: m.t }));
+            if (opts.typing) this[opts.typing] = true;
+            const retry = () => {
+                if (tries > 15) { this.err = 'Message not delivered. ' + (opts.who || 'Your contact') + ' is not responding (model offline?).'; if (opts.typing) this[opts.typing] = false; return; }
+                setTimeout(() => this.aiReply(client, text, log, opts, tries + 1), 900);
+            };
+            if (this['ambBusy' + client]) { retry(); return; }
+            fetch('/api/ext/windows/story/reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client: client, text: text, history: hist })
+            }).then((r) => {
+                if (r.status === 404) console.warn('[windows] story reply route 404 - module not reloaded?');
+                return r.json();
+            }).then((j) => {
+                const d = (j && j.data) || {};
+                if (j && j.success && d.status === 'ok' && d.text) {
+                    if (opts.typing) this[opts.typing] = false;
+                    log.push({ me: false, t: d.text, who: opts.who, name: opts.name, kind: opts.kind });
+                    if (client === 'msn') this.notifMsn();
+                    else if (client === 'icq') this.notifIcq();
+                    else if (client === 'aim') this.notifAim();
+                    if (opts.onDone) opts.onDone();
+                } else if (d.status === 'waiting') {
+                    retry();
+                } else {
+                    if (opts.typing) this[opts.typing] = false;
+                    this.err = 'Message not delivered. the story engine hiccuped (see console).';
+                }
+            }).catch((e) => {
+                console.warn('[windows] story reply fetch failed:', e);
+                retry();
+            });
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           ambient narrative: fetch scripted acts from the story engine and
+           drip them into the windows one event at a time. closed windows
+           ping the tray instead, because mystery waits for no one. */
+        storyTick() {
+            if (this.storyQ.length) {
+                this.storyDeliver(this.storyQ.shift());
+                return;
+            }
+            fetch('/api/ext/windows/story/poll').then((r) => r.json()).then((j) => {
+                const d = (j && j.data) || {};
+                if (d.protagonist) this.storyProt = d.protagonist;
+                if (d.done || !d.events) return;
+                d.events.forEach((ev) => this.storyQ.push(ev));
+                this.storyDeliver(this.storyQ.shift());
+            }).catch(() => {});
+        },
+        storyDeliver(ev) {
+            if (!ev) return;
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               every story message deepens the infection: the malware chrome
+               wakes up gradually instead of face-painting the desktop at 0s */
+            this.threat = Math.min(5, this.threat + 2);
+            document.body.setAttribute('data-threat', String(this.threat));
+            if (this.threat >= 1) window.dispatchEvent(new CustomEvent('ext-bloat-threat'));
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               story messages pop their window open like a good 2003 popup
+               virus would. the tray dot stays as backup, you WILL notice. */
+            if (ev.client === 'msn') {
+                this.msn = false;
+                const was = this.msnWin;
+                if (!was) this.msnOpen();
+                this.msnMsgs.push({ me: false, t: ev.text, who: 'xX_darkangel_Xx' });
+                this.notifMsn();
+            } else if (ev.client === 'aim') {
+                const was = this.aim;
+                if (!was) this.aimOpen();
+                this.aimLog.push({ me: false, t: ev.text });
+                this.notifAim();
+                if (was) document.dispatchEvent(new CustomEvent('ext-bloat-ping', { detail: 'aim' }));
+            } else if (ev.client === 'icq') {
+                const was = this.icq;
+                if (!was) this.icqOpen();
+                this.icqLog.push({ me: false, name: '48291755', t: ev.text });
+                this.notifIcq();
+                if (was) document.dispatchEvent(new CustomEvent('ext-bloat-ping', { detail: 'icq' }));
+            } else if (ev.client === 'irc') {
+                const isSrv = ev.text.startsWith('***') || ev.text.startsWith('-->');
+                const line = isSrv ? { kind: 'srv', t: ev.text } : { kind: 'chat', who: ev.who, t: ev.text };
+                const was = this.irc;
+                this.irc = true;
+                if (!this.ircNet) this.ircConnect();
+                this.ircBuf.push(line);
+                if (this.ircBuf.length > 60) this.ircBuf.shift();
+                this.beep(700, 0.05, 0, 'square', 0.02);
+                if (was) document.dispatchEvent(new CustomEvent('ext-bloat-ping', { detail: 'irc' }));
+            }
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           chat messages become segment lists so irc:// links are clickable.
+           never innerHTML: plain segments + one styled button per link. */
+        chatLinks(t) {
+            const s = String(t || '');
+            const parts = [];
+            const re = /irc:\/\/[^\s]+/g;
+            let last = 0, m;
+            while ((m = re.exec(s)) !== null) {
+                if (m.index > last) parts.push({ txt: s.slice(last, m.index) });
+                parts.push({ link: m[0] });
+                last = m.index + m[0].length;
+            }
+            if (last < s.length) parts.push({ txt: s.slice(last) });
+            return parts;
+        },
+        linkAct(url) {
+            // every link on this machine leads to the warez server. obviously.
+            this.beep(1200, 0.08, 0, 'triangle');
+            this.ircOpen();
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           AI opening line for a freshly opened window; the scripted seeds
+           show first as a warmup, this lands on top like a real person */
+        seedLine(client, log, who) {
+            fetch('/api/ext/windows/story/popup?mode=seed&client=' + client).then((r) => r.json()).then((j) => {
+                const d = (j && j.data) || {};
+                if (!d.text) return;
+                if (who) log.push({ me: false, t: d.text, who: who, kind: 'chat' });
+                else log.push({ me: false, t: d.text, name: client === 'icq' ? '48291755' : (client === 'aim' ? 'xXx_SkateOrDie_xX' : 'xX_darkangel_Xx'), who: client === 'msn' ? 'xX_darkangel_Xx' : undefined });
+                if (client === 'msn') this.notifMsn();
+                else if (client === 'icq') this.notifIcq();
+                else if (client === 'aim') this.notifAim();
+                else this.beep(700, 0.05, 0, 'square', 0.02);
+            }).catch(() => {});
+        },
+        popupFetch() {
+            fetch('/api/ext/windows/story/popup').then((r) => r.json()).then((j) => {
+                const d = (j && j.data) || {};
+                if (d.text) { this.msnReqMsg = d.text; this.msnSayMsg = d.text; }
+            }).catch(() => {});
         },
         msnSend() {
             const v = this.msnInput.trim();
@@ -838,6 +1047,7 @@
             this.msnInput = '';
             this.msnMsgs.push({ me: true, t: v });
             this.beep(900, 0.08, 0, 'triangle');
+            this.aiReply('msn', v, this.msnMsgs, { typing: 'msnTyping' });
         },
         msnSignOut() {
             this.msnWin = false;
@@ -866,21 +1076,19 @@
                 'still brb',
                 'anyway a/s/l?',
                 'ur aim screen name is SO last season',
-                'i set my aim profile song to a 128kbps mp3 of camellia u should hear it',
+                'i set my aim profile song to a 128kbps mp3 of a dial-up modem i recorded. u should hear it',
                 'gtg dinner. later. (they are not gone. they are watching aim)'
             ];
             this.aimNudge();
+            if (!this.seededAim) { this.seededAim = true; this.seedLine('aim', this.aimLog); }
         },
         aimNudge() {
             this.aimT = setTimeout(() => {
-                this.aimTyping = true;
-                this.aimT = setTimeout(() => {
+                this.aiAmbient('aim', this.aimLog, this.aimQ, '*N O U D G E* (aim nudge costs 0.0001 watts, use freely)', () => {
                     this.aimTyping = false;
-                    if (this.aimQ.length) this.aimLog.push({ me: false, t: this.aimQ.shift() });
-                    else this.aimLog.push({ me: false, t: '*N O U D G E* (aim nudge costs 0.0001 watts, use freely)' });
                     this.aimNudge();
-                }, 1400);
-            }, 8000 + Math.random() * 6000);
+                }, 'aimTyping');
+            }, 28000 + Math.random() * 25000);
         },
         aimSend() {
             const v = this.aimInput.trim();
@@ -888,6 +1096,7 @@
             this.aimInput = '';
             this.aimLog.push({ me: true, t: v });
             this.beep(900, 0.08, 0, 'triangle');
+            this.aiReply('aim', v, this.aimLog, { typing: 'aimTyping' });
         },
         aimClose() {
             this.aim = false;
@@ -900,28 +1109,26 @@
             this.icq = true;
             if (this.icqLog.length) return;
             this.icqLog = [
-                { me: false, name: '48291755', t: 'hi u have new flower from admirer' },
-                { me: false, name: '48291755', t: 'u no answer icq 3 days. i worry.' }
+                { me: false, name: '48291755', t: 'log entry: u are finally online. we need to talk. privately.' },
+                { me: false, name: '48291755', t: 'u no answer icq 3 days. i logged that too.' }
             ];
             this.icqQ = [
                 'u on msn or icq? be on icq. icq is family.',
-                'i send u flower. click flower. flower is important.',
-                'my uin is 48291755. memorize it. it is on my tombstone.',
-                'status: DND meaning do not disturb boyfriend. jk. it is me. i am boyfriend.',
-                'uh oh. that is the sound. you heard it. u are in love now.'
+                'i keep copies of everything. file dates. upload logs. your login times. evidence.',
+                'my uin is 48291755. i do not delete accounts. i do not delete ANYTHING.',
+                'status: DND. i am watching the wareznet upload logs. again. for the 4th time.',
+                'uh oh. that is my alert sound. someone just edited the edition37 file dates.'
             ];
             this.icqNudge();
+            if (!this.seededIcq) { this.seededIcq = true; this.seedLine('icq', this.icqLog); }
         },
         icqNudge() {
             this.icqT = setTimeout(() => {
-                this.icqTyping = true;
-                this.icqT = setTimeout(() => {
+                this.aiAmbient('icq', this.icqLog, this.icqQ, '*uh oh* (flower delivered)', () => {
                     this.icqTyping = false;
-                    if (this.icqQ.length) this.icqLog.push({ me: false, name: '48291755', t: this.icqQ.shift() });
-                    else this.icqLog.push({ me: false, name: '48291755', t: '*uh oh* (flower delivered)' });
                     this.icqNudge();
-                }, 1500);
-            }, 9000 + Math.random() * 7000);
+                }, 'icqTyping');
+            }, 32000 + Math.random() * 28000);
         },
         icqSend() {
             const v = this.icqInput.trim();
@@ -929,6 +1136,7 @@
             this.icqInput = '';
             this.icqLog.push({ me: true, name: 'You', t: v });
             this.beep(1046, 0.1, 0, 'sine', 0.05);
+            this.aiReply('icq', v, this.icqLog, { name: '48291755', typing: 'icqTyping' });
         },
         icqClose() {
             this.icq = false;
@@ -941,17 +1149,18 @@
         ircOpen() {
             this.irc = true;
             if (!this.ircNet) this.ircConnect();
+            if (!this.seededIrc) { this.seededIrc = true; this.seedLine('irc', this.ircBuf, 'Cr4ckM4ster'); }
         },
         ircConnect() {
             this.ircNet = true;
             this.ircBuf = [
                 { kind: 'sys', t: 'Trying irc.warez-crew-underground.ru (195.23.66.66)...' },
                 { kind: 'sys', t: 'Connected. Encryption: none. Regrets: many.' },
-                { kind: 'srv', t: '*** NICK is already in use (Rosie). You are now Rosie_' },
+                { kind: 'srv', t: '*** NICK is already in use (' + this.storyProt + '). You are now ' + this.storyProt + '_' },
                 { kind: 'srv', t: '*** You are now registered as PIRATED-KEY-0xDEADBEEF' },
-                { kind: 'srv', t: '*** OPER: NavaShield.exe has +o on this network' },
+                { kind: 'srv', t: '*** OPER: CyberGaurd.exe has +o on this network' },
                 { kind: 'join', t: '--> You have joined #crackz4free (mode +k d3fault)' },
-                { kind: 'chat', who: 'Cr4ckM4ster', t: 'welcome to #crackz4free, rules: 1) no snitching 2) NavaShield is adware 3) NavaShield is adware' },
+                { kind: 'chat', who: 'Cr4ckM4ster', t: 'welcome to #crackz4free, rules: 1) no snitching 2) CyberGaurd is adware 3) CyberGaurd is adware' },
                 { kind: 'chat', who: 'l0li_pop_princess', t: 'anyone got photoshop 7 keygen? my CD scratched it T_T' },
                 { kind: 'chat', who: 'warez_4_life', t: 'search the /msg bot. do NOT ask in main. main is for drama.' },
                 { kind: 'chat', who: 'Cr4ckM4ster', t: 'also whoever uploaded windows-xp-pro-REPACK-edition37.iso WITH the toolbar: we do not talk about that' }
@@ -959,31 +1168,27 @@
             this.ircFeed();
         },
         ircFeed() {
-            const pool = [
-                { kind: 'chat', who: 'l0li_pop_princess', t: 'rosie_!! ur username is cute!! r u a real person?? proof of life??' },
-                { kind: 'chat', who: 'warez_4_life', t: 'FILE: winamp_full_final_REAL2.exe (1.2MB) - do not run, this is bait for nava' },
-                { kind: 'chat', who: 'Cr4ckM4ster', t: 'mods are asleep. i mean admins. i mean nobody can ban me. NavaShield.exe why do u have +o' },
-                { kind: 'srv', t: '--> NavaShield.exe sets mode: +q @Cr4ckM4ster (just kidding. or not.)' },
-                { kind: 'chat', who: 'xX_darkangel_Xx', t: 'omg rosie u finally joined the warez server. i knew u had it in u 💜' },
-                { kind: 'chat', who: 'warez_4_life', t: 'DCC SEND is disabled by the ISP because the ISP is a telephone and is tired' },
-                { kind: 'chat', who: 'l0li_pop_princess', t: 'a/s/l?? (rosie_ dont have to answer, the last person who answered got a modem virus)' },
-                { kind: 'chat', who: 'Cr4ckM4ster', t: 'reminder: the copy of windows u are running right now was made by someone in this channel. hi.' }
-            ];
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               the crew is fully AI now: channel history goes to the story
+               engine, a random regular gets attributed the line. no scripted
+               pool - when the llama is down, the channel simply goes quiet. */
             clearInterval(this.ircT);
             this.ircT = setInterval(() => {
                 if (!this.irc) return;
-                const line = pool[Math.floor(Math.random() * pool.length)];
-                this.ircBuf.push(line);
-                if (this.ircBuf.length > 60) this.ircBuf.shift();
-                if (line.kind === 'chat' && line.who === 'xX_darkangel_Xx') this.beep(880, 0.1, 0, 'triangle');
-            }, 11000);
+                const nicks = ['Cr4ckM4ster', 'warez_4_life', 'l0li_pop_princess'];
+                const nick = nicks[Math.floor(Math.random() * nicks.length)];
+                this.aiAmbient('irc', this.ircBuf, null, null, () => {
+                    if (this.ircBuf.length > 60) this.ircBuf.shift();
+                    this.beep(700, 0.05, 0, 'square', 0.02);
+                }, null, nick);
+            }, 14000);
         },
         ircSend() {
             const v = this.ircInput.trim();
             if (!v) return;
             this.ircInput = '';
             if (v === '/quit' || v === '/quit ' || v.toLowerCase().startsWith('/quit')) {
-                this.ircBuf.push({ kind: 'sys', t: 'You have quit (Leaving... NavaShield.exe will remember this).' });
+                this.ircBuf.push({ kind: 'sys', t: 'You have quit (Leaving... CyberGaurd.exe will remember this).' });
                 this.irc = false; this.ircNet = false;
                 clearInterval(this.ircT);
                 return;
@@ -997,23 +1202,27 @@
                 return;
             }
             if (v.toLowerCase().startsWith('/me')) {
-                this.ircBuf.push({ kind: 'act', t: '* Rosie_ ' + v.slice(3).trim() });
+                this.ircBuf.push({ kind: 'act', t: '* ' + this.storyProt + '_ ' + v.slice(3).trim() });
                 return;
             }
             if (v.toLowerCase().startsWith('/msg')) {
-                this.ircBuf.push({ kind: 'pm-out', t: '[PM to ' + (v.split(' ')[1] || 'nobody') + ']: ' + v.split(' ').slice(2).join(' ') });
+                const target = v.split(' ')[1] || 'nobody';
+                const body = v.split(' ').slice(2).join(' ');
+                this.ircBuf.push({ kind: 'pm-out', t: '[PM to ' + target + ']: ' + body });
+                this.beep(700, 0.05, 0, 'square', 0.02);
+                if (!body) return;
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+                   the target actually writes back now */
+                this.aiReply('irc', '(private message from ' + this.storyProt + '_, you are answering as ' + target + ') ' + body, this.ircBuf, {
+                    kind: 'pm-in', who: target
+                });
                 return;
             }
-            this.ircBuf.push({ kind: 'chat', who: 'Rosie_', t: v });
+            this.ircBuf.push({ kind: 'chat', who: this.storyProt + '_', t: v });
             this.beep(700, 0.05, 0, 'square', 0.02);
-            setTimeout(() => {
-                const replies = [
-                    { kind: 'chat', who: 'warez_4_life', t: 'lurk more, talk less. this is a warez server not a chat room. (this is a chat room)' },
-                    { kind: 'chat', who: 'Cr4ckM4ster', t: 'lol nice try, that is exactly what a spybot would say' },
-                    { kind: 'chat', who: 'l0li_pop_princess', t: 'rosie_ is so real i can feel it through my crt' }
-                ];
-                this.ircBuf.push(replies[Math.floor(Math.random() * replies.length)]);
-            }, 2000 + Math.random() * 2500);
+            const nicks = ['Cr4ckM4ster', 'warez_4_life', 'l0li_pop_princess'];
+            const nick = nicks[Math.floor(Math.random() * nicks.length)];
+            this.aiReply('irc', v, this.ircBuf, { kind: 'chat', who: nick });
         },
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            KLONDIKE SOLITAIRE. lose-free, win optional. */
@@ -1182,7 +1391,7 @@
     }">
 
     {# ---- tiled not-genuine wallpaper (whole viewport, behind everything) ---- #}
-    <div class="ext-bloat-nongenuine"></div>
+    <div class="ext-bloat-nongenuine mbloat-l2"></div>
 
     {# ---- MSN contact request, bottom-left ---- #}
     <div class="ext-bloat-msn" x-show="msn" x-cloak x-transition.opacity.duration.300ms>
@@ -1192,16 +1401,16 @@
         </div>
         <div class="ext-bloat-msn-body" x-show="!msnSnd">
             <b>xX_darkangel_Xx</b> would like to add you to their contact list.<br>
-            <i style="opacity: 0.7">message: omg add me pls, ur screenname is so cute ;-)</i>
+            <i style="opacity: 0.7" x-text="'message: ' + msnReqMsg"></i>
             <div class="ext-bloat-msn-btns">
                 <button type="button" class="ext-time-ad-btn" @click="msnAccept()">Accept</button>
                 <button type="button" class="ext-time-ad-btn" @click="msnBlock()">Block</button>
             </div>
         </div>
         <div class="ext-bloat-msn-body" x-show="msnSnd" x-cloak>
-            <b>xX_darkangel_Xx</b> says: <i>omg u luv camellia?? same. send 47 emo wallpapers or else</i>
+            <b>xX_darkangel_Xx</b> says: <i x-text="msnSayMsg"></i>
             <div class="ext-bloat-msn-btns">
-                <button type="button" class="ext-time-ad-btn" @click="document.dispatchEvent(new CustomEvent('ext-time-ad'))">Reply</button>
+                <button type="button" class="ext-time-ad-btn" @click="msn = false; msnOpen(); msnInput = 'ok. tell me everything about that cd'">Reply</button>
                 <button type="button" class="ext-time-ad-btn" @click="msn = false">Ignore (they will keep typing)</button>
             </div>
         </div>
@@ -1326,7 +1535,7 @@
                 <div style="margin-bottom: 6px;">Running tasks:</div>
                 <div class="ext-time-arp-list">
                     <template x-for="p in [
-                        { name: 'NavaShield.exe', mem: '1,208,832 KB', icon: '🛡' },
+                        { name: 'CyberGaurd.exe', mem: '1,208,832 KB', icon: '🛡' },
                         { name: 'bonzo_hook.dll', mem: '666 KB', icon: '🦜' },
                         { name: 'aol_supervisor.exe', mem: '∞ KB', icon: '🕶' },
                         { name: 'explorer.exe', mem: '4 KB (shared)', icon: '🖥' },
@@ -1356,31 +1565,6 @@
         </div>
     </div>
 
-    {# ==================== WINDOWS UPDATE FROM HELL ====================
-       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
-       47 updates. 99% forever. the restart comes for us all. #}
-    <div class="ext-bloat-wu" x-show="wu" x-cloak>
-        <div class="ext-bloat-wu-head" x-show="wuPhase === 'install'">
-            <span class="ext-bloat-wu-logo">⏳</span>
-            <div>
-                <div class="ext-bloat-wu-title">Windows Update</div>
-                <div class="ext-bloat-wu-sub">Installing update <b x-text="wuNum"></b> of <b x-text="wuTotal"></b>. Do not turn off your computer.</div>
-                <div class="ext-bloat-wu-name" x-text="wuNames[(wuNum - 1) % wuNames.length]"></div>
-            </div>
-        </div>
-        <div class="ext-bloat-wu-bar" x-show="wuPhase === 'install'">
-            <div class="ext-bloat-wu-fill" :style="{ width: wuPct + '%' }"></div>
-        </div>
-        <div class="ext-bloat-wu-pct" x-show="wuPhase === 'install'" x-text="wuPct + '%'"></div>
-        <div class="ext-bloat-wu-hint" x-show="wuPhase === 'install'">Installing updates may take several minutes. Updates are installed whether you wait or not.</div>
-        <div class="ext-bloat-wu-restart" x-show="wuPhase === 'done'" x-cloak>
-            <div class="ext-bloat-wu-title">✔ All <b x-text="wuTotal"></b> updates were installed successfully</div>
-            <div class="ext-bloat-wu-sub">Windows must now restart to apply the updates. Your files are safe. Your toolbars are not.</div>
-            <button type="button" class="ext-time-shutdown-btn" style="font-weight: bold;" @click="window.location.reload()">Finish restart now (BIOS!)</button>
-            <div class="ext-bloat-wu-hint">...or wait 3 seconds, the machine reboots itself either way.</div>
-        </div>
-    </div>
-
     {# ==================== AUTOPLAY DISC ROULETTE ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
     <div class="ext-time-ns-overlay" x-show="ap" x-cloak @click="apPick('notnow')">
@@ -1394,10 +1578,10 @@
                     <span style="font-size: 22px;">📀</span>
                     <b x-text="'What do you want to do with ' + apDisc + ' ?'"></b>
                 </div>
-                <div class="ext-bloat-ap-opt" @click="apPick('autoplay')">▶️ Run <b x-text="apDisc"></b>.exe (recommended by nobody)</div>
+                <div class="ext-bloat-ap-opt" @click="apPick('autoplay')">▶️ Run <b x-text="apDisc"></b>.exe</div>
                 <div class="ext-bloat-ap-opt" @click="apPick('explore')">📁 Open folder to view files</div>
                 <div class="ext-bloat-ap-opt" @click="apPick('autoplay')">🎞️ Preview slides using Windows Movie Maker</div>
-                <div class="ext-bloat-ap-opt" @click="apPick('notnow')">❓ Take no action (makes the disc appear faster, try it)</div>
+                <div class="ext-bloat-ap-opt" @click="apPick('notnow')">❓ Take no action</div>
                 <label style="font-size: 10px; opacity: 0.7; display: block; margin-top: 8px;">
                     <input type="checkbox" x-model="apQuick"> always do this for this type of disc
                 </label>
@@ -1444,22 +1628,24 @@
     {# ==================== MSN MESSENGER WINDOW ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
        xX_darkangel_Xx: the contact request finally pays off. #}
-    <div class="ext-bloat-msnwin" x-show="msnWin" x-cloak>
-        <div class="ext-bloat-msn-title">
+    <div class="ext-bloat-msnwin" x-show="msnWin" x-cloak
+        :style="{ left: msnX + 'px', top: msnY + 'px' }"
+        @mousemove.window="if (msnDrag) { msnX = msnDrag.px + ($event.clientX - msnDrag.mx); msnY = msnDrag.py + ($event.clientY - msnDrag.my); }"
+        @mouseup.window="msnDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="msnDrag = { mx: $event.clientX, my: $event.clientY, px: msnX, py: msnY }">
             <span>💌 xX_darkangel_Xx</span>
             <span class="ext-time-shutdown-x" @click="msnSignOut()">✕</span>
         </div>
         <div class="ext-bloat-msnwin-status">🟢 Online | Mood: 💜 add me on myspace too 💜</div>
-        <div class="ext-bloat-msnwin-log" x-ref="msnLog" x-effect="if (msnWin) { const el = $refs.msnLog; if (el) el.scrollTop = el.scrollHeight; }">
+        <div class="ext-bloat-msnwin-log" x-ref="msnLog" x-effect="msnMsgs.length; if ($refs.msnLog) $refs.msnLog.scrollTop = $refs.msnLog.scrollHeight">
             <template x-for="(m, i) in msnMsgs" :key="i">
-                <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-msnwin-them'">
-                    <b x-text="m.me ? 'You' : 'xX_darkangel_Xx'"></b><span x-text="': ' + m.t"></span>
-                </div>
+                <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-msnwin-them'"><b x-text="m.me ? 'You' : 'xX_darkangel_Xx'"></b><span>: </span><template x-for="(seg, k) in chatLinks(m.t)" :key="k"><span><template x-if="!seg.link"><span x-text="seg.txt"></span></template><template x-if="seg.link"><button type="button" class="ext-bloat-chatlink" @click="linkAct(seg.link)" x-text="seg.link"></button></template></span></template></div>
             </template>
             <div class="ext-bloat-msnwin-typing" x-show="msnTyping" x-cloak><i>xX_darkangel_Xx is typing...</i></div>
         </div>
         <div class="ext-bloat-msnwin-input">
-            <input type="text" x-model="msnInput" @keydown.enter="msnSend()" placeholder="type 'nice' about the wallpapers">
+            <input type="text" x-model="msnInput" @keydown.enter="msnSend()" placeholder="ask about the windows cd">
             <button type="button" class="ext-time-ad-btn" @click="msnSend()">Send</button>
         </div>
         <div class="ext-bloat-msnwin-smileys">
@@ -1474,9 +1660,13 @@
     {# ==================== AIM (THE RUNNING MAN) ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
        buddy list on the left, drama on the right, dial-up in the heart. #}
-    <div class="ext-bloat-aim" x-show="aim" x-cloak>
-        <div class="ext-bloat-msn-title">
-            <span>🏃 AIM - Rosie_1992</span>
+    <div class="ext-bloat-aim" x-show="aim" x-cloak
+        :style="{ left: aimX + 'px', top: aimY + 'px' }"
+        @mousemove.window="if (aimDrag) { aimX = aimDrag.px + ($event.clientX - aimDrag.mx); aimY = aimDrag.py + ($event.clientY - aimDrag.my); }"
+        @mouseup.window="aimDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="aimDrag = { mx: $event.clientX, my: $event.clientY, px: aimX, py: aimY }">
+            <span x-text="'🏃 AIM - ' + storyProt + '1992'"></span>
             <span class="ext-time-shutdown-x" @click="aimClose()">✕</span>
         </div>
         <div class="ext-bloat-aim-cols">
@@ -1485,15 +1675,13 @@
                 <div class="ext-bloat-aim-buddy">🟢 xXx_SkateOrDie_xX</div>
                 <div class="ext-bloat-aim-buddy">🟡 xX_darkangel_Xx <i>(away: mom took the phone)</i></div>
                 <div class="ext-bloat-aim-group">Banned (1)</div>
-                <div class="ext-bloat-aim-buddy">⚫ NavaShield.exe</div>
+                <div class="ext-bloat-aim-buddy">⚫ CyberGaurd.exe</div>
             </div>
             <div class="ext-bloat-aim-chat">
                 <div class="ext-bloat-aim-head">💬 xXx_SkateOrDie_xX</div>
-                <div class="ext-bloat-msnwin-log" x-ref="aimLog" x-effect="if (aim) { const el = $refs.aimLog; if (el) el.scrollTop = el.scrollHeight; }">
+                <div class="ext-bloat-msnwin-log" x-ref="aimLog" x-effect="aimLog.length; if ($refs.aimLog) $refs.aimLog.scrollTop = $refs.aimLog.scrollHeight">
                     <template x-for="(m, i) in aimLog" :key="i">
-                        <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-aim-them'">
-                            <b x-text="m.me ? 'You' : 'xXx_SkateOrDie_xX'"></b><span x-text="': ' + m.t"></span>
-                        </div>
+                        <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-aim-them'"><b x-text="m.me ? 'You' : 'xXx_SkateOrDie_xX'"></b><span>: </span><template x-for="(seg, k) in chatLinks(m.t)" :key="k"><span><template x-if="!seg.link"><span x-text="seg.txt"></span></template><template x-if="seg.link"><button type="button" class="ext-bloat-chatlink" @click="linkAct(seg.link)" x-text="seg.link"></button></template></span></template></div>
                     </template>
                     <div class="ext-bloat-msnwin-typing" x-show="aimTyping" x-cloak><i>xXx_SkateOrDie_xX is typing...</i></div>
                 </div>
@@ -1511,8 +1699,12 @@
 
     {# ==================== ICQ (UH OH) ====================
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
-    <div class="ext-bloat-icq" x-show="icq" x-cloak>
-        <div class="ext-bloat-msn-title">
+    <div class="ext-bloat-icq" x-show="icq" x-cloak
+        :style="{ left: icqX + 'px', top: icqY + 'px' }"
+        @mousemove.window="if (icqDrag) { icqX = icqDrag.px + ($event.clientX - icqDrag.mx); icqY = icqDrag.py + ($event.clientY - icqDrag.my); }"
+        @mouseup.window="icqDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="icqDrag = { mx: $event.clientX, my: $event.clientY, px: icqX, py: icqY }">
             <span>🌸 ICQ #48291755</span>
             <span class="ext-time-shutdown-x" @click="icqClose()">✕</span>
         </div>
@@ -1520,19 +1712,17 @@
             <span class="ext-bloat-icq-flower">🌼</span>
             <div>
                 <b>48291755</b> is online<br>
-                <i style="font-size: 9px;">status: invisible (to enemies) / DND (to boyfriend)</i>
+                <i style="font-size: 9px;">status: invisible (to enemies) / DND (to CyberGaurd.exe)</i>
             </div>
         </div>
-        <div class="ext-bloat-msnwin-log" x-ref="icqLog" x-effect="if (icq) { const el = $refs.icqLog; if (el) el.scrollTop = el.scrollHeight; }">
+        <div class="ext-bloat-msnwin-log" x-ref="icqLog" x-effect="icqLog.length; if ($refs.icqLog) $refs.icqLog.scrollTop = $refs.icqLog.scrollHeight">
             <template x-for="(m, i) in icqLog" :key="i">
-                <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-icq-them'">
-                    <b x-text="m.me ? 'You' : m.name"></b><span x-text="': ' + m.t"></span>
-                </div>
+                <div :class="m.me ? 'ext-bloat-msnwin-me' : 'ext-bloat-icq-them'"><b x-text="m.me ? 'You' : m.name"></b><span>: </span><template x-for="(seg, k) in chatLinks(m.t)" :key="k"><span><template x-if="!seg.link"><span x-text="seg.txt"></span></template><template x-if="seg.link"><button type="button" class="ext-bloat-chatlink" @click="linkAct(seg.link)" x-text="seg.link"></button></template></span></template></div>
             </template>
             <div class="ext-bloat-msnwin-typing" x-show="icqTyping" x-cloak><i>48291755 is typing... *uh oh*</i></div>
         </div>
         <div class="ext-bloat-msnwin-input">
-            <input type="text" x-model="icqInput" @keydown.enter="icqSend()" placeholder="answer them, they sent a flower">
+            <input type="text" x-model="icqInput" @keydown.enter="icqSend()" placeholder="ask the informant about edition37">
             <button type="button" class="ext-time-ad-btn" @click="icqSend()">Send</button>
         </div>
     </div>
@@ -1541,9 +1731,13 @@
        -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
        irc.warez-crew-underground.ru, channel #crackz4free. the people
        here repacked the windows this machine runs. type /help. regret. #}
-    <div class="ext-bloat-irc" x-show="irc" x-cloak>
-        <div class="ext-bloat-msn-title">
-            <span>📡 mIRC - [Rosie_] connected to WAREZNET</span>
+    <div class="ext-bloat-irc" x-show="irc" x-cloak
+        :style="{ left: ircX + 'px', top: ircY + 'px' }"
+        @mousemove.window="if (ircDrag) { ircX = ircDrag.px + ($event.clientX - ircDrag.mx); ircY = ircDrag.py + ($event.clientY - ircDrag.my); }"
+        @mouseup.window="ircDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="ircDrag = { mx: $event.clientX, my: $event.clientY, px: ircX, py: ircY }">
+            <span x-text="'📡 mIRC - [' + storyProt + '_] connected to WAREZNET'"></span>
             <span class="ext-time-shutdown-x" @click="irc = false">✕</span>
         </div>
         <div class="ext-bloat-irc-tabs">
@@ -1551,11 +1745,10 @@
             <span class="ext-bloat-irc-tab">*status</span>
             <span class="ext-bloat-irc-tab">DCC (disabled)</span>
         </div>
-        <div class="ext-bloat-irc-log" x-ref="ircLog" x-effect="if (irc) { const el = $refs.ircLog; if (el) el.scrollTop = el.scrollHeight; }">
+        <div class="ext-bloat-irc-log" x-ref="ircLog" x-effect="ircBuf.length; if ($refs.ircLog) $refs.ircLog.scrollTop = $refs.ircLog.scrollHeight">
             <template x-for="(l, i) in ircBuf" :key="i">
-                <div class="ext-bloat-irc-line"
-                    :class="'irc-' + l.kind"
-                    x-text="l.kind === 'chat' ? '<' + l.who + '> ' + l.t : l.t"></div>
+                {# -- all on one line: pre-wrap would render source indentation as newlines #}
+                <div class="ext-bloat-irc-line" :class="'irc-' + l.kind"><span x-text="l.kind === 'chat' ? '<' + l.who + '> ' : (l.kind === 'pm-in' ? '[' + l.who + ' -> ' + storyProt + '_]: ' : '')"></span><template x-for="(seg, k) in chatLinks(l.t)" :key="k"><span><template x-if="!seg.link"><span x-text="seg.txt"></span></template><template x-if="seg.link"><button type="button" class="ext-bloat-chatlink" @click="linkAct(seg.link)" x-text="seg.link"></button></template></span></template></div>
             </template>
         </div>
         <div class="ext-bloat-msnwin-input">
@@ -1633,7 +1826,7 @@
             </div>
             <div class="ext-bloat-sol-status">
                 <span x-text="'Score: ' + solScore"></span>
-                <span x-show="solWin" x-cloak style="font-weight: bold;">🎉 YOU WON! prize: NavaShield PRO (trial, obviously)</span>
+                <span x-show="solWin" x-cloak style="font-weight: bold;">🎉 YOU WON! prize: CyberGaurd PRO (trial, obviously)</span>
                 <button type="button" class="ext-time-ad-btn" style="padding: 1px 10px;" @click="solStart()">New Game</button>
             </div>
         </div>
@@ -1653,7 +1846,7 @@
         <div class="ext-bloat-ctx-item" @click="ctxMenu = false; window.location.reload()"><u>R</u>efresh (the real one, beware)</div>
         <div class="ext-bloat-ctx-item" @click="ctxMenu = false; dispProps = true">P<u>roperties</u></div>
         <div class="ext-bloat-ctx-sep"></div>
-        <div class="ext-bloat-ctx-item" @click="ctxMenu = false; document.dispatchEvent(new CustomEvent('ext-time-nav'))">Buy NavaShield™</div>
+        <div class="ext-bloat-ctx-item" @click="ctxMenu = false; document.dispatchEvent(new CustomEvent('ext-time-nav'))">Buy CyberGaurd™</div>
     </div>
 
     {# ==================== DISPLAY PROPERTIES ====================
@@ -1667,7 +1860,7 @@
             <div class="ext-time-shutdown-body" style="display: block; padding: 12px;">
                 <div style="margin-bottom: 10px;">🖥️ Monitor: CRT 17-inch (the heavy one)</div>
                 <div style="margin-bottom: 4px; font-size: 11px;">Screen resolution</div>
-                <input type="range" min="1" max="4" value="2" style="width: 100%;" @input="err = 'Resolution change requires a restart. NavaShield is protecting your current resolution. From you.'">
+                <input type="range" min="1" max="4" value="2" style="width: 100%;" @input="err = 'Resolution change requires a restart. CyberGaurd is protecting your current resolution. From you.'">
                 <div style="display: flex; justify-content: space-between; font-size: 9px; opacity: 0.6;">
                     <span>320x240</span><span>640x480</span><span>800x600</span><span>1024x768 (locked by conduit)</span>
                 </div>
