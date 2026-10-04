@@ -1,0 +1,49 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: fills the user turn's
+   above/below message slots. Macros-only file; styling lives in
+   assets/css/ie.css. #}
+
+{# above_message: when this message was sent, with day context #}
+{% macro above_message() %}
+<div class="ext-time-msg-when"
+    x-data="{
+        fmt: null,
+        init() { this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }); },
+        get label() {
+            const ts = message._metadata?.timestamp;
+            if (!ts) return '';
+            const d = new Date(ts * 1000);
+            const today = new Date();
+            const sameDay = d.toDateString() === today.toDateString();
+            const yest = new Date(today.getTime() - 86400000);
+            if (sameDay) return 'sent at ' + this.fmt.format(d);
+            if (d.toDateString() === yest.toDateString()) return 'sent yesterday at ' + this.fmt.format(d);
+            return 'sent on ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' at ' + this.fmt.format(d);
+        }
+    }"
+    x-show="message._metadata?.timestamp">
+    <span x-text="label"></span>
+</div>
+{% endmacro %}
+
+{# below_message: how long the reply took to arrive #}
+{% macro below_message() %}
+<div class="ext-time-reply-latency"
+    x-data="{
+        get diff() {
+            const msgs = turn.messages ?? [];
+            const a = msgs[0]?._metadata?.timestamp;
+            const b = msgs[msgs.length - 1]?._metadata?.timestamp;
+            return (a && b) ? Math.round(b - a) : 0;
+        },
+        get label() {
+            const s = this.diff;
+            if (s < 2) return '';
+            if (s < 60) return '💬 replied in ' + s + 's';
+            return '💬 replied in ' + Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+        }
+    }"
+    x-show="label">
+    <span x-text="label"></span>
+</div>
+{% endmacro %}

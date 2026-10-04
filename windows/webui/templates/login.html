@@ -1,0 +1,46 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: fills all three login card
+   slots. Macros-only file; styling lives in assets/css/ie.css (loaded
+   on the login page too). #}
+
+{# top: time-aware greeting above the login form #}
+{% macro top() %}
+<div class="ext-time-login-greet"
+    x-data="{
+        now: new Date(),
+        timer: null,
+        init() { this.timer = setInterval(() => { this.now = new Date(); }, 30000); },
+        destroy() { clearInterval(this.timer); },
+        get vibe() {
+            const h = this.now.getHours();
+            if (h < 5)  return 'up late again? 👀';
+            if (h < 12) return 'rise & shine ☀️';
+            if (h < 18) return 'good afternoon ✨';
+            return 'good evening 🌙';
+        }
+    }"
+    x-text="vibe"></div>
+{% endmacro %}
+
+{# before_signin_button: gentle time note above Sign In #}
+{% macro before_signin_button() %}
+<div class="ext-time-login-hint">
+    signing in takes approx 3 seconds ⏱
+</div>
+{% endmacro %}
+
+{# bottom: live clock under the form #}
+{% macro bottom() %}
+<div class="ext-time-login"
+    x-data="{
+        now: new Date(),
+        timer: null,
+        fmt: null,
+        init() {
+            this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            this.timer = setInterval(() => { this.now = new Date(); }, 1000);
+        },
+        destroy() { clearInterval(this.timer); }
+    }"
+    x-text="fmt.format(now)"></div>
+{% endmacro %}

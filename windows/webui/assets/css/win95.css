@@ -1,0 +1,289 @@
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   WINDOWS 95 OVERLAY: restyles the whole OpenLumara webui as a chiseled
+   gray-and-navy masterpiece. Overrides theme vars + most common elements.
+   Lives in the windows module; touches no core CSS. */
+
+/* ==================== THEME VARS ==================== */
+:root {
+    --bg-primary: #d4d0c8 !important;
+    --bg-secondary: #c8c4bc !important;
+    --bg-tertiary: #b8b4ac !important;
+    --bg-pattern: none !important;
+    --text-primary: #000 !important;
+    --text-secondary: #202020 !important;
+    --text-muted: #606060 !important;
+    --border-color: #808080 !important;
+    --accent: #000080 !important;
+    --font-family: 'Tahoma', 'MS Sans Serif', sans-serif !important;
+    --radius-sm: 0 !important;
+    --radius-md: 0 !important;
+    --radius-lg: 0 !important;
+    --radius-full: 0 !important;
+    --shadow-soft: none !important;
+    --scrollbar: #c0c0c0 !important;
+    --scrollbar-hover: #d8d8d8 !important;
+    --error: #800000 !important;
+    --error-bg: #e8c8c8 !important;
+}
+
+/* ==================== GLOBAL ==================== */
+html, body {
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif !important;
+    background-color: #008080 !important; /* the one true desktop teal */
+    color: #000;
+    line-height: 1.5;
+    -webkit-font-smoothing: none;
+}
+
+::selection {
+    background: #000080 !important;
+    color: #fff !important;
+}
+
+/* classic chunky scrollbars */
+::-webkit-scrollbar {
+    width: 16px !important;
+    height: 16px !important;
+}
+::-webkit-scrollbar-track {
+    background: repeating-linear-gradient(45deg, #d4d0c8 0 2px, #c0bcb4 2px 4px) !important;
+}
+::-webkit-scrollbar-thumb {
+    background: #d4d0c8 !important;
+    border: 1px outset #fff !important;
+    border-radius: 0 !important;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ddd8d0 !important;
+}
+* {
+    scrollbar-width: auto !important;
+    scrollbar-color: #d4d0c8 #c0bcb4 !important;
+}
+
+/* ==================== CHISEL HELPERS ====================
+   every raised control: white top-left, gray bottom-right.
+   every sunken field: gray top-left, white bottom-right. */
+button, .btn, select, .sidebar-tab, .category-trigger {
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition: none !important;
+    transform: none !important;
+    backdrop-filter: none !important;
+}
+
+button:active, .btn:active, .sidebar-tab:active {
+    border-style: inset !important;
+    transform: none !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea, select {
+    background: #fff !important;
+    border: 2px inset #fff !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    box-shadow: none !important;
+}
+
+/* ==================== APP CHROME ==================== */
+#chat-window, #chat {
+    background: #d4d0c8 !important;
+}
+
+#chat::before {
+    display: none !important; /* no sparkly patterns in 1995 */
+}
+
+header {
+    background: #d4d0c8 !important;
+    border-top: 1px solid #fff;
+    border-bottom: 2px solid #808080 !important;
+    box-shadow: 0 1px 0 #fff !important;
+}
+
+header h1 {
+    color: #000 !important;
+    font-weight: bold;
+    letter-spacing: 0 !important;
+}
+
+header .stream-state {
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+}
+
+/* ==================== SIDEBAR ==================== */
+#sidebar {
+    background: #d4d0c8 !important;
+    border-right: 2px solid #808080 !important;
+    backdrop-filter: none !important;
+}
+
+.sidebar-tab, .sidebar-tab.active {
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+}
+
+.sidebar-tab.active {
+    border-style: inset !important;
+    background: #c0bcb4 !important;
+}
+
+.category-trigger {
+    background: #d4d0c8 !important;
+}
+
+/* chat list items: flat rows, navy selection */
+#chat-list .item {
+    background: none !important;
+    border: 1px solid transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+#chat-list .item:hover {
+    background: #e4e0d8 !important;
+}
+
+#chat-list .item.active {
+    background: #000080 !important;
+    color: #fff !important;
+    border: 1px dotted #fff !important;
+}
+
+#chat-list .item.active * {
+    color: #fff !important;
+}
+
+/* ==================== MESSAGES ==================== */
+.message-wrapper .message {
+    background: #fff !important;
+    border: 2px inset #fff !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    color: #000 !important;
+}
+
+.message-wrapper .message blockquote {
+    border-left: 3px solid #808080 !important;
+    background: #ece9e2 !important;
+}
+
+.message pre, .message code, code {
+    background: #fff !important;
+    border: 1px solid #808080 !important;
+    border-radius: 0 !important;
+}
+
+.message-buttons button, .message .btn {
+    background: #d4d0c8 !important;
+}
+
+/* ==================== INPUT ==================== */
+#chat-window #input {
+    background: #d4d0c8 !important;
+    border-top: 2px solid #808080 !important;
+}
+
+#chat-window #input .input-wrapper {
+    border: 2px inset #fff !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+}
+
+#user-input {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+#send, #stop, #upload {
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    font-weight: normal !important;
+}
+
+#send:active, #stop:active, #upload:active {
+    border-style: inset !important;
+}
+
+/* ==================== MODALS ==================== */
+.modal, .confirm-modal {
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+    border-radius: 0 !important;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.5) !important;
+    color: #000 !important;
+}
+
+.modal h1, .modal h2, .modal h3, .modal-title, .confirm-modal h2 {
+    background: linear-gradient(90deg, #0855dd, #3a8ef2);
+    color: #fff !important;
+    padding: 3px 6px;
+    font-size: 12px !important;
+    font-weight: bold;
+}
+
+.modal-overlay, .confirm-overlay {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: none !important;
+}
+
+/* ==================== MISC ==================== */
+a {
+    color: #0000ee;
+}
+
+a:visited {
+    color: #551a8b;
+}
+
+h1, h2, h3, h4 {
+    font-weight: bold !important;
+    letter-spacing: 0 !important;
+}
+
+/* the pink sparkly toast is having none of this; give it the chrome it deserves */
+.ext-time-toast {
+    border-radius: 0 !important;
+    background: #d4d0c8 !important;
+    border: 2px outset #fff !important;
+    color: #000 !important;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ext-time-balloon {
+    border-radius: 0 !important;
+}
+
+/* ==================== MODULE'S OWN CONTROLS ====================
+   the IE chrome manages its own borders; exempt it from the global
+   chisel rules above. */
+.ext-time-ie-btn, .ext-time-ie-more {
+    background: none !important;
+    border: 1px solid transparent !important;
+}
+
+.ext-time-ie-btn:hover:not(.disabled), .ext-time-ie-more:hover {
+    border: 1px outset #fff !important;
+}
+
+.ext-time-ie-go, .ext-time-ad-btn, .ext-time-shutdown-btn,
+.ext-time-start-btn, .ext-time-ad-winbtn, .ext-time-ad-close,
+.ext-time-shutdown-x, .ext-time-ie-more-x, .ext-time-ie-go {
+    border: 2px outset #fff !important;
+    border-radius: 0 !important;
+}
+
+.ext-time-ie-address input, .ext-time-ie-tb-search,
+.ext-time-shutdown-select {
+    border: 2px inset #fff !important;
+}

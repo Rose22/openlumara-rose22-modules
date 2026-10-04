@@ -1,0 +1,331 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: fills the below_header slot
+   with a lovingly cursed Windows 98 / Internet Explorer 6 toolbar set.
+   Macros-only file; styling lives in assets/css/ie.css. #}
+
+{% macro below_header() %}
+<div class="ext-time-ie"
+    x-data="{
+        address: window.location.href,
+        throb: 0,
+        timer: null,
+        adTimer: null,
+        adCount: 0,
+        ads: [],
+        moreOpen: false,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           the toolbars nobody asked for, bundled with every free download. */
+        extraBars: [
+            'AOL', 'Napster', 'Lycos', 'BonziBuddy',
+            'Gator.com', 'WhenU.com', 'eZiSearch', 'WeatherBug',
+            'Dogpile Bar', 'LookSmart SearchBar', 'Go2Net Toolbar', 'Mr. Toolbar',
+            'SearchAssist', 'MyWebSearch', 'Conduit SearchBar'
+        ],
+        adPool: [
+            { title: 'HotU26-Chat-Ring.lol', body: '🎉 CONGRATULATIONS!!! 🎉<br>you are visitor<br><b style=\'font-size: 1.6em; color: #d00000;\'>1,000,000</b><br>claim your FREE prize now!!' },
+            { title: 'BestPrice-Desktop-Wizard', body: '⚠️ WARNING ⚠️<br>your computer may be<br><b style=\'color: #d00000;\'>SLOW &amp; UNPRETTY</b><br>click OK to fix instantly!' },
+            { title: 'win-a-pony.exe', body: '🐴 do you want a pony?? 🐴<br>100% not a scam<br>just answer 3 quick questions 💖' },
+            { title: 'HamsterDance-CoolSite', body: '☝️ CLICK HERE TO<br><b style=\'color: #0000ee;\'>WATCH HAMSTER DANCE</b><br>(works in IE6 only)' },
+            { title: 'LumaraPro-MAX-Ultra-PLUS', body: 'u seem 2 be typing a lot!! 🖥️<br>upgrade 2 <b>LumaraPro MAX</b><br>only €4.99 / fortnight ✨' },
+            { title: 'Error 0x0C0FFEE', body: 'a critical error has occurred.<br>please insert disc 2<br>and turn ur pc off and on again 🔄' }
+        ],
+        init() {
+            this.timer = setInterval(() => { this.throb = (this.throb + 1) % 4; }, 300);
+            // spawn an ad shortly after load, like it's 2003
+            setTimeout(() => this.spawnAd(), 2500);
+            // ...and one every so often, forever
+            this.adTimer = setInterval(() => this.spawnAd(), 45000);
+            // ...and one every time a real modal opens (popup arms race!)
+            this.modalWatcher = () => {
+                setTimeout(() => {
+                    if (Alpine.store('ui').currentModal && this.ads.length < 4) this.spawnAd();
+                }, 0);
+            };
+            document.addEventListener('click', this.modalWatcher);
+            // ...and whenever the taskbar layer asks for one
+            this.adWatcher = () => this.spawnAd();
+            document.addEventListener('ext-time-ad', this.adWatcher);
+        },
+        destroy() {
+            clearInterval(this.timer);
+            clearInterval(this.adTimer);
+            document.removeEventListener('click', this.modalWatcher);
+            document.removeEventListener('ext-time-ad', this.adWatcher);
+        },
+        go() {
+            // the address bar goes exactly where it always goes: nowhere.
+            window.location.reload();
+        },
+        spawnAd() {
+            if (this.ads.length >= 4) return;
+            const ad = this.adPool[this.adCount % this.adPool.length];
+            this.adCount++;
+            this.ads.push({
+                id: 'ad-' + Date.now() + '-' + Math.floor(Math.random() * 1e6),
+                title: ad.title,
+                body: ad.body,
+                x: 60 + Math.floor(Math.random() * Math.max(120, window.innerWidth - 420)),
+                y: 80 + Math.floor(Math.random() * Math.max(100, window.innerHeight - 360)),
+                w: 270,
+                dodges: 0
+            });
+        },
+        closeAd(id, ev) {
+            const ad = this.ads.find(a => a.id === id);
+            if (ad && ad.dodges < 2) {
+                // classic: the close button dodges twice before it surrenders
+                ad.dodges++;
+                ad.x += (Math.random() - 0.5) * 260;
+                ad.y += (Math.random() - 0.5) * 160;
+                ad.x = Math.max(10, Math.min(window.innerWidth - ad.w - 10, ad.x));
+                ad.y = Math.max(10, Math.min(window.innerHeight - 170, ad.y));
+                if (ev) ev.stopPropagation();
+                return;
+            }
+            this.ads = this.ads.filter(a => a.id !== id);
+        }
+    }">
+
+    {# ---------- menu bar ---------- #}
+    <div class="ext-time-ie-menubar">
+        <span class="ext-time-ie-menu"><u>F</u>ile</span>
+        <span class="ext-time-ie-menu"><u>E</u>dit</span>
+        <span class="ext-time-ie-menu"><u>V</u>iew</span>
+        <span class="ext-time-ie-menu" style="cursor: pointer;"
+            @click="$store.ui.openModal('time')"><u>F</u>avorites</span>
+        <span class="ext-time-ie-menu"><u>T</u>ools</span>
+        <span class="ext-time-ie-menu"><u>H</u>elp</span>
+    </div>
+
+    {# ---------- standard buttons toolbar + throbber ---------- #}
+    <div class="ext-time-ie-toolbar">
+        <button type="button" class="ext-time-ie-btn disabled" title="Back" @click="history.back()">
+            <span class="ext-time-ie-icon">⬅</span><span>Back</span>
+        </button>
+        <button type="button" class="ext-time-ie-btn disabled" title="Forward">
+            <span class="ext-time-ie-icon">➡</span><span>Forward</span>
+        </button>
+        <span class="ext-time-ie-sep"></span>
+        <button type="button" class="ext-time-ie-btn" title="Stop"
+            @click="$store.stream.state !== 'idle' && simpleSocketSend({ type: 'user_message', content: '/stop' })">
+            <span class="ext-time-ie-icon">🚫</span><span>Stop</span>
+        </button>
+        <button type="button" class="ext-time-ie-btn" title="Refresh" @click="window.location.reload()">
+            <span class="ext-time-ie-icon">🔄</span><span>Refresh</span>
+        </button>
+        <button type="button" class="ext-time-ie-btn" title="Home" @click="$store.chat.newChat()">
+            <span class="ext-time-ie-icon">🏠</span><span>Home</span>
+        </button>
+        <button type="button" class="ext-time-ie-btn" title="Search" @click="$store.ui.openModal('global_search')">
+            <span class="ext-time-ie-icon">🔍</span><span>Search</span>
+        </button>
+        <button type="button" class="ext-time-ie-btn" title="The Time Machine" @click="$store.ui.openModal('time')">
+            <span class="ext-time-ie-icon">🕐</span><span>Time</span>
+        </button>
+
+        {# the iconic throbber: spinning globe squares, right-aligned #}
+        {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           clippy, promoted to the IE toolbar. he lives next to the
+           throbber now and whispers into a speech bubble. #}
+        <div class="ext-time-ie-clippy" title="it looks like you need help!"
+            x-data="{
+                tip: 0,
+                timer: null,
+                tips: [
+                    'It looks like you\'re trying to have a productive conversation!',
+                    'Did you know? You could be playing Minesweeper right now 💣',
+                    'I couldn\'t find the file \'responsibilities.doc\' 😔',
+                    'Fun fact: it\'s probably time for a snack 🍪',
+                    'Have you tried turning your vibes off and on again? ✨',
+                    'Reminder: hydrate or dehydrate, that is the question 💧'
+                ],
+                init() { this.timer = setInterval(() => { this.tip = (this.tip + 1) % this.tips.length; }, 16000); },
+                destroy() { clearInterval(this.timer); }
+            }">
+            <span class="ext-time-ie-clippy-bubble" x-text="tips[tip]"></span>
+            <span class="ext-time-ie-clippy-icon">📎</span>
+        </div>
+
+        <div class="ext-time-ie-throbber" title="Internet... slowly.">
+            <template x-for="n in 9" :key="n">
+                <span :style="{ background: ((n - 1 + throb) % 4 === 0) ? '#0855dd' : ((n - 1 + throb) % 4 === 1) ? '#3a8ef2' : ((n - 1 + throb) % 4 === 2) ? '#f2c53a' : '#d4d0c8' }"></span>
+            </template>
+        </div>
+    </div>
+
+    {# ---------- address bar ---------- #}
+    <div class="ext-time-ie-address">
+        <span>Address</span>
+        <input type="text" x-model="address" @keydown.enter="go()">
+        <button type="button" class="ext-time-ie-go" @click="go()">Go</button>
+    </div>
+
+    {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       SEVEN stacked bundled toolbar rows, silently installed alongside a
+       free download from we-repackage-freeware.com. ">> More" adds even
+       more, because of course it does. #}
+    <div @click.outside="moreOpen = false">
+        {# row 0: the legit Links bar #}
+        <div class="ext-time-ie-linksbar">
+            <span class="ext-time-ie-links-label">Links</span>
+            <div class="ext-time-ie-links-scroll">
+                <span class="ext-time-ie-link" @click="spawnAd()">eBay</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">Amazon</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">GeoCities</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">Angelfire</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">Ask Jeeves</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">Tripod</span>
+                <span class="ext-time-ie-link" @click="spawnAd()">AltaVista</span>
+            </div>
+        </div>
+        {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           the bundled toolbars, each with its own very special features.
+           no close buttons: you never agreed to that. #}
+
+        {# AOL: instant messenger, always signed in, always online #}
+        <div class="ext-time-ie-linksbar bundled-row aol">
+            <span class="ext-time-ie-links-label">🕶 AOL</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">📨 Mail <b>(999+)</b></span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">💬 AIM</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🏠 AIM Home</span>
+            <span class="ext-time-ie-tb-online">🟢 xX_darkangel_Xx is online NOW</span>
+            <span class="ext-time-ie-tb-blink" @click="spawnAd()">CLICK 4 FREE AOL CD-ROM</span>
+        </div>
+
+        {# Napster: now playing whether you like it or not #}
+        <div class="ext-time-ie-linksbar bundled-row napster">
+            <span class="ext-time-ie-links-label">🎵 Napster</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">⏮</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">▶</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">⏭</span>
+            <div class="ext-time-ie-marquee"><span>♪ now playing: camellia - planet crasher [32kbps, ripped by MOM'S PC] ♪ download 10,000 songs FREE (not really) ♪ your dial-up can hear it ♪</span></div>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">💾 BURN CD</span>
+        </div>
+
+        {# Lycos: a search box that searches nothing #}
+        <div class="ext-time-ie-linksbar bundled-row lycos">
+            <span class="ext-time-ie-links-label">🐕 Lycos</span>
+            <input class="ext-time-ie-tb-search" type="text" placeholder="search the whole internet (slowly)" @keydown.enter="spawnAd()">
+            <button type="button" class="ext-time-ie-go" @click="spawnAd()">Search!</button>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🎲 Random Site</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">👤 Whois</span>
+        </div>
+
+        {# BonziBuddy: he lives here now #}
+        <div class="ext-time-ie-linksbar bundled-row bonzo">
+            <span class="ext-time-ie-parrot">🦜</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">Talk to Bonzo!</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">Bonzo Jokes</span>
+            <span class="ext-time-ie-tb-blink" @click="spawnAd()">✨ NEW! Bonzo now reads your mind ✨</span>
+            <span style="opacity: 0.6; font-style: italic;">Bonzo has been your friend for 3 days. Bonzo is watching. Bonzo loves you.</span>
+        </div>
+
+        {# WeatherBug: local weather, wrong city, sponsored #}
+        <div class="ext-time-ie-linksbar bundled-row weather">
+            <span class="ext-time-ie-links-label">⛅ WeatherBug</span>
+            <span class="ext-time-ie-tb-weather">🌧 7°C — your city: ATLANTIS (?)</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🌡 forecast: RAIN. always.</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🦟 mosquito forecast: YES</span>
+            <span class="ext-time-ie-tb-blink" @click="spawnAd()">SPONSORED BY: bug spray</span>
+        </div>
+
+        {# WhenU SaveNow: the deal of the day, every day #}
+        <div class="ext-time-ie-linksbar bundled-row whenu">
+            <span class="ext-time-ie-links-label">💰 SaveNow</span>
+            <span class="ext-time-ie-tb-deal" @click="spawnAd()">DEAL OF THE DAY: 90% OFF a thing you don't want!</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🛒 Shop</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🎰 Spin 4 Discount</span>
+            <span class="ext-time-ie-tb-blink" @click="spawnAd()">⏳ OFFER EXPIRES IN 00:00:01</span>
+        </div>
+
+        {# GameBar: solitaire costs three toolbars #}
+        <div class="ext-time-ie-linksbar bundled-row game">
+            <span class="ext-time-ie-links-label">🎮 GameBar</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🂡 Solitaire</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">💣 Minesweeper (2)</span>
+            <span class="ext-time-ie-tb-btn" @click="spawnAd()">🐟 Fish Tycoon!!!</span>
+            <span class="ext-time-ie-tb-blink" @click="spawnAd()">FREE FREE FREE</span>
+            <span style="opacity: 0.6;">loading... loading... still loading</span>
+        </div>
+
+        {# Conduit: it moved your homepage. it will move it again #}
+        <div class="ext-time-ie-linksbar bundled-row conduit">
+            <span class="ext-time-ie-links-label">🔧 Conduit</span>
+            <span style="flex: 1; overflow: hidden; white-space: nowrap;">your homepage &amp; new-tab page are now <b>conduit.com</b> (you're welcome)</span>
+            <button type="button" class="ext-time-ie-go" @click="spawnAd()">Restore (no)</button>
+            <input class="ext-time-ie-tb-search" type="text" placeholder="conduit search" @keydown.enter="spawnAd()">
+        </div>
+
+        {# the eternal overflow row: every extra install lands here #}
+        <div class="ext-time-ie-linksbar">
+            <span class="ext-time-ie-links-label" style="font-style: italic;">toolbar</span>
+            <div class="ext-time-ie-links-scroll">
+                <template x-for="bar in extraBars" :key="bar">
+                    <span class="ext-time-ie-link" @click="spawnAd()" x-text="bar"></span>
+                </template>
+                <span class="ext-time-ie-link" @click="spawnAd()">???</span>
+            </div>
+            <button type="button" class="ext-time-ie-more" @click="moreOpen = true">&gt;&gt; More...</button>
+        </div>
+    </div>
+
+    {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       "More toolbars" opens a fake installer dialog. Both buttons install
+       more toolbars, because of course they do. #}
+    <template x-if="moreOpen">
+        <div class="ext-time-ie-more-overlay" @click="moreOpen = false">
+            <div class="ext-time-ie-more-pop" @click.stop>
+                <div class="ext-time-ie-more-titlebar">
+                    <span>we-repackage-freeware.com — Setup</span>
+                    <span class="ext-time-ie-more-x" @click="moreOpen = false">✕</span>
+                </div>
+                <div class="ext-time-ie-more-body">
+                    <div class="ext-time-ie-more-text">
+                        The following optional extras are recommended for a<br>
+                        <b>better, faster, more colorful internet</b> experience:
+                    </div>
+                    <div class="ext-time-ie-more-btns">
+                        <button type="button" class="ext-time-ad-btn" @click="extraBars.push('BearShare', 'BrowserCatcher'); moreOpen = false; spawnAd()">YES! install more</button>
+                        <button type="button" class="ext-time-ad-btn" @click="extraBars.push('MSNBChat', 'HotBar'); moreOpen = false">No thanks</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {# ---------- popup ads, teleported over the whole app ---------- #}
+    <template x-teleport="body">
+        <div>
+            <template x-for="ad in ads" :key="ad.id">
+                <div class="ext-time-ad"
+                    x-data="{ drag: null }"
+                    @mousemove.window="if (drag) { ad.x = drag.px + ($event.clientX - drag.mx); ad.y = drag.py + ($event.clientY - drag.my); }"
+                    @mouseup.window="drag = null"
+                    :style="{ left: ad.x + 'px', top: ad.y + 'px' }">
+                    {# title bar: drag me #}
+                    <div class="ext-time-ad-titlebar"
+                        @mousedown="drag = { mx: $event.clientX, my: $event.clientY, px: ad.x, py: ad.y }">
+                        <span class="ext-time-ad-title"
+                            x-text="'ℹ️ ' + ad.title + ' - Internet Explorer'"></span>
+                        <span class="ext-time-ad-winbtns">
+                            <span class="ext-time-ad-winbtn">▁</span>
+                            <span class="ext-time-ad-winbtn">▢</span>
+                            <span class="ext-time-ad-close"
+                                :title="ad.dodges < 2 ? 'close' : 'fine. close.'"
+                                @click="closeAd(ad.id, $event)">✕</span>
+                        </span>
+                    </div>
+                    {# body #}
+                    <div class="ext-time-ad-body" x-html="ad.body"></div>
+                    {# buttons #}
+                    <div class="ext-time-ad-actions">
+                        <button type="button" class="ext-time-ad-btn" @click="closeAd(ad.id, $event)">OK</button>
+                        <button type="button" class="ext-time-ad-btn no"
+                            @click="spawnAd(); closeAd(ad.id, $event)">NO thanks</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+</div>
+{% endmacro %}

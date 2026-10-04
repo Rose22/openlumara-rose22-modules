@@ -1,0 +1,91 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: plays with all five sidebar
+   slots. Macros-only file; styling lives in assets/css/ie.css. #}
+
+{# top: time-aware greeting banner above the category dropdown #}
+{% macro top() %}
+<div class="ext-time-greeting"
+    x-data="{
+        now: new Date(),
+        timer: null,
+        init() { this.timer = setInterval(() => { this.now = new Date(); }, 30000); },
+        destroy() { clearInterval(this.timer); },
+        get greeting() {
+            const h = this.now.getHours();
+            if (h < 5)  return 'deep night hours 🌙';
+            if (h < 12) return 'good morning, rosie ☀️';
+            if (h < 18) return 'good afternoon 🌤️';
+            return 'good evening ✨';
+        }
+    }"
+    x-text="greeting"></div>
+{% endmacro %}
+
+{# above_chat_list: tiny day stamp over the chat list #}
+{% macro above_chat_list() %}
+<div class="ext-time-daystamp"
+    x-data="{
+        fmt: new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+    }"
+    x-text="'today &middot; ' + fmt.format(new Date())"></div>
+{% endmacro %}
+
+{# top_of_chat_list: divider label at the very top of the list #}
+{% macro top_of_chat_list() %}
+<div class="ext-time-list-label">
+    ✨ newest first ✨
+</div>
+{% endmacro %}
+
+{# bottom_of_chat_list: gentle nudge under the chat list #}
+{% macro bottom_of_chat_list() %}
+<div class="ext-time-nudge"
+    x-data="{
+        nudges: [
+            'hydrated? drink a lil water 💧',
+            'shoulders down, jaw loose 🎀',
+            'blink break, pretty eyes 👁️✨',
+            'stretch those arms up high 🙆‍♀️',
+            'sniff beertje for comfort 🧸'
+        ],
+        i: Math.floor(Math.random() * 5)
+    }"
+    x-text="nudges[i]"></div>
+{% endmacro %}
+
+{# buttons: confetti sprinkler, because why not #}
+{% macro buttons() %}
+<button type="button" class="sidebar-btn ext-time-confetti"
+    x-data="{
+        bursts: [],
+        emojis: ['✨', '🌸', '💖', '🎀', '🦋'],
+        sprinkle() {
+            const id = Date.now();
+            for (let n = 0; n < 14; n++) {
+                this.bursts.push({
+                    id: id + '-' + n,
+                    emoji: this.emojis[Math.floor(Math.random() * this.emojis.length)],
+                    left: Math.random() * 100,
+                    delay: Math.random() * 0.4,
+                    drift: (Math.random() - 0.5) * 80
+                });
+            }
+            setTimeout(() => {
+                this.bursts = this.bursts.filter(b => !String(b.id).startsWith(String(id) + '-'));
+            }, 2400);
+        }
+    }"
+    @click="sprinkle()">
+    <template x-teleport="body">
+        <div class="ext-time-confetti-layer">
+            <template x-for="b in bursts" :key="b.id">
+                <span class="ext-time-confetti-bit"
+                    :style="`left: ${b.left}vw; animation-delay: ${b.delay}s; --drift: ${b.drift}px`"
+                    x-text="b.emoji"></span>
+            </template>
+        </div>
+    </template>
+    <span>✨</span>
+    Sprinkle sparkle
+</button>
+{% endmacro %}

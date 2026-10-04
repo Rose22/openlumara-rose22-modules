@@ -1,0 +1,1423 @@
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension stylesheet for the time module. Auto-loaded via
+   <module>/webui/assets/css/. All the cursed Windows/IE slop styles,
+   extracted from the templates. */
+
+/* ==================== SIDEBAR ==================== */
+.ext-time-greeting {
+    padding: 0.6em 0.8em;
+    margin: 0 0 0.4em 0;
+    border-radius: 10px;
+    background: linear-gradient(120deg, rgba(255,182,193,0.25), rgba(176,141,255,0.25));
+    color: var(--text-primary);
+    font-size: 0.85em;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+.ext-time-daystamp {
+    padding: 0 0.4em 0.35em 0.4em;
+    font-size: 0.72em;
+    opacity: 0.55;
+    color: var(--text-primary);
+    font-style: italic;
+    text-align: center;
+}
+
+.ext-time-list-label {
+    text-align: center;
+    font-size: 0.68em;
+    letter-spacing: 0.18em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    opacity: 0.45;
+    padding: 0.3em 0 0.5em 0;
+}
+
+.ext-time-nudge {
+    padding: 0.5em 0.6em;
+    font-size: 0.75em;
+    opacity: 0.7;
+    text-align: center;
+    color: var(--text-primary);
+    border-top: 1px dashed rgba(176,141,255,0.4);
+    margin-top: 0.5em;
+}
+
+.ext-time-confetti-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.ext-time-confetti-bit {
+    position: absolute;
+    top: -2em;
+    font-size: 1.2em;
+    animation: ext-time-fall 2s ease-in forwards;
+}
+
+@keyframes ext-time-fall {
+    to {
+        transform: translateY(105vh) translateX(var(--drift, 0px)) rotate(200deg);
+        opacity: 0;
+    }
+}
+
+/* ==================== CHAT HEADER ==================== */
+.ext-time-header-clock {
+    font-family: var(--code-font, ui-monospace, monospace);
+    font-variant-numeric: tabular-nums;
+    padding: 0 0.5em;
+    opacity: 0.8;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.ext-time-header-tz {
+    padding: 0 0.5em;
+    opacity: 0.6;
+    font-size: 0.85em;
+    color: var(--text-primary);
+}
+
+/* ==================== CHAT INPUT ==================== */
+#ext-time-stamp {
+    font-size: 0.9em;
+    padding: 0 0.5em;
+    opacity: 0.7;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.ext-time-typing-since {
+    font-size: 0.68em;
+    opacity: 0.5;
+    font-style: italic;
+    white-space: nowrap;
+    padding: 0 0.4em;
+    color: var(--text-primary);
+}
+
+.ext-time-charcount {
+    font-size: 0.68em;
+    opacity: 0.5;
+    white-space: nowrap;
+    padding: 0 0.4em;
+    color: var(--text-primary);
+}
+
+/* ==================== TURN CHIPS ==================== */
+.ext-time-msg-when {
+    font-size: 0.68em;
+    opacity: 0.4;
+    font-style: italic;
+    padding: 0 0.2em 0.2em 0;
+    color: var(--text-primary);
+}
+
+.ext-time-reply-latency {
+    font-size: 0.68em;
+    opacity: 0.4;
+    text-align: right;
+    padding: 0.2em 0.2em 0 0;
+    color: var(--text-primary);
+}
+
+.ext-time-assistant-at {
+    font-size: 0.68em;
+    opacity: 0.4;
+    font-style: italic;
+    align-self: center;
+    padding-left: 0.5em;
+    color: var(--text-primary);
+}
+
+.ext-time-stream-elapsed {
+    font-size: 0.72em;
+    opacity: 0.6;
+    align-self: center;
+    padding-left: 0.5em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+/* ==================== IE6 TOOLBAR ==================== */
+.ext-time-ie {
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    background: #d4d0c8;
+    color: #000;
+    user-select: none;
+    border-bottom: 2px solid #808080;
+}
+
+.ext-time-ie-menubar {
+    display: flex;
+    align-items: center;
+    padding: 1px 4px;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0 1px 0 #808080;
+}
+
+.ext-time-ie-menu {
+    padding: 2px 8px;
+    cursor: default;
+}
+
+.ext-time-ie-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 4px;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0 1px 0 #808080;
+}
+
+.ext-time-ie-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    background: none;
+    border: 1px solid transparent;
+    padding: 2px 6px;
+    cursor: pointer;
+    color: inherit;
+}
+
+.ext-time-ie-btn.disabled {
+    cursor: default;
+    color: #808080;
+}
+
+.ext-time-ie-btn .ext-time-ie-icon {
+    font-size: 14px;
+}
+
+.ext-time-ie-sep {
+    width: 1px;
+    height: 22px;
+    background: #808080;
+    border-right: 1px solid #fff;
+    margin: 0 3px;
+}
+
+.ext-time-ie-throbber {
+    margin-left: auto;
+    display: flex;
+    gap: 1px;
+    padding: 3px;
+    border: 1px inset #fff;
+    background: #d4d0c8;
+}
+
+.ext-time-ie-throbber span {
+    width: 5px;
+    height: 5px;
+    display: inline-block;
+}
+
+.ext-time-ie-address {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px;
+}
+
+.ext-time-ie-address > span {
+    color: #404040;
+}
+
+.ext-time-ie-address input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 2px 4px;
+    background: #fff;
+    border: 2px inset #fff;
+    outline: none;
+    color: #000;
+}
+
+.ext-time-ie-go {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 2px 10px;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+}
+
+/* ==================== LINKS + BUNDLED TOOLBARS ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   the toolbars that came bundled with the free download. */
+.ext-time-ie-linksbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 2px 4px 3px 4px;
+    border-top: 1px solid #fff;
+    overflow: hidden;
+    position: relative;
+}
+
+/* each bundled toolbar insists on its own brand color */
+.ext-time-ie-linksbar.bundled-row.aol { background: #e8e2ee; }
+.ext-time-ie-linksbar.bundled-row.napster { background: #dfe4de; }
+.ext-time-ie-linksbar.bundled-row.lycos { background: #e9e4d8; }
+.ext-time-ie-linksbar.bundled-row.bonzo { background: #e6dcd2; }
+.ext-time-ie-linksbar.bundled-row.weather { background: #d8e2ea; }
+.ext-time-ie-linksbar.bundled-row.whenu { background: #eae4d0; }
+.ext-time-ie-linksbar.bundled-row.game { background: #dce6dc; }
+.ext-time-ie-linksbar.bundled-row.conduit { background: #e0dce8; }
+.ext-time-ie-linksbar.bundled-row .ext-time-ie-links-label {
+    font-style: italic;
+    font-weight: bold;
+    color: #0000ee;
+}
+
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   widgets inside the bundled toolbar rows. */
+.ext-time-ie-tb-btn {
+    padding: 1px 6px;
+    border: 1px outset #fff;
+    background: #d4d0c8;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-tb-btn:hover {
+    border-style: inset;
+    background: #c8c4bc;
+}
+
+.ext-time-ie-tb-search {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 1px 4px;
+    background: #fff;
+    border: 2px inset #fff;
+    outline: none;
+    color: #000;
+    width: 170px;
+    flex: 0 1 auto;
+    min-width: 60px;
+}
+
+.ext-time-ie-tb-online {
+    font-size: 10px;
+    color: #007000;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-tb-weather {
+    font-weight: bold;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-tb-deal {
+    color: #d00000;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-tb-blink {
+    color: #d00000;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    animation: ext-time-ie-blink 0.9s steps(1) infinite;
+}
+
+@keyframes ext-time-ie-blink {
+    50% { visibility: hidden; }
+}
+
+.ext-time-ie-marquee {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px inset #fff;
+}
+
+.ext-time-ie-marquee span {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: ext-time-marquee 14s linear infinite;
+}
+
+@keyframes ext-time-marquee {
+    to { transform: translateX(-100%); }
+}
+
+.ext-time-ie-parrot {
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    animation: ext-time-ie-parrot 1.6s ease-in-out infinite;
+}
+
+@keyframes ext-time-ie-parrot {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg) translateY(-2px); }
+}
+
+.ext-time-ie-links-scroll {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow-x: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    scrollbar-width: none;
+}
+
+.ext-time-ie-links-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.ext-time-ie-links-label {
+    color: #404040;
+    padding-right: 4px;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 6px;
+    border: 1px outset #fff;
+    background: #d4d0c8;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.ext-time-ie-link.bundled {
+    background: #e8e4dc;
+    font-style: italic;
+}
+
+.ext-time-ie-bundled-x {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 9px;
+    color: #a00;
+    padding: 0 2px;
+    border: 1px outset #fff;
+    background: #d4d0c8;
+}
+
+.ext-time-ie-bundled-x:hover {
+    background: #a00;
+    color: #fff;
+}
+
+.ext-time-ie-more {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 1px 6px;
+    margin-left: auto;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 1px outset #fff;
+    flex: 0 0 auto;
+    color: #0000ee;
+}
+
+.ext-time-ie-more-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-time-ie-more-pop {
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+    width: 300px;
+}
+
+.ext-time-ie-more-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #0855dd, #3a8ef2);
+    color: #fff;
+    padding: 2px 3px 2px 6px;
+    font-weight: bold;
+}
+
+.ext-time-ie-more-x {
+    width: 16px;
+    height: 14px;
+    background: #d4d0c8;
+    color: #000;
+    border: 1px outset #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.ext-time-ie-more-body {
+    padding: 14px 12px;
+    text-align: center;
+    background: #fff;
+    margin: 3px;
+    border: 1px inset #fff;
+}
+
+.ext-time-ie-more-text {
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.ext-time-ie-more-btns {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ==================== FAKE POPUP ADS ==================== */
+.ext-time-ad {
+    position: fixed;
+    z-index: 10000;
+    background: #d4d0c8;
+    color: #000;
+    border: 2px outset #fff;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+    width: 270px;
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+}
+
+.ext-time-ad-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #0855dd, #3a8ef2);
+    color: #fff;
+    padding: 2px 3px 2px 6px;
+    cursor: move;
+    font-weight: bold;
+}
+
+.ext-time-ad-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.ext-time-ad-winbtns {
+    display: flex;
+    gap: 2px;
+}
+
+.ext-time-ad-winbtn {
+    width: 16px;
+    height: 14px;
+    background: #d4d0c8;
+    color: #000;
+    border: 1px outset #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    cursor: default;
+}
+
+.ext-time-ad-close {
+    width: 16px;
+    height: 14px;
+    background: #d4d0c8;
+    color: #000;
+    border: 1px outset #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.ext-time-ad-body {
+    padding: 12px 10px;
+    text-align: center;
+    line-height: 1.5;
+    background: #fff;
+    margin: 3px;
+    border: 1px inset #fff;
+}
+
+.ext-time-ad-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 0 10px 0;
+}
+
+.ext-time-ad-btn {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 2px 14px;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+}
+
+.ext-time-ad-btn.no {
+    padding: 2px 10px;
+}
+
+/* ==================== CUSTOM CURSOR + PET ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   win98-ish arrow cursor + the pet that follows it everywhere. */
+body:has(.ext-time-pet) {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='24' viewBox='0 0 20 24'><path d='M1 1 L1 18 L5.5 14 L8.5 21 L11.5 19.5 L8.5 13 L14 13 Z' fill='white' stroke='black' stroke-width='1.4'/></svg>") 1 1, auto;
+}
+
+.ext-time-pet {
+    position: fixed;
+    inset: 0;
+    z-index: 99993;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.ext-time-pet-body {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    width: 34px;
+    height: 26px;
+    background: #f7c873;
+    border: 2px solid #000;
+    border-radius: 12px 14px 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    will-change: transform;
+}
+
+.ext-time-pet-body::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 6px;
+    width: 12px;
+    height: 5px;
+    background: #f7c873;
+    border: 2px solid #000;
+    border-radius: 4px;
+    transform-origin: right center;
+    animation: ext-time-wag 0.5s ease-in-out infinite alternate;
+}
+
+.ext-time-pet-body::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 4px;
+    width: 7px;
+    height: 9px;
+    background: #f7c873;
+    border: 2px solid #000;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 15px 0 0 -2px #f7c873, 15px 0 0 0 #000;
+}
+
+@keyframes ext-time-wag {
+    from { transform: rotate(-25deg); }
+    to { transform: rotate(25deg); }
+}
+
+.ext-time-pet-eyes {
+    font-size: 8px;
+    line-height: 1;
+    color: #000;
+    letter-spacing: 6px;
+    margin-top: -4px;
+}
+
+.ext-time-pet-mouth {
+    position: absolute;
+    bottom: 3px;
+    font-size: 8px;
+    color: #000;
+}
+
+/* when the pet catches up to the cursor it sits down and pants happily */
+.ext-time-pet.eating .ext-time-pet-body {
+    animation: ext-time-hop 0.35s ease-in-out infinite alternate;
+}
+
+.ext-time-pet.eating .ext-time-pet-mouth::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 5px;
+    height: 7px;
+    background: #ff8fa3;
+    border: 1px solid #000;
+    border-radius: 0 0 4px 4px;
+}
+
+@keyframes ext-time-hop {
+    from { margin-top: 0; }
+    to { margin-top: -6px; }
+}
+
+/* ==================== PIRATED WINDOWS WATERMARK ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-time-piracy {
+    position: fixed;
+    right: 14px;
+    bottom: 44px;
+    z-index: 9989;
+    width: 250px;
+    padding: 12px 14px;
+    background: rgba(20, 20, 20, 0.82);
+    color: #fff;
+    font-family: 'Tahoma', sans-serif;
+    border: 1px solid rgba(255,255,255,0.25);
+    pointer-events: none;
+    animation: ext-time-piracy-pulse 3s ease-in-out infinite;
+}
+
+.ext-time-piracy-main {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.ext-time-piracy-sub {
+    font-size: 10px;
+    opacity: 0.8;
+    line-height: 1.4;
+}
+
+.ext-time-piracy-days {
+    font-size: 10px;
+    margin-top: 6px;
+    color: #ffd24d;
+}
+
+.ext-time-piracy-cta {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #6cb2ff;
+    text-decoration: underline;
+}
+
+@keyframes ext-time-piracy-pulse {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 0.55; }
+}
+
+/* ==================== NAVASHIELD (ROGUE AV) ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-time-ns-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99994;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-time-ns-win {
+    width: 400px;
+    max-width: 92vw;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 12px;
+    color: #000;
+    box-shadow: 4px 4px 14px rgba(0,0,0,0.5);
+    animation: ext-time-ns-shake 0.4s ease-in-out 2;
+}
+
+@keyframes ext-time-ns-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+.ext-time-ns-body {
+    padding: 12px 14px 4px 14px;
+}
+
+.ext-time-ns-scanrow {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.ext-time-ns-bar {
+    height: 16px;
+    border: 2px inset #fff;
+    background: #fff;
+    overflow: hidden;
+}
+
+.ext-time-ns-fill {
+    height: 100%;
+    background: repeating-linear-gradient(90deg, #0855dd 0 10px, #3a8ef2 10px 14px);
+    transition: width 0.25s steps(4);
+}
+
+.ext-time-ns-files {
+    margin-top: 5px;
+    font-size: 11px;
+}
+
+.ext-time-ns-log {
+    margin-top: 8px;
+    height: 96px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px inset #fff;
+    padding: 4px 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.ext-time-ns-logline {
+    color: #a00000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ext-time-ns-msg {
+    margin-top: 8px;
+    padding: 6px;
+    background: #ffffcc;
+    border: 1px solid #000;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ==================== ADD/REMOVE PROGRAMS ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
+.ext-time-arp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99994;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-time-arp-win {
+    width: 420px;
+    max-width: 92vw;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 12px;
+    color: #000;
+    box-shadow: 4px 4px 14px rgba(0,0,0,0.5);
+}
+
+.ext-time-arp-body {
+    padding: 12px 14px 4px 14px;
+}
+
+.ext-time-arp-list {
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+    border: 2px inset #fff;
+    padding: 2px;
+}
+
+.ext-time-arp-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+}
+
+.ext-time-arp-item > span:first-child {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ext-time-arp-err {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: #ffe1e1;
+    border: 1px solid #a00;
+    color: #700;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* ==================== EXTRA BLOAT LAYER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   desktop icons, msn, download manager, screensaver, tiled wallpaper. */
+
+/* tiled not-genuine wallpaper across the whole viewport.
+   z-index 0 + no stacking context: sits behind every positioned app
+   element, only peeking through the transparent page background. */
+.ext-bloat-nongenuine {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='150'><text x='10' y='70' font-family='Tahoma' font-size='20' fill='%23000' transform='rotate(-18 130 75)'>not genuine</text></svg>");
+}
+
+/* MSN + download manager popups */
+.ext-bloat-msn, .ext-bloat-dl {
+    position: fixed;
+    z-index: 99992;
+    width: 270px;
+    background: #d4d0c8;
+    color: #000;
+    border: 2px outset #fff;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+}
+
+.ext-bloat-msn {
+    left: 8px;
+    bottom: 40px;
+}
+
+.ext-bloat-dl {
+    right: 8px;
+    bottom: 40px;
+}
+
+.ext-bloat-msn-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #0855dd, #3a8ef2);
+    color: #fff;
+    padding: 2px 3px 2px 6px;
+    font-weight: bold;
+}
+
+.ext-bloat-msn-body, .ext-bloat-dl-body {
+    padding: 10px;
+    line-height: 1.5;
+}
+
+.ext-bloat-msn-btns {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* bouncing baby screensaver */
+.ext-bloat-ss {
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    background: #000;
+    cursor: none;
+}
+
+.ext-bloat-ss-baby {
+    position: absolute;
+    font-size: 42px;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.35));
+    will-change: left, top;
+}
+
+.ext-bloat-ss-text {
+    position: absolute;
+    bottom: 24px;
+    width: 100%;
+    text-align: center;
+    color: #555;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+}
+
+/* ==================== TOAST ==================== */
+.ext-time-toast {
+    position: fixed;
+    bottom: 1.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9998;
+    padding: 0.7em 1.4em;
+    border-radius: 999px;
+    background: linear-gradient(120deg, rgba(255,182,193,0.92), rgba(176,141,255,0.92));
+    color: #2a1e3f;
+    font-size: 0.9em;
+    box-shadow: 0 4px 20px rgba(176,141,255,0.4);
+    white-space: nowrap;
+}
+
+/* ==================== CLIPPY (IE TOOLBAR EDITION) ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   clippy now lives in the toolbar; his bubble floats below him. */
+.ext-time-ie-clippy {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    flex: 0 0 auto;
+    cursor: default;
+}
+
+.ext-time-ie-clippy-icon {
+    font-size: 20px;
+    line-height: 1;
+    animation: ext-time-clippy-wiggle 2.4s ease-in-out infinite;
+}
+
+.ext-time-ie-clippy-bubble {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 9996;
+    background: #ffffcc;
+    color: #000;
+    border: 1px solid #000;
+    padding: 6px 10px;
+    max-width: 260px;
+    font-size: 11px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    white-space: normal;
+}
+
+.ext-time-ie-clippy-bubble::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 12px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #000;
+}
+
+@keyframes ext-time-clippy-wiggle {
+    0%, 100% { transform: rotate(-4deg); }
+    50% { transform: rotate(5deg) translateY(-3px); }
+}
+
+/* ==================== TASKBAR ==================== */
+.ext-time-taskbar {
+    color: #000;
+}
+
+.ext-time-taskbar-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 34px;
+    z-index: 9990;
+    background: #d4d0c8;
+    border-top: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    font-family: 'Tahoma', 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.25);
+}
+
+.ext-time-start-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+}
+
+.ext-time-taskbar-sep {
+    width: 1px;
+    height: 22px;
+    background: #808080;
+    border-right: 1px solid #fff;
+    margin: 0 2px;
+}
+
+.ext-time-taskbar-ie {
+    flex: 0 0 auto;
+    max-width: 220px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 3px 8px;
+    background: #c8c4bc;
+    border: 2px inset #fff;
+    font-weight: bold;
+}
+
+.ext-time-taskbar-bin {
+    flex: 0 0 auto;
+    padding: 3px 8px;
+    border: 2px outset #fff;
+    cursor: pointer;
+    background: #d4d0c8;
+}
+
+.ext-time-tray {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    border: 2px inset #fff;
+    height: 22px;
+}
+
+.ext-time-tray-icon {
+    cursor: pointer;
+}
+
+.ext-time-tray-clock {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==================== START MENU ==================== */
+.ext-time-start-menu {
+    position: fixed;
+    bottom: 34px;
+    left: 4px;
+    z-index: 9991;
+    width: 220px;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 12px;
+    box-shadow: 3px -3px 8px rgba(0,0,0,0.4);
+}
+
+.ext-time-start-inner {
+    display: flex;
+}
+
+.ext-time-start-banner {
+    width: 26px;
+    background: linear-gradient(#0855dd, #3a8ef2);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 8px 3px;
+    letter-spacing: 1px;
+}
+
+.ext-time-start-items {
+    flex: 1;
+    padding: 3px 0;
+}
+
+.ext-time-start-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.ext-time-start-item:hover {
+    background: #0855dd;
+    color: #fff;
+}
+
+/* ==================== SHUT DOWN DIALOG ==================== */
+.ext-time-shutdown-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99995;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-time-shutdown-dlg {
+    width: 320px;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 12px;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+}
+
+.ext-time-shutdown-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #0855dd, #3a8ef2);
+    color: #fff;
+    padding: 3px 6px;
+    font-weight: bold;
+}
+
+.ext-time-shutdown-x {
+    cursor: pointer;
+    background: #d4d0c8;
+    color: #000;
+    border: 1px outset #fff;
+    width: 16px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.ext-time-shutdown-body {
+    display: flex;
+    gap: 12px;
+    padding: 16px 14px;
+}
+
+.ext-time-shutdown-icon {
+    font-size: 34px;
+}
+
+.ext-time-shutdown-field {
+    flex: 1;
+}
+
+.ext-time-shutdown-select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+    background: #fff;
+    color: #000;
+    border: 2px inset #fff;
+    padding: 2px;
+}
+
+.ext-time-shutdown-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 0 14px 0;
+}
+
+.ext-time-shutdown-btn {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 3px 18px;
+    cursor: pointer;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+}
+
+/* ==================== POWERED-OFF SCREENS ==================== */
+.ext-time-offscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 99996;
+    background: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ext-time-off-stage0 {
+    color: #fff;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 20px;
+}
+
+.ext-time-off-scanbar {
+    width: 180px;
+    height: 12px;
+    margin: 14px auto 0;
+    border: 1px solid #555;
+    overflow: hidden;
+}
+
+.ext-time-off-scanfill {
+    width: 40%;
+    height: 100%;
+    background: repeating-linear-gradient(90deg, #0855dd 0 8px, transparent 8px 12px);
+    animation: ext-time-scan 1.2s linear infinite;
+}
+
+@keyframes ext-time-scan {
+    to { transform: translateX(280%); }
+}
+
+.ext-time-off-stage1 {
+    color: #ffa500;
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    line-height: 1.6;
+}
+
+.ext-time-off-stage2 {
+    color: #333;
+    font-size: 60px;
+}
+
+/* ==================== BSOD ==================== */
+.ext-time-bsod {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0000aa;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    padding: 8vh 12vw;
+    line-height: 1.7;
+    cursor: pointer;
+}
+
+.ext-time-bsod-title {
+    background: #aaaaaa;
+    color: #0000aa;
+    display: inline-block;
+    padding: 0 8px;
+    margin-bottom: 1.5em;
+}
+
+.ext-time-bsod-gap {
+    margin-top: 1.5em;
+}
+
+.ext-time-bsod-cursor {
+    animation: ext-time-blink 1s steps(1) infinite;
+}
+
+@keyframes ext-time-blink {
+    50% { opacity: 0; }
+}
+
+/* ==================== BALLOON ==================== */
+.ext-time-balloon {
+    position: fixed;
+    bottom: 40px;
+    right: 8px;
+    z-index: 9992;
+    max-width: 240px;
+    background: #ffffe1;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'Tahoma', sans-serif;
+    font-size: 11px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.35);
+    cursor: pointer;
+}
+
+.ext-time-balloon-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+/* ==================== TIME MACHINE MODAL ==================== */
+.ext-time-modal-body {
+    text-align: center;
+    padding: 1em 1.5em 1.4em 1.5em;
+}
+
+.ext-time-modal-clock {
+    font-family: var(--code-font, ui-monospace, monospace);
+    font-variant-numeric: tabular-nums;
+    font-size: 2.4em;
+    background: linear-gradient(90deg, #ffb6c1, #b08dff, #8ecae6, #ffb6c1);
+    background-size: 300% 100%;
+    background-position: 0% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: ext-time-shimmer 6s linear infinite;
+}
+
+@keyframes ext-time-shimmer {
+    to { background-position: 300% 0; }
+}
+
+.ext-time-modal-date {
+    opacity: 0.7;
+    margin-top: 0.3em;
+}
+
+.ext-time-modal-meta {
+    font-size: 0.8em;
+    opacity: 0.55;
+    margin-top: 1em;
+    line-height: 1.7;
+}
+
+.ext-time-modal-quote {
+    margin-top: 0.8em;
+    font-style: italic;
+}
+
+/* ==================== LOGIN ==================== */
+.ext-time-login-greet {
+    text-align: center;
+    margin-bottom: 0.8em;
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+.ext-time-login-hint {
+    font-size: 0.7em;
+    opacity: 0.45;
+    text-align: center;
+    margin-top: 0.6em;
+    font-style: italic;
+}
+
+.ext-time-login {
+    text-align: center;
+    margin-top: 1em;
+    padding-top: 0.8em;
+    border-top: 1px dashed rgba(176, 141, 255, 0.35);
+    font-family: var(--code-font, ui-monospace, monospace);
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+}

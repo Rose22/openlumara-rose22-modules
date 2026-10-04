@@ -1,0 +1,522 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: page-level slots — above_page
+   renders a sparkly welcome toast; below_page renders the cursed Windows
+   layer (clippy, taskbar, shutdown, BSOD, balloon). Styling lives in
+   assets/css/ie.css. #}
+
+{% macro above_page() %}
+<div class="ext-time-toast"
+    x-data="{
+        show: false,
+        now: new Date(),
+        fmt: null,
+        init() {
+            this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+            this.show = true;
+            setTimeout(() => { this.show = false; }, 4000);
+        },
+        get greeting() {
+            const h = this.now.getHours();
+            if (h < 5)  return 'a very night-owl hello 🦉';
+            if (h < 12) return 'morning, pretty ✨';
+            if (h < 18) return 'afternoon treat incoming 🍭';
+            return 'evening glow-up time 🌙';
+        }
+    }"
+    x-show="show"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-y-4"
+    x-transition:leave="transition ease-in duration-500"
+    x-transition:leave-end="opacity-0"
+    x-cloak>
+    <span x-text="greeting + ' · ' + fmt.format(now)"></span>
+</div>
+{% endmacro %}
+
+{% macro below_page() %}
+{# ==================== TASKBAR + START MENU + SHUTDOWN + BSOD + BALLOON ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+   clippy moved up into the IE toolbar (chat/index.html). #}
+<div class="ext-time-taskbar"
+    x-data="{
+        now: new Date(),
+        fmt: null,
+        timer: null,
+        startOpen: false,
+        shutdownDlg: false,
+        shutdownChoice: 'Shut down',
+        poweredOff: false,
+        offStage: 0,
+        bsod: false,
+        balloon: false,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           NavaShield fake antivirus + Add/Remove Programs uninstaller. */
+        navOpen: false, navScan: 0, navFiles: 0, navThreats: 0,
+        navDone: false, navLog: [], navMsg: '', navTimer: null, navBalloon: false,
+        arpOpen: false, arpErr: '',
+        arpItems: [
+            'AOL Toolbar', 'Napster MusicBar', 'Lycos SideSearch', 'BonziBuddy',
+            'WeatherBug', 'WhenU SaveNow', 'eZiSearch Toolbar', 'Gator.com GAIN',
+            'MSNBChat', 'HotBar', 'BearShare', 'NavaShield (trial)'
+        ],
+        threatPool: [
+            'Adware.BonziBuddy', 'Trojan.ToolbarHelper', 'SpyWare.WeatherBug',
+            'Dialer.HotBox', 'Worm.Kazaa.Wannabe', 'Adware.WhenU',
+            'Hacktool.WinCrack', 'SpyWare.Gator'
+        ],
+        init() {
+            this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+            this.timer = setInterval(() => { this.now = new Date(); }, 10000);
+            setTimeout(() => { this.balloon = true; setTimeout(() => { this.balloon = false; }, 7000); }, 6000);
+            // NavaShield introduces itself like any good rogue AV
+            setTimeout(() => { this.navBalloon = true; }, 11000);
+        },
+        destroy() { clearInterval(this.timer); if (this.navTimer) clearInterval(this.navTimer); },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           NavaShield scan simulation. */
+        navStart() {
+            this.navOpen = true;
+            if (this.navTimer) return;
+            this.navScan = 0; this.navFiles = 0; this.navThreats = 0;
+            this.navDone = false; this.navLog = [];
+            this.navTimer = setInterval(() => {
+                if (this.navScan >= 100) {
+                    clearInterval(this.navTimer); this.navTimer = null;
+                    this.navDone = true;
+                    this.navMsg = this.navThreats + ' threats quarantined! Only \u20AC9.99/mo for FULL protection \u2764';
+                    return;
+                }
+                this.navScan += Math.floor(2 + Math.random() * 5);
+                if (this.navScan > 100) this.navScan = 100;
+                this.navFiles += Math.floor(40 + Math.random() * 160);
+                if (Math.random() < 0.35 && this.navThreats < 27) {
+                    this.navThreats++;
+                    const t = this.threatPool[Math.floor(Math.random() * this.threatPool.length)];
+                    this.navLog.unshift('\u26A0 ' + t + ' found in C:\\Windows\\System32\\definitely_not_virus_' + this.navThreats + '.dll');
+                    if (this.navLog.length > 6) this.navLog.pop();
+                }
+            }, 280);
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+           Uninstall attempts: the classic loop. */
+        uninstall(item) {
+            const removable = ['Lycos SideSearch', 'MSNBChat'];
+            if (removable.includes(item)) {
+                this.arpItems = this.arpItems.filter(i => i !== item);
+                this.arpErr = '';
+                return;
+            }
+            if (item.startsWith('NavaShield')) {
+                this.arpErr = 'NavaShield cannot be removed during protection mode. Please purchase NavaShield PRO to unlock removal.';
+                return;
+            }
+            this.arpErr = 'C:\\Program Files\\' + item.replace(/[ .]/g, '') + '\\UNINSTALL.EXE could not be found. It may have been removed by a virus. We recommend NavaShield\u2122 \u2014 click here to buy!';
+            this.navStart();
+        },
+        ad() { document.dispatchEvent(new CustomEvent('ext-time-ad')); },
+        startClick() { this.startOpen = !this.startOpen; },
+        menuAction(what) {
+            this.startOpen = false;
+            if (what === 'ie') window.location.reload();
+            else if (what === 'bsod') this.bsod = true;
+            else if (what === 'shutdown') this.shutdownDlg = true;
+            else if (what === 'nav') this.navStart();
+            else if (what === 'arp') this.arpOpen = true;
+            else this.ad();
+        },
+        doShutdown() {
+            this.shutdownDlg = false;
+            this.poweredOff = true;
+            this.offStage = 0;
+            if (this.shutdownChoice === 'Restart') { setTimeout(() => window.location.reload(), 1800); return; }
+            setTimeout(() => { this.offStage = 1; }, 2200);
+            if (this.shutdownChoice === 'Stand by') setTimeout(() => { this.offStage = 2; }, 2600);
+        },
+        wake() {
+            if (this.shutdownChoice === 'Stand by' && this.offStage === 2) { this.poweredOff = false; this.offStage = 0; }
+        }
+    }"
+    @keydown.window="if (bsod) bsod = false">
+
+    {# ---- taskbar ---- #}
+    <div class="ext-time-taskbar-bar">
+        <button type="button" class="ext-time-start-btn" @click="startClick()"
+            :style="{ borderStyle: startOpen ? 'inset' : 'outset' }">
+            🪟 Start
+        </button>
+        <span class="ext-time-taskbar-sep"></span>
+        <div class="ext-time-taskbar-ie" title="you are already here">
+            🌐 OpenLumara - Microsoft Internet Explorer
+        </div>
+        <div class="ext-time-taskbar-bin" title="it's empty in here, like my willpower" @click="ad()">
+            🗑️ Recycle Bin
+        </div>
+
+        {# system tray #}
+        <div class="ext-time-tray">
+            <span class="ext-time-tray-icon" title="volume: free" @click="balloon = true">🔊</span>
+            <span class="ext-time-tray-icon" title="connection: 56k (do not disturb)" @click="ad()">📶</span>
+            <span class="ext-time-tray-icon" title="NavaShield 2003: 27 threats (click to panic)" @click="navStart()">🛡</span>
+            <span class="ext-time-tray-clock" x-text="fmt.format(now)"></span>
+        </div>
+    </div>
+
+    {# ---- start menu ---- #}
+    <div class="ext-time-start-menu" x-show="startOpen" x-cloak @click.away="startOpen = false">
+        <div class="ext-time-start-inner">
+            <div class="ext-time-start-banner">Start</div>
+            <div class="ext-time-start-items">
+                <template x-for="item in [
+                    { icon: '📁', label: 'Programs', act: 'ad' },
+                    { icon: '📄', label: 'Documents', act: 'ad' },
+                    { icon: '⚙️', label: 'Control Panel', act: 'arp' },
+                    { icon: '🔍', label: 'Find...', act: 'ad' },
+                    { icon: '❓', label: 'Help', act: 'ad' },
+                    { icon: '🌐', label: 'Internet', act: 'ie' },
+                    { icon: '🛡', label: 'NavaShield 2003', act: 'nav' },
+                    { icon: '💀', label: 'Blue Screen (for fun)', act: 'bsod' },
+                    { icon: '🔌', label: 'Shut Down...', act: 'shutdown' }
+                ]" :key="item.label">
+                    <div class="ext-time-start-item" @click="menuAction(item.act)">
+                        <span x-text="item.icon"></span><span x-text="item.label"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    {# ---- shut down dialog ---- #}
+    <div class="ext-time-shutdown-overlay" x-show="shutdownDlg" x-cloak>
+        <div class="ext-time-shutdown-dlg">
+            <div class="ext-time-shutdown-title">
+                <span>Shut Down Computer</span>
+                <span class="ext-time-shutdown-x" @click="shutdownDlg = false">✕</span>
+            </div>
+            <div class="ext-time-shutdown-body">
+                <span class="ext-time-shutdown-icon">🖥️</span>
+                <div class="ext-time-shutdown-field">
+                    <div style="margin-bottom: 8px;">What do you want the computer to do?</div>
+                    <select class="ext-time-shutdown-select" x-model="shutdownChoice">
+                        <option>Stand by</option>
+                        <option>Shut down</option>
+                        <option>Restart</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" @click="doShutdown()">OK</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="shutdownDlg = false">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    {# ---- powered-off screens ---- #}
+    <div class="ext-time-offscreen" x-show="poweredOff" x-cloak @click="wake()">
+        <div class="ext-time-off-stage0" x-show="offStage === 0">
+            Windows is shutting down...
+            <div class="ext-time-off-scanbar">
+                <div class="ext-time-off-scanfill"></div>
+            </div>
+        </div>
+        <div class="ext-time-off-stage1" x-show="offStage === 1">
+            It's now safe to turn off<br>your computer.
+        </div>
+        <div class="ext-time-off-stage2" x-show="offStage === 2">💤</div>
+    </div>
+
+    {# ---- BSOD ---- #}
+    <div class="ext-time-bsod" x-show="bsod" x-cloak @click="bsod = false">
+        <div class="ext-time-bsod-title">&nbsp;Microsoft Internet Explorer&nbsp;</div>
+        <p>A problem has been detected and OpenLumara has been shut down to prevent damage to your computer.</p>
+        <p>CHAT_BUFFER_OVERFLOW</p>
+        <p>If this is the first time you've seen this Stop error screen, restart your computer. If this screen appears again, follow these steps: treat yourself to something cute and try again.</p>
+        <p>Check to make sure any new chat plugins are properly installed. If your files are damaged or the vibes are off, consult Rosie, or your local teddy bear.</p>
+        <p class="ext-time-bsod-gap">Technical information:</p>
+        <p>*** STOP: 0x00C0FFEE (0xROSIE, 0xCLIPPY, 0x0, 0x0)<br>*** EXT_TIME.SYS - Address 0x19920519 base at 0x19920000</p>
+        <p class="ext-time-bsod-gap">Press any key to continue _<span class="ext-time-bsod-cursor">█</span></p>
+    </div>
+
+    {# ---- balloon notification ---- #}
+    <div class="ext-time-balloon" x-show="balloon" x-cloak @click="balloon = false">
+        <div class="ext-time-balloon-title">📬 You've got mail!</div>
+        from: lumara &lt;openlumara@freeinternet.nl&gt;<br>
+        subject: ur app looks 2 windows 2 much
+    </div>
+
+    {# ==================== NAVASHIELD BALLOON ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
+    <div class="ext-time-balloon" x-show="navBalloon" x-cloak @click="navBalloon = false; navStart()">
+        <div class="ext-time-balloon-title">🛡 NavaShield has detected 27 threats!</div>
+        Your computer is at RISK. Click here to run a FREE scan now!<br>
+        <span style="opacity: 0.6">(only €9.99/mo to actually fix it)</span>
+    </div>
+
+    {# ==================== NAVASHIELD SCANNER ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       the rogue AV everyone "accidentally" installed. #}
+    <div class="ext-time-ns-overlay" x-show="navOpen" x-cloak>
+        <div class="ext-time-ns-win">
+            <div class="ext-time-shutdown-title">
+                <span>🛡 NavaShield 2003 — TOTAL PROTECTION™</span>
+                <span class="ext-time-shutdown-x" title="nice try" @click="navOpen = false">✕</span>
+            </div>
+            <div class="ext-time-ns-body">
+                <div class="ext-time-ns-scanrow">
+                    <span>Scanning C:\ ...</span>
+                    <span x-text="navScan + '%'"></span>
+                </div>
+                <div class="ext-time-ns-bar"><div class="ext-time-ns-fill" :style="{ width: navScan + '%' }"></div></div>
+                <div class="ext-time-ns-files" x-text="navFiles.toLocaleString() + ' files scanned | ' + navThreats + ' threats found'"></div>
+                <div class="ext-time-ns-log">
+                    <template x-for="line in navLog" :key="line">
+                        <div class="ext-time-ns-logline" x-text="line"></div>
+                    </template>
+                </div>
+                <div class="ext-time-ns-msg" x-show="navDone" x-text="navMsg"></div>
+            </div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" style="font-weight: bold; background: #ffd24d;"
+                    @click="navMsg = 'Thank you for your \u20AC9.99! (card declined) (card declined) (card declined)'; navStart()">BUY NOW \u20AC9.99</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navOpen = false">Remind me later</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navMsg = 'ERROR: free button not found in this edition.'">it's free, right?</button>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== ADD/REMOVE PROGRAMS ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       the uninstaller that uninstalleth not. #}
+    <div class="ext-time-arp-overlay" x-show="arpOpen" x-cloak @click="arpOpen = false">
+        <div class="ext-time-arp-win" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>Add/Remove Programs</span>
+                <span class="ext-time-shutdown-x" @click="arpOpen = false">✕</span>
+            </div>
+            <div class="ext-time-arp-body">
+                <div style="margin-bottom: 6px;">Currently installed programs:</div>
+                <div class="ext-time-arp-list">
+                    <template x-for="item in arpItems" :key="item">
+                        <div class="ext-time-arp-item">
+                            <span x-text="item"></span>
+                            <button type="button" class="ext-time-ad-btn" style="padding: 1px 10px;" @click="uninstall(item)">Change...</button>
+                            <button type="button" class="ext-time-ad-btn" style="padding: 1px 10px;" @click="uninstall(item)">Remove</button>
+                        </div>
+                    </template>
+                </div>
+                <div class="ext-time-arp-err" x-show="arpErr" x-text="arpErr"></div>
+            </div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" @click="arpOpen = false">OK</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navStart()">Buy NavaShield™</button>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== EXTRA BLOAT LAYER ====================
+         -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
+<div class="ext-bloat"
+    x-data="{
+        ctx: null,
+        err: null,
+        msn: false, msnSnd: false, msnTimer: null,
+        dl: false, dlPct: 0, dlTimer: null, dlName: 'Free_Cursor_Pack.exe',
+        dlNames: ['Free_Cursor_Pack.exe', 'screensaver_baby.exe', 'toolbar_setup.exe', 'codec_pack_FINAL2.exe', 'NavaShield_Silent.msi'],
+        ss: false, ssTimer: null, raf: null, bx: 120, by: 140, vx: 3.4, vy: 2.7,
+        init() {
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+               startup chime + per-ad beeps, because silence is suspicious. */
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.beep = (f, d, t, type, vol) => {
+                try {
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = type || 'square'; o.frequency.value = f;
+                    g.gain.value = vol || 0.04;
+                    o.connect(g); g.connect(this.ctx.destination);
+                    o.start(this.ctx.currentTime + (t || 0));
+                    o.stop(this.ctx.currentTime + (t || 0) + (d || 0.15));
+                } catch (e) {}
+            };
+            window.extBloatBeep = () => this.beep(980, 0.09);
+            this.chime = () => { this.beep(523, 0.3, 0, 'sine', 0.08); this.beep(784, 0.45, 0.12, 'sine', 0.08); };
+            // the chime and MSN nudge only fire once the user has clicked
+            // anywhere (browsers block audio before a gesture anyway)
+            this.armed = false;
+            this.arm = () => { if (!this.armed) { this.armed = true; this.chime(); } };
+            document.addEventListener('click', this.arm);
+            document.addEventListener('click', () => { if (this.armed && !this.msn && !this.msnTimer) this.msnTimer = setTimeout(() => { this.msn = true; this.beep(880, 0.12, 0, 'triangle'); }, 14000); });
+            document.addEventListener('ext-time-ad', () => this.beep(980, 0.09));
+            // fake download manager: starts after first click, forever cycle
+            document.addEventListener('click', () => { if (!this.dl && !this.dlTimer) this.queueDl(); });
+            // screensaver: bounces after 45s of stillness
+            this.wake = () => {
+                if (this.ss) { this.ss = false; cancelAnimationFrame(this.raf); }
+                clearTimeout(this.ssTimer);
+                this.ssTimer = setTimeout(() => this.startSS(), 45000);
+            };
+            ['mousemove', 'keydown', 'scroll', 'click'].forEach(ev => window.addEventListener(ev, this.wake));
+            this.wake();
+        },
+        destroy() {
+            clearTimeout(this.ssTimer); clearTimeout(this.dlTimer);
+            cancelAnimationFrame(this.raf);
+        },
+        startSS() {
+            this.ss = true;
+            const step = () => {
+                const w = window.innerWidth, h = window.innerHeight;
+                this.bx += this.vx; this.by += this.vy;
+                if (this.bx <= 0 || this.bx >= w - 48) { this.vx = -this.vx; this.beep(this.bx < w / 2 ? 523 : 659, 0.05, 0, 'triangle', 0.02); }
+                if (this.by <= 0 || this.by >= h - 48) this.vy = -this.vy;
+                this.bx = Math.max(0, Math.min(w - 48, this.bx));
+                this.by = Math.max(0, Math.min(h - 48, this.by));
+                if (this.ss) this.raf = requestAnimationFrame(step);
+            };
+            step();
+        },
+        queueDl() {
+            this.dlTimer = setTimeout(() => {
+                this.dlName = this.dlNames[Math.floor(Math.random() * this.dlNames.length)];
+                this.dl = true; this.dlPct = 0;
+                const t = setInterval(() => {
+                    this.dlPct += Math.floor(4 + Math.random() * 12);
+                    if (this.dlPct >= 100) { this.dlPct = 100; clearInterval(t); this.beep(1245, 0.2, 0, 'triangle'); }
+                }, 400);
+            }, 9000 + Math.random() * 8000);
+        },
+        dlOpen() {
+            this.dl = false;
+            this.err = 'Illegal operation performed by ' + this.dlName + '. The program will now close. NavaShield has quarantined 3 new threats in your honor.';
+            this.beep(300, 0.25, 0, 'sawtooth', 0.06);
+            document.dispatchEvent(new CustomEvent('ext-time-ad'));
+            this.queueDl();
+        },
+        dlCancel() {
+            this.dl = false;
+            this.err = 'Cannot cancel download. It was already installed. You are welcome!';
+            this.queueDl();
+        },
+        msnAccept() { this.msnSnd = true; this.beep(1046, 0.15, 0, 'triangle'); },
+        msnBlock() { this.err = 'xX_darkangel_Xx cannot be blocked. They have already added your webcam to their buddy list. (jk... unless)'; }
+    }">
+
+    {# ---- tiled not-genuine wallpaper (whole viewport, behind everything) ---- #}
+    <div class="ext-bloat-nongenuine"></div>
+
+    {# ---- MSN contact request, bottom-left ---- #}
+    <div class="ext-bloat-msn" x-show="msn" x-cloak x-transition.opacity.duration.300ms>
+        <div class="ext-bloat-msn-title">
+            <span>🦋 .NET Messenger Service</span>
+            <span class="ext-time-shutdown-x" @click="msn = false">✕</span>
+        </div>
+        <div class="ext-bloat-msn-body" x-show="!msnSnd">
+            <b>xX_darkangel_Xx</b> would like to add you to their contact list.<br>
+            <i style="opacity: 0.7">message: omg add me pls, ur screenname is so cute ;-)</i>
+            <div class="ext-bloat-msn-btns">
+                <button type="button" class="ext-time-ad-btn" @click="msnAccept()">Accept</button>
+                <button type="button" class="ext-time-ad-btn" @click="msnBlock()">Block</button>
+            </div>
+        </div>
+        <div class="ext-bloat-msn-body" x-show="msnSnd" x-cloak>
+            <b>xX_darkangel_Xx</b> says: <i>omg u luv camellia?? same. send 47 emo wallpapers or else</i>
+            <div class="ext-bloat-msn-btns">
+                <button type="button" class="ext-time-ad-btn" @click="document.dispatchEvent(new CustomEvent('ext-time-ad'))">Reply</button>
+                <button type="button" class="ext-time-ad-btn" @click="msn = false">Ignore (they will keep typing)</button>
+            </div>
+        </div>
+    </div>
+
+    {# ---- fake download manager, bottom-right above taskbar ---- #}
+    <div class="ext-bloat-dl" x-show="dl" x-cloak>
+        <div class="ext-bloat-msn-title">
+            <span>⬇ Download Manager</span>
+            <span class="ext-time-shutdown-x" @click="dlCancel()">✕</span>
+        </div>
+        <div class="ext-bloat-dl-body">
+            <div style="margin-bottom: 4px;" x-text="dlName + ' (' + Math.round(dlPct * 6.4) + ' KB / 640 KB)'"></div>
+            <div class="ext-time-ns-bar" style="height: 12px;"><div class="ext-time-ns-fill" :style="{ width: dlPct + '%' }"></div></div>
+            <div style="margin-top: 4px; font-size: 10px;" x-text="dlPct < 100 ? 'Downloading at 4.2 KB/s... 25 minutes remaining' : 'Download complete! (auto-run enabled)'"></div>
+            <div class="ext-bloat-msn-btns">
+                <button type="button" class="ext-time-ad-btn" :disabled="dlPct < 100" @click="dlOpen()">Open</button>
+                <button type="button" class="ext-time-ad-btn" @click="dlCancel()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    {# ---- generic XP error dialog ---- #}
+    <div class="ext-time-ns-overlay" x-show="err" x-cloak @click="err = null">
+        <div class="ext-time-shutdown-dlg" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>⚠ Windows - Error</span>
+                <span class="ext-time-shutdown-x" @click="err = null">✕</span>
+            </div>
+            <div class="ext-time-shutdown-body">
+                <span class="ext-time-shutdown-icon">⛔</span>
+                <div class="ext-time-shutdown-field" x-text="err"></div>
+            </div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" @click="err = null">OK</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="err = null; document.dispatchEvent(new CustomEvent('ext-time-ad'))">OK but spawn an ad</button>
+            </div>
+        </div>
+    </div>
+
+    {# ---- bouncing baby screensaver, after 45s of stillness ---- #}
+    <div class="ext-bloat-ss" x-show="ss" x-cloak>
+        <div class="ext-bloat-ss-baby" :style="{ left: bx + 'px', top: by + 'px' }">👶</div>
+        <div class="ext-bloat-ss-text">BOUNCE-O-MATIC 3000<br><span>move mouse to wake up (the baby will remember this)</span></div>
+    </div>
+</div>
+
+
+    {# ==================== PET CURSOR ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
+       a loyal little friend who follows ur cursor around, plus a custom
+       arrow cursor (data-URI svg, hotspot at the tip). #}
+    <div class="ext-time-pet"
+        x-data="{
+            tx: innerWidth / 2, ty: innerHeight / 2,
+            x: innerWidth / 2, y: innerHeight / 2,
+            face: 1, blink: false, blinkTimer: null, raf: null,
+            init() {
+                this.onMove = (e) => { this.tx = e.clientX; this.ty = e.clientY; };
+                window.addEventListener('mousemove', this.onMove);
+                const step = () => {
+                    const dx = this.tx - this.x, dy = this.ty - this.y;
+                    this.x += dx * 0.08; this.y += dy * 0.08;
+                    if (Math.abs(dx) > 2) this.face = dx > 0 ? 1 : -1;
+                    const close = Math.hypot(dx, dy) < 26;
+                    this.$el.classList.toggle('eating', close);
+                    this.raf = requestAnimationFrame(step);
+                };
+                step();
+                this.blinkTimer = setInterval(() => {
+                    this.blink = true;
+                    setTimeout(() => { this.blink = false; }, 180);
+                }, 3400);
+            },
+            destroy() {
+                window.removeEventListener('mousemove', this.onMove);
+                cancelAnimationFrame(this.raf);
+                clearInterval(this.blinkTimer);
+            }
+        }">
+        <span class="ext-time-pet-body" :style="{ transform: 'translate(' + x + 'px, ' + y + 'px) scaleX(' + face + ')' }">
+            <span class="ext-time-pet-eyes" x-show="!blink">• •</span>
+            <span class="ext-time-pet-eyes" x-show="blink" x-cloak>- -</span>
+            <span class="ext-time-pet-mouth">ω</span>
+        </span>
+    </div>
+
+    {# ==================== PIRATED WINDOWS WATERMARK ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) #}
+    <div class="ext-time-piracy"
+        x-data="{ days: 0, timer: null }"
+        x-init="days = Math.floor((Date.now() / 86400000) % 30); timer = setInterval(() => {}, 60000)"
+        x-show="true">
+        <div class="ext-time-piracy-main">Windows is not genuine</div>
+        <div class="ext-time-piracy-sub">This copy of Windows is either stolen, pirated, or borrowed from a library.</div>
+        <div class="ext-time-piracy-days" x-text="'activate windows or lose everything in ' + (30 - days) + ' days'"></div>
+        <div class="ext-time-piracy-cta">Click here to activate NOW »</div>
+    </div>
+</div>
+{% endmacro %}

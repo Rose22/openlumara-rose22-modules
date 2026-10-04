@@ -1,0 +1,25 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension slot for the time module: fills the chat header's
+   left + right regions. Macros-only file; styling lives in assets/css/ie.css. #}
+
+{% macro left() %}
+<span class="ext-time-header-clock"
+    title="open the time machine"
+    @click="$store.ui.openModal('time')"
+    x-data="{
+        now: new Date(),
+        timer: null,
+        fmt: null,
+        init() {
+            this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
+            this.timer = setInterval(() => { this.now = new Date(); }, 1000);
+        },
+        destroy() { clearInterval(this.timer); }
+    }"
+    x-text="fmt.format(now)"></span>
+{% endmacro %}
+
+{% macro right() %}
+<span class="ext-time-header-tz"
+    x-text="Intl.DateTimeFormat().resolvedOptions().timeZone"></span>
+{% endmacro %}

@@ -1,0 +1,42 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: big sparkly live clock +
+   birthday countdown on the welcome panel. Include-based hook. #}
+
+<div class="ext-time-welcome"
+    x-data="{
+        now: new Date(),
+        timer: null,
+        fmt: null,
+        init() {
+            this.fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            this.timer = setInterval(() => { this.now = new Date(); }, 1000);
+        },
+        destroy() { clearInterval(this.timer); },
+        get daysToBirthday() {
+            const y = this.now.getFullYear();
+            let target = new Date(y, 4, 19);
+            if (this.now > new Date(y, 4, 19, 23, 59, 59)) target = new Date(y + 1, 4, 19);
+            return Math.ceil((target - this.now) / 86400000);
+        },
+        get birthdayLine() {
+            const d = this.daysToBirthday;
+            if (d === 0) return '🎂 it\'s your birthday — happy may 19th, rosie!! 🎂';
+            return `only ${d} days until your birthday 🎈`;
+        }
+    }"
+    style="margin-top: 1.2em; text-align: center;">
+    <div style="font-family: var(--code-font, ui-monospace, monospace);
+                font-variant-numeric: tabular-nums; font-size: 2em;
+                background: linear-gradient(90deg, #ffb6c1, #b08dff, #8ecae6, #ffb6c1);
+                background-size: 300% 100%;
+                -webkit-background-clip: text; background-clip: text; color: transparent;
+                animation: ext-time-shimmer 6s linear infinite;"
+        x-text="fmt.format(now)"></div>
+    <div style="font-size: 0.8em; opacity: 0.65; margin-top: 0.4em; font-style: italic; color: var(--text-primary);"
+        x-text="birthdayLine"></div>
+    <style>
+    @keyframes ext-time-shimmer {
+        to { background-position: 300% 0; }
+    }
+    </style>
+</div>

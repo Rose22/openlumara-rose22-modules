@@ -1,0 +1,33 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: fills all three chat input
+   slots. Macros-only file; styling lives in assets/css/ie.css. #}
+
+{# after_upload_btn: stamp the current time into the input box #}
+{% macro after_upload_btn() %}
+<button type="button" id="ext-time-stamp" title="Stamp the current time into your message"
+    @click="$store.chat.user_input += new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' '">
+    🕐
+</button>
+{% endmacro %}
+
+{# before_input: shows how long you've been typing this message #}
+{% macro before_input() %}
+<span class="ext-time-typing-since"
+    x-data="{ since: null }"
+    x-effect="
+        if ($store.chat.user_input && !since) since = new Date();
+        if (!$store.chat.user_input) since = null;
+    "
+    x-show="since"
+    x-cloak
+    x-text="'✍️ typing since ' + (since ? since.toLocaleTimeString() : '')"></span>
+{% endmacro %}
+
+{# after_input: char count + how long reading it back would take #}
+{% macro after_input() %}
+<span class="ext-time-charcount"
+    x-show="$store.chat.user_input.length > 40"
+    x-cloak
+    x-text="$store.chat.user_input.length + ' chars · ' +
+           Math.max(1, Math.round($store.chat.user_input.split(/\s+/).length / 200)) + ' min read'"></span>
+{% endmacro %}

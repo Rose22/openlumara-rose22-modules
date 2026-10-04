@@ -1,0 +1,30 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: live "thinking for Xs" chip
+   during streaming. Slot macro, zero-arg (pure client-side state). #}
+
+{% macro below_message() %}
+<span class="ext-time-stream-elapsed"
+    x-data="{
+        start: null,
+        now: Date.now(),
+        timer: null,
+        init() {
+            this.timer = setInterval(() => {
+                if ($store.stream.state !== 'idle') {
+                    if (!this.start) this.start = Date.now();
+                    this.now = Date.now();
+                } else {
+                    this.start = null;
+                }
+            }, 250);
+        },
+        destroy() { clearInterval(this.timer); },
+        get label() {
+            if (!this.start) return '';
+            return '⏳ ' + ((this.now - this.start) / 1000).toFixed(1) + 's';
+        }
+    }"
+    x-show="label"
+    x-cloak
+    x-text="label"></span>
+{% endmacro %}

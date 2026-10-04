@@ -1,0 +1,26 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: live "how long ago" chip in
+   every message's button row. Include-based hook (renders directly, not
+   a macro) - `turn` and `turnIndex` are in scope from the core template. #}
+
+<span class="ext-time-elapsed"
+    x-data="{
+        ts: ((turn.messages[0] ?? {})._metadata ?? {}).timestamp ?? null,
+        now: Date.now(),
+        timer: null,
+        init() { this.timer = setInterval(() => { this.now = Date.now(); }, 30000); },
+        destroy() { clearInterval(this.timer); },
+        get ago() {
+            if (!this.ts) return '';
+            const s = Math.max(0, Math.floor((this.now / 1000) - this.ts));
+            if (s < 60) return 'just now ✨';
+            if (s < 3600) return Math.floor(s / 60) + 'm ago';
+            if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+            const d = Math.floor(s / 86400);
+            return d === 1 ? 'yesterday 🌙' : d + ' days ago 🌙';
+        }
+    }"
+    x-show="ts"
+    :title="ts ? new Date(ts * 1000).toLocaleString() : ''"
+    style="font-size: 0.72em; opacity: 0.55; padding: 0 0.4em; white-space: nowrap;
+           font-style: italic; color: var(--text-primary);"></span>

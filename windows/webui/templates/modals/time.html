@@ -1,0 +1,54 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-03)
+   TEST webui extension for the time module: a full "time machine" modal
+   opened by clicking the header clock. Auto-discovered: any .html under
+   templates/modals/ is included. Opened via $store.ui.openModal('time'). #}
+
+<template x-if="$store.ui.currentModal === 'time'" x-cloak>
+    <div @keydown.escape.window="$store.ui.closeModal()">
+        <div class="modal ext-time-modal"
+            x-data="{
+                now: new Date(),
+                timer: null,
+                boot: Date.now(),
+                clockFmt: null,
+                dateFmt: null,
+                init() {
+                    this.clockFmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    this.dateFmt = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    this.timer = setInterval(() => { this.now = new Date(); }, 1000);
+                },
+                destroy() { clearInterval(this.timer); },
+                get uptime() {
+                    const s = Math.floor((Date.now() - this.boot) / 1000);
+                    return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+                },
+                get isoWeek() {
+                    const d = new Date(Date.UTC(this.now.getFullYear(), this.now.getMonth(), this.now.getDate()));
+                    const dayNum = d.getUTCDay() || 7;
+                    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                },
+                get daysLeft() {
+                    const ny = new Date(this.now.getFullYear() + 1, 0, 1);
+                    return Math.ceil((ny - this.now) / 86400000);
+                }
+            }">
+            <div class="header">
+                <h2>⏰ the time machine</h2>
+                <button class="close" @click="$store.ui.closeModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="ext-time-modal-body">
+                <div class="ext-time-modal-clock" x-text="clockFmt.format(now)"></div>
+                <div class="ext-time-modal-date" x-text="dateFmt.format(now)"></div>
+                <div class="ext-time-modal-meta">
+                    <div>timezone · <span x-text="Intl.DateTimeFormat().resolvedOptions().timeZone"></span></div>
+                    <div>iso week <span x-text="isoWeek"></span> · <span x-text="daysLeft"></span> days until new year 🎆</div>
+                    <div>session uptime · <span x-text="uptime"></span></div>
+                    <div class="ext-time-modal-quote"
+                        x-text="now.getHours() < 5 ? 'bestie it is VERY late. bed. now. 🛏️' : 'time flies when you’re being cute ✨'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
