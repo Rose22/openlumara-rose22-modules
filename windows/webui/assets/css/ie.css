@@ -502,7 +502,7 @@
 /* ==================== FAKE POPUP ADS ==================== */
 .ext-time-ad {
     position: fixed;
-    z-index: 10000;
+    z-index: 999999;
     background: #d4d0c8;
     color: #000;
     border: 2px outset #fff;
@@ -600,7 +600,8 @@ body:has(.ext-time-pet) {
 .ext-time-pet {
     position: fixed;
     inset: 0;
-    z-index: 99993;
+    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05) the pet outranks the entire machine: he watches over popups, alerts and ads alike (pointer-events none, so he never blocks a click) */
+    z-index: 1000010;
     pointer-events: none;
     overflow: hidden;
 }
@@ -772,8 +773,8 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-time-ns-overlay {
     position: fixed;
     inset: 0;
-    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) overlays outrank every app window; no dimming, the desktop stays bright */
-    z-index: 100010;
+    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05) overlays outrank EVERYTHING (ads included): popups must obscure, that is the whole point of a popup */
+    z-index: 1000000;
     background: transparent;
     display: flex;
     align-items: center;
@@ -860,7 +861,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-time-arp-overlay {
     position: fixed;
     inset: 0;
-    z-index: 100010;
+    z-index: 1000000;
     background: transparent;
     display: flex;
     align-items: center;
@@ -975,11 +976,11 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
     margin-top: 8px;
 }
 
-/* bouncing baby screensaver */
+/* bouncing baby screensaver - covers the whole machine, ads included */
 .ext-bloat-ss {
     position: fixed;
     inset: 0;
-    z-index: 99997;
+    z-index: 1000006;
     background: #000;
     cursor: none;
 }
@@ -1195,7 +1196,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-bloat-boot {
     position: fixed;
     inset: 0;
-    z-index: 99998;
+    z-index: 1000007;
     background: #000;
     color: #c0c0c0;
     font-family: 'Courier New', monospace;
@@ -1307,6 +1308,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 /* ==================== TASKBAR ==================== */
 .ext-time-taskbar {
     color: #000;
+    z-index: 1000000;
 }
 
 .ext-time-taskbar-bar {
@@ -1390,7 +1392,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
     position: fixed;
     bottom: 34px;
     left: 4px;
-    z-index: 9991;
+    z-index: 1000000;
     width: 220px;
     background: #d4d0c8;
     border: 2px outset #fff;
@@ -1437,7 +1439,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-time-shutdown-overlay {
     position: fixed;
     inset: 0;
-    z-index: 100010;
+    z-index: 1000000;
     background: transparent;
     display: flex;
     align-items: center;
@@ -1570,7 +1572,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-time-bsod {
     position: fixed;
     inset: 0;
-    z-index: 99999;
+    z-index: 1000008;
     background: #0000aa;
     color: #fff;
     font-family: 'Courier New', monospace;
@@ -1886,7 +1888,7 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
    -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) */
 .ext-bloat-ctx {
     position: fixed;
-    z-index: 100005;
+    z-index: 1000011;
     min-width: 210px;
     background: #d4d0c8;
     border: 2px outset #fff;
@@ -2054,3 +2056,411 @@ body[data-threat="2"] .ext-bloat-nongenuine.mbloat-l2 { display: block !importan
 .ext-bloat-chatlink:hover { color: #80c0ff; }
 .ext-bloat-irc .ext-bloat-msnwin-input { background: #d4d0c8; border-top: 2px inset #fff; }
 .ext-bloat-irc .ext-bloat-msnwin-input input { font-family: 'Courier New', monospace; }
+
+/* ==================== mIRC NICK LIST ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+   the classic column of nicks: @ ops, + voice, and one grey ghost
+   with operator powers that nobody gave it. */
+.ext-bloat-irc-body { display: flex; align-items: stretch; }
+.ext-bloat-irc-body .ext-bloat-irc-log { flex: 1; width: 0; }
+.ext-bloat-irc-users {
+    width: 128px;
+    margin: 3px 3px 3px 0;
+    padding: 4px;
+    background: #000;
+    border: 2px inset #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    overflow-y: auto;
+    max-height: 260px;
+}
+.ext-bloat-irc-uhead { color: #fff; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 3px; margin-bottom: 3px; }
+.ext-bloat-irc-u { padding: 1px 2px; color: #6ec86e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ext-bloat-irc-u.op { color: #f0d040; }
+.ext-bloat-irc-u.voice { color: #6ec8e8; }
+.ext-bloat-irc-u.ghost { color: #666; font-style: italic; }
+.ext-bloat-irc-u.me { color: #ff8ac2; font-weight: bold; }
+.ext-bloat-irc-u-note { margin-top: 8px; color: #555; font-size: 9px; font-style: italic; line-height: 1.5; }
+
+/* ==================== MSN CHAT ZONE ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-zone {
+    position: fixed;
+    width: min(520px, 94vw);
+    z-index: 99995;
+    background: #fff;
+    border: 2px solid #b06eff;
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.45);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-zone-topic {
+    background: linear-gradient(180deg, #f3e8ff, #e2ccff);
+    border-bottom: 1px solid #b06eff;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-style: italic;
+    color: #4a2a72;
+}
+.ext-bloat-zone-log {
+    height: 220px;
+    overflow-y: auto;
+    background: #fdfcff;
+    padding: 6px 8px;
+}
+.ext-bloat-zone-line { margin-bottom: 3px; line-height: 1.4; color: #333; word-break: break-word; }
+.ext-bloat-zone-line b, .ext-bloat-zone-line span:first-child { color: #7a3fc0; font-weight: bold; }
+.ext-bloat-zone-line.me span:first-child { color: #c03f8a; }
+.ext-bloat-zone-line.sys { color: #909090; font-style: italic; }
+
+/* ==================== FAKE BROWSER WINDOW ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-webwin {
+    position: fixed;
+    width: min(640px, 95vw);
+    z-index: 99997;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-web-bar {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 4px 6px;
+    background: #d4d0c8;
+    border-bottom: 1px solid #908c85;
+}
+.ext-bloat-web-bar input {
+    flex: 1;
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+    padding: 2px 4px;
+    border: 2px inset #fff;
+    background: #fff;
+}
+.ext-bloat-web-view {
+    height: min(420px, 60vh);
+    overflow-y: auto;
+    background: #fff;
+    border: 2px inset #fff;
+    margin: 3px;
+}
+.ext-bloat-web-view a { color: #0000ee; }
+.ext-bloat-web-view button { cursor: pointer; }
+.ext-bloat-web-status {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 8px;
+    border-top: 1px solid #908c85;
+    font-size: 10px;
+    color: #444;
+    background: #d4d0c8;
+}
+
+/* ==================== COMMAND PROMPT ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-cmd {
+    width: min(600px, 94vw);
+    background: #000;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.6);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.ext-bloat-cmd-log {
+    height: 260px;
+    overflow-y: auto;
+    color: #c0c0c0;
+    padding: 6px 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.ext-bloat-cmd-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 4px 8px 8px;
+    color: #c0c0c0;
+}
+.ext-bloat-cmd-row input {
+    flex: 1;
+    background: #000;
+    border: none;
+    outline: none;
+    color: #e8e8e8;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    caret-color: #c0c0c0;
+}
+
+/* ==================== CALCULATOR ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-calc {
+    width: 230px;
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-calc-disp {
+    margin: 6px;
+    padding: 4px 8px;
+    background: #e8efe8;
+    border: 2px inset #fff;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ext-bloat-calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 0 6px 6px;
+}
+.ext-bloat-calc-btn {
+    padding: 5px 0;
+    border: 2px outset #fff;
+    background: #d4d0c8;
+    font-family: Tahoma, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+}
+.ext-bloat-calc-btn:active { border-style: inset; }
+.ext-bloat-calc-btn.c { grid-column: span 4; font-weight: bold; }
+
+/* ==================== DISK DEFRAGMENTER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-defrag {
+    width: min(520px, 94vw);
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-defrag-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 6px 8px 2px;
+    font-size: 10px;
+}
+.ext-bloat-defrag-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 3px;
+    border: 1px solid #555;
+    vertical-align: -1px;
+}
+.ext-bloat-defrag-grid {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 1px;
+    margin: 6px;
+    padding: 4px;
+    background: #202020;
+    border: 2px inset #fff;
+}
+.ext-bloat-defrag-grid i { height: 9px; }
+.ext-bloat-defrag-grid i.ok { background: #35c03a; }
+.ext-bloat-defrag-grid i.frag { background: #e04838; }
+.ext-bloat-defrag-grid i.sys { background: #2860d8; }
+.ext-bloat-defrag-grid i.free { background: #3a3a3a; }
+.ext-bloat-defrag-legend i.ok { background: #35c03a; }
+.ext-bloat-defrag-legend i.frag { background: #e04838; }
+.ext-bloat-defrag-legend i.sys { background: #2860d8; }
+.ext-bloat-defrag-legend i.free { background: #3a3a3a; }
+
+/* ==================== MOVIE MAKER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-mov {
+    width: min(640px, 94vw);
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-mov-body { display: flex; min-height: 280px; }
+.ext-bloat-mov-tasks {
+    width: 210px;
+    background: #eef3fd;
+    border-right: 1px solid #9db6e8;
+    padding: 8px;
+}
+.ext-bloat-mov-task {
+    padding: 4px 2px;
+    color: #1a3f9e;
+    cursor: pointer;
+    border-bottom: 1px dotted #c8d6f0;
+}
+.ext-bloat-mov-task:hover { background: #dce8fc; text-decoration: underline; }
+.ext-bloat-mov-main { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.ext-bloat-mov-preview {
+    height: 150px;
+    background: #000;
+    border: 2px inset #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: #666;
+}
+.ext-bloat-mov-play { font-size: 34px; color: #fff; opacity: 0.85; }
+.ext-bloat-mov-name {
+    position: absolute;
+    bottom: 4px;
+    left: 6px;
+    font-size: 9px;
+    color: #888;
+    font-family: 'Courier New', monospace;
+}
+.ext-bloat-mov-storyboard {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 2px inset #fff;
+    padding: 5px;
+    font-size: 16px;
+}
+.ext-bloat-mov-clip {
+    font-size: 9px;
+    background: #ffe0e0;
+    border: 1px solid #d08080;
+    color: #902020;
+    padding: 2px 4px;
+    align-self: center;
+}
+.ext-bloat-mov-timeline { border: 1px solid #999; background: #f2f2f2; padding: 4px; }
+.ext-bloat-mov-track {
+    font-size: 9px;
+    font-family: 'Courier New', monospace;
+    background: #cfe0ff;
+    border: 1px solid #7090d0;
+    padding: 2px 4px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.ext-bloat-mov-track.audio { background: #d8f0c8; border-color: #70a860; }
+
+/* ==================== HELP CENTER ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-help {
+    width: min(560px, 94vw);
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-help-cols { display: flex; min-height: 240px; }
+.ext-bloat-help-list {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #bbb;
+    overflow-y: auto;
+    max-height: 300px;
+}
+.ext-bloat-help-item { padding: 6px 10px; cursor: pointer; color: #003399; border-bottom: 1px solid #eee; }
+.ext-bloat-help-item:hover { background: #eef3fd; }
+.ext-bloat-help-item.sel { background: #0a246a; color: #fff; }
+.ext-bloat-help-art { flex: 1; background: #fff; padding: 12px 14px; line-height: 1.5; }
+.ext-bloat-help-art b { font-size: 14px; color: #333; }
+.ext-bloat-help-art p { margin: 8px 0; color: #444; }
+
+/* ==================== WELCOME TOUR ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-tour {
+    width: min(460px, 94vw);
+    background: #d4d0c8;
+    border: 2px outset #fff;
+    box-shadow: 4px 4px 14px rgba(0, 0, 0, 0.5);
+    font-family: Tahoma, sans-serif;
+    font-size: 11px;
+}
+.ext-bloat-tour-body {
+    padding: 14px 16px;
+    background: linear-gradient(160deg, #eef3fd, #dfe8f8);
+    min-height: 150px;
+}
+.ext-bloat-tour-head { font-size: 15px; font-weight: bold; color: #0a246a; margin-bottom: 8px; }
+.ext-bloat-tour-text { line-height: 1.55; color: #333; }
+.ext-bloat-tour-dots { margin-top: 12px; display: flex; gap: 5px; }
+.ext-bloat-tour-dots i { width: 8px; height: 8px; border-radius: 50%; background: #b0c0e0; border: 1px solid #7090c0; }
+.ext-bloat-tour-dots i.on { background: #0a246a; }
+
+/* ==================== CYBERGAURD DISRUPTIVE ALERT ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) */
+.ext-bloat-galert {
+    width: min(440px, 94vw);
+    background: #fff;
+    border: 3px solid #c00;
+    box-shadow: 0 0 30px rgba(200, 0, 0, 0.65);
+    font-family: Tahoma, sans-serif;
+    font-size: 12px;
+    animation: ext-bloat-galert-pulse 0.9s ease-in-out infinite;
+}
+@keyframes ext-bloat-galert-pulse {
+    50% { box-shadow: 0 0 46px rgba(255, 60, 0, 0.9); }
+}
+.ext-bloat-galert-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, #e03030, #a00);
+    color: #fff;
+    font-weight: bold;
+    padding: 4px 8px;
+}
+.ext-bloat-galert-title .ext-time-shutdown-x { color: #ffd0d0; }
+.ext-bloat-galert-body { display: flex; gap: 12px; align-items: flex-start; padding: 14px 12px 6px; }
+.ext-bloat-galert-icon { font-size: 34px; }
+.ext-bloat-galert-text { line-height: 1.5; color: #600; font-weight: bold; }
+
+/* ==================== BONZIBUDDY ====================
+   -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+   the final resident. bottom-left. unavoidable. purple aura. */
+.ext-bloat-bonzo {
+    position: fixed;
+    left: 10px;
+    bottom: 44px;
+    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05) he sits above the app windows now: a resident, not a wallflower (ads may still bury him, which is funnier) */
+    z-index: 999990;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+.ext-bloat-bonzo-gorilla {
+    font-size: 46px;
+    filter: drop-shadow(0 0 10px rgba(176, 110, 255, 0.9));
+    animation: ext-bloat-bonzo-bob 2.6s ease-in-out infinite;
+}
+@keyframes ext-bloat-bonzo-bob { 50% { transform: translateY(-6px) rotate(-4deg); } }
+.ext-bloat-bonzo-bubble {
+    max-width: 230px;
+    background: #fff;
+    border: 2px solid #b06eff;
+    border-radius: 10px 10px 10px 2px;
+    padding: 6px 10px;
+    font-family: Comic Sans MS, cursive, sans-serif;
+    font-size: 11px;
+    color: #5a0070;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.35);
+}

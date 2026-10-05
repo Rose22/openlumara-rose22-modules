@@ -164,7 +164,7 @@
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // games + task manager live in the bloat layer's scope
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) solitaire, windows update, msn window
-            else if (['ms', 'taskmgr', 'sol', 'msnwin', 'aim', 'icq', 'irc'].includes(what)) window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: what }));
+            else if (['ms', 'taskmgr', 'sol', 'msnwin', 'aim', 'icq', 'irc', 'zone', 'web', 'cmd', 'calc', 'defrag', 'mov', 'helptw', 'tour'].includes(what)) window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: what }));
             else this.ad();
         },
         doShutdown() {
@@ -202,7 +202,8 @@
             </span>
             <span class="ext-time-tray-icon" title="Winamp 2: it really whips the llama's ass" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'winamp' }))">🎛</span>
             <span class="ext-time-tray-icon" title="connection: 56k (do not disturb)" @click="ad()">📶</span>
-            <span class="ext-time-tray-icon mbloat-l3" title="CyberGaurd 2003: 27 threats" @click="navStart()">🛡</span>
+            {# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) tooltip is written by CyberGaurd itself #}
+            <span class="ext-time-tray-icon mbloat-l3" :title="navTip" @click="navStart()">🛡</span>
             {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) windows update tray icon #}
             {# -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04) msn tray icon #}
             <span class="ext-time-tray-icon" title="MSN Messenger - xX_darkangel_Xx is waiting" @click="window.dispatchEvent(new CustomEvent('ext-bloat-menu', { detail: 'msnwin' }))">💌</span>
@@ -225,14 +226,20 @@
                     { icon: '📄', label: 'Documents', act: 'ad' },
                     { icon: '⚙️', label: 'Control Panel', act: 'arp' },
                     { icon: '🔍', label: 'Find...', act: 'ad' },
-                    { icon: '❓', label: 'Help', act: 'ad' },
-                    { icon: '🌐', label: 'Internet', act: 'ie' },
+                    { icon: '❓', label: 'Help and Support', act: 'helptw' },
+                    { icon: '🌐', label: 'Internet / Surf the Web', act: 'web' },
                     { icon: '💣', label: 'Games / Minesweeper', act: 'ms' },
                     { icon: '🃏', label: 'Games / Solitaire', act: 'sol' },
                     { icon: '💌', label: 'MSN Messenger', act: 'msnwin' },
                     { icon: '🏃', label: 'AIM', act: 'aim' },
                     { icon: '🌸', label: 'ICQ', act: 'icq' },
                     { icon: '📡', label: 'mIRC', act: 'irc' },
+                    { icon: '💬', label: 'MSN Chat Zone', act: 'zone' },
+                    { icon: '🎬', label: 'Windows Movie Maker', act: 'mov' },
+                    { icon: '⌨️', label: 'Command Prompt', act: 'cmd' },
+                    { icon: '🗄️', label: 'Disk Defragmenter', act: 'defrag' },
+                    { icon: '🧮', label: 'Calculator', act: 'calc' },
+                    { icon: '🧭', label: 'Welcome Tour', act: 'tour' },
                     { icon: '🛡', label: 'CyberGaurd 2003', act: 'nav' },
                     { icon: '📊', label: 'Task Manager', act: 'taskmgr' },
                     { icon: '🔌', label: 'Shut Down...', act: 'shutdown' }
@@ -443,6 +450,53 @@
         sol: false, solStock: [], solWaste: [], solFound: [[], [], [], []], solTab: [],
         solSel: null, solWin: false, solScore: 0,
         ctxMenu: false, ctxX: 0, ctxY: 0, dispProps: false,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           MSN Chat Zone: rooms where the regulars talk to EACH OTHER */
+        zone: false, zoneRoom: 'warez-gossip', zoneInput: '', zoneT: null,
+        zoneSeen: false, zoneBusy: false, zoneX: 150, zoneY: 130, zoneDrag: null,
+        zoneRooms: [
+            { key: 'warez-gossip', name: '#warez-gossip', topic: 'edition37 drama, wareznet politics, who banned who', cast: ['xX_darkangel_Xx', 'warez_4_life', 'Cr4ckM4ster'] },
+            { key: 'skate-or-die', name: '#skate-or-die', topic: 'skate spots, bands, winamp skins, whose mom has the car', cast: ['xXx_SkateOrDie_xX', 'kickflip_karen', 'dj_dialup_dee'] },
+            { key: 'glitter-force', name: '#glitter-force', topic: 'magical girls, dress-up games, ringtone trading', cast: ['l0li_pop_princess', 'xX_darkangel_Xx', 'sparkle_smiley'] }
+        ],
+        zoneLogs: { 'warez-gossip': [], 'skate-or-die': [], 'glitter-force': [] },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           fake internet: a browser window with fictional 2003 websites */
+        web: false, webAddr: 'http://www.startnu.nl/', webTitle: 'StartNU - your gateway to the internet!', webHtml: '',
+        webX: 90, webY: 60, webDrag: null,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           the malware talks back: AI tray tooltips + disruptive alerts,
+           and Bonzo moves in when the infection hits its final stage */
+        navTip: 'CyberGaurd 2003: 27 threats (click for a FREE scan)',
+        // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05)
+        // sound file cache: cue name -> Audio | 'loading' | 'missing'
+        sndCache: {},
+        navAlert: false, navAlertTitle: '', navAlertBody: '',
+        bonzo: false, bonzoSay: 'Hi! I am Bonzo! Bonzo wants to be friends FOREVER.',
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           the classic Windows app collection */
+        cmd: false, cmdLog: ['Microsoft(R) Windows XP (R) (not really) Version 5.1.2600', 'Type HELP for commands. EXIT is decorative.'], cmdInput: '',
+        calc: false, calcDisp: '0', calcPrev: null, calcOp: null, calcFresh: true,
+        defrag: false, defragBlocks: [], defragTimer: null, defragPct: 0, defragDone: false,
+        mov: false,
+        helpWin: false, helpTopic: 0,
+        helpTopics: [
+            { t: 'What is Windows?', b: 'Windows is a friendly blue rectangle that runs your programs. This copy of Windows is friendlier than most: it picked your toolbars for you, so you would not have to decide anything ever again.' },
+            { t: 'How do I remove CyberGaurd?', b: 'See the related topic: How do I accept my fate?' },
+            { t: 'How do I accept my fate?', b: 'Step 1: breathe. Step 2: decorate your toolbars, they are permanent now. Step 3: remember that CyberGaurd PRO (9.99 EUR/mo) solves nothing but sounds nice saying it.' },
+            { t: 'Why does my computer hum when I open My Computer?', b: 'That is the sound of it judging you. Normal for edition37.' },
+            { t: 'Keyboard shortcuts', b: 'Ctrl+Alt+Del opens Task Manager. Alt+Tab opens disappointment. Win+R (or Ctrl+Shift+R) opens Run and the sudden urge to type format c:.' },
+            { t: 'Printing (NEW in Windows XP!)', b: 'Printing is not installed. To install the print driver, insert the printer CD, then the second one, then a CD you do not own. Windows will figure it out from there.' }
+        ],
+        tour: false, tourPage: 0,
+        tourPages: [
+            { t: 'Welcome to Windows XP!', b: 'This tour shows you around your new computer. It takes 3 minutes and lies for 2 of them. This copy of XP came from a friend of a friend, at school, on a CD with a marker drawing of a llama on it. That is fine. Everything is fine.' },
+            { t: 'The Desktop', b: 'Your desktop is blue, like the sky, if the sky were made of software. The icons on the left do things. The icons on the right belong to CyberGaurd now. The wallpaper has an opinion about your copy of Windows.' },
+            { t: 'The Start Menu', b: 'Click Start to open a list of programs. Some of these programs exist. Games / Minesweeper definitely exists. Have fun with that one.' },
+            { t: 'Windows Messenger', b: 'Messenger connects you to your friends! If a stranger named xX_darkangel_Xx adds you at 11pm, that is ALSO Messenger. Everything is Messenger.' },
+            { t: 'Security Center', b: 'Your computer is protected by CyberGaurd 2003 TOTAL PROTECTION. CyberGaurd has disabled the Windows Firewall to protect you from Windows. You should be grateful.' },
+            { t: 'Tour Complete!', b: 'You now know everything about your new computer. Nothing can surprise you ever again. (Somewhere, something called BonzoBuddy is laughing.)' }
+        ],
         init() {
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
                startup chime + per-ad beeps, because silence is suspicious. */
@@ -463,13 +517,59 @@
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
             // exposed globally so the chat layer (clippy, toolbars) can beep too
             window.extBloatBeep = () => this.beep(980, 0.09);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05)
+               SOUND FILES: drop a file named <cue>.mp3/.ogg/.wav/.m4a into
+               user_modules/windows/webui/assets/sounds/ and it replaces the
+               synth beep for that cue. Cues: msn-in, msn-out, aim-in, aim-out,
+               icq-in, icq-out, irc, room, room-out, ad, gaurd, siren, bonzo,
+               web. First use probes the folder; missing files fall back. */
+            this.snd = (name, fb) => {
+                if (localStorage.getItem('extBloatMuted') === '1') return;
+                const st = this.sndCache[name];
+                if (st === 'missing') { if (fb) fb(); return; }
+                if (st === 'loading') return;
+                if (st) { try { const a = st.cloneNode(); a.volume = 0.5; a.play().catch(() => {}); } catch (e) {} return; }
+                this.sndCache[name] = 'loading';
+                const probe = (i) => {
+                    if (i >= 4) { this.sndCache[name] = 'missing'; if (fb) fb(); return; }
+                    const ext = ['mp3', 'ogg', 'wav', 'm4a'][i];
+                    const a = new Audio('/ext-assets/windows/sounds/' + name + '.' + ext);
+                    a.addEventListener('canplaythrough', () => {
+                        this.sndCache[name] = a;
+                        const b = a.cloneNode(); b.volume = 0.5; b.play().catch(() => {});
+                    }, { once: true });
+                    a.addEventListener('error', () => probe(i + 1), { once: true });
+                    a.load();
+                };
+                probe(0);
+            };
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
                incoming-message jingles: each messenger gets its own tune.
                msn: the classic two-tone. icq: the descending trill.
                aim: the gong. irc keeps its humble key click. */
-            this.notifMsn = () => { this.beep(880, 0.13, 0, 'sine', 0.06); this.beep(1174, 0.2, 0.15, 'sine', 0.06); };
-            this.notifIcq = () => { this.beep(1568, 0.09, 0, 'triangle', 0.06); this.beep(1318, 0.09, 0.11, 'triangle', 0.06); this.beep(1046, 0.16, 0.22, 'triangle', 0.06); };
-            this.notifAim = () => { this.beep(392, 0.3, 0, 'sine', 0.07); this.beep(523, 0.35, 0.12, 'sine', 0.05); };
+            this.notifMsn = () => { this.snd('msn-in', () => { this.beep(880, 0.13, 0, 'sine', 0.06); this.beep(1174, 0.2, 0.15, 'sine', 0.06); }); };
+            this.notifIcq = () => { this.snd('icq-in', () => { this.beep(1568, 0.09, 0, 'triangle', 0.06); this.beep(1318, 0.09, 0.11, 'triangle', 0.06); this.beep(1046, 0.16, 0.22, 'triangle', 0.06); }); };
+            this.notifAim = () => { this.snd('aim-in', () => { this.beep(392, 0.3, 0, 'sine', 0.07); this.beep(523, 0.35, 0.12, 'sine', 0.05); }); };
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               the infection-advance siren: three rising-falling whoops,
+               played every time the threat stage goes up */
+            this.siren = () => {
+                if (localStorage.getItem('extBloatMuted') === '1') return;
+                this.snd('siren', () => {
+                try {
+                    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                    o.type = 'sawtooth'; g.gain.value = 0.045;
+                    o.connect(g); g.connect(this.ctx.destination);
+                    const t0 = this.ctx.currentTime;
+                    for (let i = 0; i < 3; i++) {
+                        o.frequency.setValueAtTime(500, t0 + i * 0.66);
+                        o.frequency.linearRampToValueAtTime(1180, t0 + i * 0.66 + 0.33);
+                        o.frequency.linearRampToValueAtTime(500, t0 + i * 0.66 + 0.66);
+                    }
+                    o.start(t0); o.stop(t0 + 2.0);
+                } catch (e) {}
+                });
+            };
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
             // park the draggable windows at their old corners to start
             this.msnX = Math.max(10, window.innerWidth - 336);
@@ -489,7 +589,7 @@
             this.arm = () => { if (!this.armed) { this.armed = true; this.chime(); } };
             document.addEventListener('click', this.arm);
             document.addEventListener('click', () => { if (this.armed && !this.msn && !this.msnTimer) this.msnTimer = setTimeout(() => { this.msn = true; this.beep(880, 0.12, 0, 'triangle'); }, 14000); });
-            document.addEventListener('ext-time-ad', () => this.beep(980, 0.09));
+            document.addEventListener('ext-time-ad', () => this.snd('ad', () => this.beep(980, 0.09)));
             // fake download manager: starts after first click, forever cycle
             // (only once the infection has reached level 2)
             document.addEventListener('click', () => { if (this.threat >= 2 && !this.dl && !this.dlTimer) this.queueDl(); });
@@ -515,7 +615,7 @@
             setTimeout(() => this.popupFetch(), 5000);
             // -- version banner: if this is missing from the console, the
             // browser is running a cached copy of the desktop (hard refresh!)
-            console.log('%c[windows] story engine v2 loaded', 'color: #b00080');
+            console.log('%c[windows] story engine v3.1 loaded (sounds+zorder+cont)', 'color: #b00080');
             // autoplay disc roulette (level 3+: the disc tray gets haunted)
             setTimeout(() => { if (this.threat >= 3) this.apOpen(); }, 20000);
             // floppy disk errors, because it's 1999 inside this machine
@@ -573,8 +673,40 @@
                 else if (e.detail === 'aim') this.aimOpen();
                 else if (e.detail === 'icq') this.icqOpen();
                 else if (e.detail === 'irc') this.ircOpen();
+                // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) chat zone, web, classic apps
+                else if (e.detail === 'zone') this.zoneOpen();
+                else if (e.detail === 'web') this.webOpen('');
+                else if (e.detail === 'cmd') this.cmd = true;
+                else if (e.detail === 'calc') this.calc = true;
+                else if (e.detail === 'defrag') this.defragOpen();
+                else if (e.detail === 'mov') this.mov = true;
+                else if (e.detail === 'helptw') this.helpWin = true;
+                else if (e.detail === 'tour') this.tour = true;
             };
             window.addEventListener('ext-bloat-menu', this.menuWatcher);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               CyberGaurd rewrites its own tray tooltip on a timer and, once
+               the infection is real (stage 3+), screams in a big alert. */
+            this.gTick = () => {
+                fetch('/api/ext/windows/story/gaurd').then((r) => r.json()).then((j) => {
+                    const d = (j && j.data) || {};
+                    if (d.status !== 'ok') return;
+                    if (d.tip) this.navTip = d.tip;
+                    if (d.title && this.threat >= 3 && !this.navAlert && Math.random() < 0.55) {
+                        this.navAlertTitle = d.title;
+                        this.navAlertBody = d.body || 'Immediate action required. Only CyberGaurd PRO can help you now.';
+                        this.navAlert = true;
+                        this.snd('gaurd', () => { this.beep(220, 0.25, 0, 'sawtooth', 0.07); this.beep(170, 0.3, 0.28, 'sawtooth', 0.07); });
+                    }
+                }).catch(() => {});
+            };
+            this.gTimer = setInterval(this.gTick, 60000);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05)
+            // first CyberGaurd update lands after 9s: it must never feel silent
+            setTimeout(this.gTick, 9000);
+            // the IE address bar (chat layer) sends the whole internet here
+            this.webWatcher = (e) => this.webOpen((e && e.detail) || '');
+            window.addEventListener('ext-bloat-web', this.webWatcher);
         },
         destroy() {
             clearTimeout(this.ssTimer); clearTimeout(this.dlTimer); clearTimeout(this.bootTimer);
@@ -589,6 +721,9 @@
             window.removeEventListener('ext-bloat-menu', this.menuWatcher);
             document.removeEventListener('ext-time-bsod', this.bsodWatcher);
             clearInterval(this.msTimer); clearInterval(this.waTimer); clearInterval(this.tmTimer); clearInterval(this.pipeTimer);
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) new timers
+            clearInterval(this.zoneT); clearInterval(this.gTimer); clearInterval(this.bTimer); clearInterval(this.defragTimer);
+            window.removeEventListener('ext-bloat-web', this.webWatcher);
         },
         startSS() {
             // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
@@ -881,7 +1016,7 @@
             fetch('/api/ext/windows/story/ambient', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ client: client, history: hist, who: who || '' })
+                body: JSON.stringify({ client: client, history: hist, who: who || '', irc_joined: !!this.ircNet })
             }).then((r) => {
                 if (r.status === 404) { oops('route 404 - module not reloaded?'); return null; }
                 return r.json();
@@ -917,7 +1052,7 @@
             fetch('/api/ext/windows/story/reply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ client: client, text: text, history: hist })
+                body: JSON.stringify({ client: client, text: text, history: hist, irc_joined: !!this.ircNet })
             }).then((r) => {
                 if (r.status === 404) console.warn('[windows] story reply route 404 - module not reloaded?');
                 return r.json();
@@ -963,9 +1098,20 @@
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
                every story message deepens the infection: the malware chrome
                wakes up gradually instead of face-painting the desktop at 0s */
+            const prev = this.threat;
             this.threat = Math.min(5, this.threat + 2);
             document.body.setAttribute('data-threat', String(this.threat));
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+               every new infection stage gets an air-raid siren; the MSN Chat
+               Zone opens its doors at stage 3; Bonzo moves in at stage 5 */
+            if (this.threat > prev) {
+                this.siren();
+                // every new stage makes CyberGaurd scream right away
+                if (this.threat >= 3) setTimeout(() => this.gTick(), 4000);
+            }
             if (this.threat >= 1) window.dispatchEvent(new CustomEvent('ext-bloat-threat'));
+            if (this.threat >= 3 && !this.zoneSeen) { this.zoneSeen = true; setTimeout(() => this.zoneOpen(), 5000); }
+            if (this.threat >= 5 && !this.bonzo) this.bonzoUnlock();
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
                story messages pop their window open like a good 2003 popup
                virus would. the tray dot stays as backup, you WILL notice. */
@@ -995,7 +1141,7 @@
                 if (!this.ircNet) this.ircConnect();
                 this.ircBuf.push(line);
                 if (this.ircBuf.length > 60) this.ircBuf.shift();
-                this.beep(700, 0.05, 0, 'square', 0.02);
+                this.snd('irc', () => this.beep(700, 0.05, 0, 'square', 0.02));
                 if (was) document.dispatchEvent(new CustomEvent('ext-bloat-ping', { detail: 'irc' }));
             }
         },
@@ -1032,7 +1178,7 @@
                 if (client === 'msn') this.notifMsn();
                 else if (client === 'icq') this.notifIcq();
                 else if (client === 'aim') this.notifAim();
-                else this.beep(700, 0.05, 0, 'square', 0.02);
+                else this.snd('irc', () => this.beep(700, 0.05, 0, 'square', 0.02));
             }).catch(() => {});
         },
         popupFetch() {
@@ -1041,12 +1187,346 @@
                 if (d.text) { this.msnReqMsg = d.text; this.msnSayMsg = d.text; }
             }).catch(() => {});
         },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           MSN CHAT ZONE: the regulars talk to EACH OTHER. one line every
+           ~13s lands in a random room, whether you are looking or not. */
+        zoneOpen(room) {
+            this.zone = true;
+            if (room) this.zoneRoom = room;
+            this.zoneRooms.forEach((r) => {
+                if (!this.zoneLogs[r.key].length) {
+                    this.zoneLogs[r.key].push({ sys: true, t: '* You have joined ' + r.name + '. Topic: ' + r.topic });
+                }
+            });
+            clearInterval(this.zoneT);
+            this.zoneT = setInterval(() => this.zoneTick(), 13000);
+            setTimeout(() => this.zoneTick(), 2500);
+            this.notifMsn();
+        },
+        zoneRand(room) {
+            const r = this.zoneRooms.find((x) => x.key === room) || this.zoneRooms[0];
+            return r.cast[Math.floor(Math.random() * r.cast.length)];
+        },
+        zoneSay(room, who, text) {
+            if (this.zoneBusy) return;
+            this.zoneBusy = true;
+            const hist = this.zoneLogs[room].filter((m) => !m.sys).slice(-10).map((m) => ({ who: m.who, text: m.t }));
+            const payload = { room: room, who: who, history: hist };
+            if (text) payload.text = text;
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-05)
+            // if the last room line is already from this same speaker, the AI
+            // must CONTINUE its own thought, not reply to itself
+            else {
+                const last = hist[hist.length - 1];
+                if (last && last.who === who) payload.cont = true;
+            }
+            fetch('/api/ext/windows/story/room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then((r) => r.json()).then((j) => {
+                this.zoneBusy = false;
+                const d = (j && j.data) || {};
+                if (d.status === 'ok' && d.text) {
+                    this.zoneLogs[room].push({ who: d.who || who, t: d.text });
+                    if (this.zone && room === this.zoneRoom) this.snd('room', () => this.beep(640, 0.04, 0, 'square', 0.015));
+                }
+            }).catch(() => { this.zoneBusy = false; });
+        },
+        zoneTick() {
+            const room = this.zoneRooms[Math.floor(Math.random() * this.zoneRooms.length)].key;
+            this.zoneSay(room, this.zoneRand(room), '');
+        },
+        zoneSend() {
+            const v = this.zoneInput.trim();
+            if (!v) return;
+            this.zoneInput = '';
+            const room = this.zoneRoom;
+            this.zoneLogs[room].push({ who: this.storyProt + '_', t: v, me: true });
+            this.snd('room-out', () => this.beep(900, 0.08, 0, 'triangle'));
+            this.zoneSay(room, this.zoneRand(room), v);
+        },
+        zoneClose() { this.zone = false; clearInterval(this.zoneT); },
+        zoneCur() { return this.zoneRooms.find((r) => { return r.key === this.zoneRoom; }) || this.zoneRooms[0]; },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           FAKE INTERNET: a browser window with fictional 2003 websites.
+           links inside the rendered pages use data-web (delegated click). */
+        webOpen(addr) {
+            this.web = true;
+            this.webGo(addr || this.webAddr);
+        },
+        webGo(addr) {
+            let a = String(addr || '').toLowerCase().replace(/^https?:\/\//, '').replace(/\?.*$/, '');
+            a = a.replace(/\/+$/, '');
+            if (!a || a.indexOf('.') === -1) a = 'www.startnu.nl';
+            const s = this.webSites();
+            const keys = Object.keys(s).sort((x, y) => y.length - x.length);
+            let hit = '';
+            for (const k of keys) { if (a === k || a === k + '/index.html') { hit = k; break; } }
+            this.webAddr = 'http://' + a + '/';
+            this.webTitle = hit ? s[hit].title : a + ' - cannot find server';
+            this.webHtml = hit ? s[hit].html : this.web404(a);
+            this.snd('web', () => this.beep(1200, 0.06, 0, 'triangle'));
+        },
+        webClick(ev) {
+            const el = ev.target.closest ? ev.target.closest('[data-web]') : null;
+            if (!el) return;
+            ev.preventDefault();
+            const v = el.getAttribute('data-web');
+            if (v.indexOf('action:') === 0) {
+                const a = v.slice(7);
+                if (a === 'zone') this.zoneOpen();
+                else if (a === 'nav') this.navStart();
+                else if (a === 'ad') document.dispatchEvent(new CustomEvent('ext-time-ad'));
+                else if (a === 'reload') window.location.reload();
+                return;
+            }
+            this.webGo(v);
+        },
+        web404(a) {
+            return '<div style=\'font-family: Times New Roman, serif; padding: 18px; color: #000;\'>'
+                + '<h2 style=\'color: #800000; margin-top: 0;\'>Cannot find server</h2>'
+                + '<p>The server at <b>' + a + '</b> could not be found. It has either moved, been seized by the police, or gone offline while someone picked up the phone.</p>'
+                + '<hr size=1>'
+                + '<p style=\'font-size: 11px;\'>Try the real internet instead:'
+                + ' <a href=\'#\' data-web=\'www.startnu.nl\'>StartNU</a>'
+                + ' | <a href=\'#\' data-web=\'www.chatcity.nl\'>ChatCity</a>'
+                + ' | <a href=\'#\' data-web=\'www.zoeknu.nl\'>ZoekNu!</a></p>'
+                + '<p style=\'font-size: 10px; color: #666;\'>Additional information: CyberGaurd.exe reports that this error is your fault and recommends PRO.</p></div>';
+        },
+        webSites() {
+            return {
+                'www.startnu.nl': {
+                    title: 'StartNU - your gateway to the internet!',
+                    html: '<div style=\'background: #e8ecf5; font-family: Arial, sans-serif; padding: 14px; color: #000;\'>'
+                        + '<div style=\'text-align: center;\'><span style=\'font-size: 30px; font-weight: bold; color: #003399;\'>Start<span style=\'color: #ff6600;\'>NU</span>.nl</span>'
+                        + '<div style=\'font-size: 11px; color: #555;\'>your gateway to the information superhighway (mind the potholes)</div></div>'
+                        + '<div style=\'border: 2px ridge #99a; background: #fff; margin: 12px 0; padding: 6px; text-align: center;\'>'
+                        + '<marquee scrollamount=4 style=\'font-size: 11px;\'>WELCOME!! today\'s tips: do not accept contact requests from strangers - hi stranger - do not download free toolbars - you beautiful disaster - turn off your PC at night, she gets lonely</marquee></div>'
+                        + '<table width=\'100%\'><tr>'
+                        + '<td width=\'50%\' valign=\'top\' style=\'border: 2px inset #ccc; background: #fff; padding: 8px;\'>'
+                        + '<b style=\'color: #003399;\'>Hot sites of the week</b><br>'
+                        + '- <a href=\'#\' data-web=\'www.chatcity.nl\'>ChatCity.nl - chatrooms!!</a><br>'
+                        + '- <a href=\'#\' data-web=\'www.chatcity.nl/darkangel\'>darkangel\'s h0ekje</a> (new: 12 new gifs!)<br>'
+                        + '- <a href=\'#\' data-web=\'www.warez-crew-underground.ru/edition37\'>windows-xp-pro-REPACK-edition37.iso</a><br>'
+                        + '- <a href=\'#\' data-web=\'www.bonzo-buddy-free.biz\'>BonzoBuddy FREE download</a><br>'
+                        + '- <a href=\'#\' data-web=\'www.zoeknu.nl\'>ZoekNu! search engine</a><br>'
+                        + '- <a href=\'#\' data-web=\'action:nav\'>Is my PC infected? FREE scan</a></td>'
+                        + '<td width=\'50%\' valign=\'top\' style=\'border: 2px inset #ccc; background: #ffffe0; padding: 8px; font-size: 11px;\'>'
+                        + '<b>TODAY\'S HOROSCOPE (by CyberGaurd)</b><br>Aries: buy PRO.<br>Taurus: buy PRO.<br>Gemini: your toolbars miss you.<br>All signs: a dark-haired stranger wants to add you on MSN. This is destiny.<br><br>'
+                        + '<b>Weather:</b> 7 degrees, rain, cond. on the modem.</td></tr></table>'
+                        + '<div style=\'text-align: center; font-size: 10px; color: #666; margin-top: 10px;\'>You are visitor number <span style=\'font-family: Courier New; background: #000; color: #0f0; padding: 1px 4px;\'>000042</span> - best viewed in Internet Explorer 6 at 800x600 - <a href=\'#\' data-web=\'action:ad\'>banner ads</a></div></div>'
+                },
+                'www.chatcity.nl': {
+                    title: 'ChatCity.nl - the coziest chat network of the low countries',
+                    html: '<div style=\'background: #f5e6ff; font-family: Verdana, sans-serif; padding: 14px; color: #40005a;\'>'
+                        + '<h1 style=\'margin: 0 0 4px;\'>\ud83d\udfac ChatCity.nl</h1>'
+                        + '<div style=\'font-size: 11px;\'>the coziest chat network of the low countries - now with 3 whole rooms!</div>'
+                        + '<div style=\'background: #fff; border: 2px outset #c9f; margin: 12px 0; padding: 10px;\'>'
+                        + '<b>Room of the week: #glitter-force \u2728</b> - 3 users - topic: magical girls and ringtone trading<br>'
+                        + '<b>#warez-gossip</b> - 3 users - topic: serious server business (gossip)<br>'
+                        + '<b>#skate-or-die</b> - 3 users - topic: gnar rad stuff</div>'
+                        + '<div style=\'text-align: center; margin: 14px 0;\'>'
+                        + '<button type=\'button\' style=\'font-size: 14px; padding: 6px 18px; cursor: pointer;\' data-web=\'action:zone\'>\ud83d\udcac OPEN THE CHAT ZONE NOW!!</button></div>'
+                        + '<div style=\'font-size: 10px; color: #777;\'>house rules: 1) no ads 2) no doxxing 3) CyberGaurd.exe is banned from all rooms (he keeps moderating us instead)</div></div>'
+                },
+                'www.chatcity.nl/darkangel': {
+                    title: '~*~ d4rkaNG3l\'s h03kje ~*~',
+                    html: '<div style=\'background: #1a0b2e; color: #d9b3ff; font-family: Comic Sans MS, cursive; padding: 16px; min-height: 100%;\'>'
+                        + '<div style=\'text-align: center;\'><span style=\'font-size: 26px; color: #b06eff;\'>~*~ w3lc0me to my h0ekje ~*~</span>'
+                        + '<br><span style=\'font-size: 11px;\'>best viewed at 800x600 with a broken heart</span></div>'
+                        + '<div style=\'border: 1px dashed #b06eff; margin: 12px 0; padding: 10px; font-size: 12px;\'>'
+                        + '<b>about me:</b> 17. goth. i like: within temptation, silver rings, rainy bus stops, editing other people\'s photo albums at 2am. i do not like: being asked about 2001.<br>'
+                        + '<b>now listening:</b> within temptation - ice angel (midi, turn ur speakers UP)<br>'
+                        + '<b>mood:</b> \ud83d\udc94 guilty but like, in a cute way</div>'
+                        + '<div style=\'border: 1px dashed #b06eff; padding: 10px; font-size: 12px;\'><b>guestbook (do not edit!!):</b><br>'
+                        + '- xXx_SkateOrDie_xX: nice site. my mom says hi. winamp keygen??<br>'
+                        + '- l0li_pop_princess: why is everything BLACK in here?? where do the ponies live??<br>'
+                        + '- Cr4ckM4ster: nice site. we need to talk about 2001. - admin<br>'
+                        + '- anonymous: i saw you change your username in feb 2001. see you soon. xoxo</div>'
+                        + '<div style=\'text-align: center; margin-top: 12px; font-size: 11px;\'>'
+                        + '<a href=\'#\' data-web=\'www.chatcity.nl\' style=\'color: #8fd3ff;\'>back to ChatCity</a>'
+                        + ' | <a href=\'#\' data-web=\'action:ad\' style=\'color: #8fd3ff;\'>sign guestbook</a>'
+                        + '<br><br>\u266b this page is under a permanent construction \u266b</div></div>'
+                },
+                'www.warez-crew-underground.ru/edition37': {
+                    title: 'WAREZNET :: file database :: windows-xp-pro-REPACK-edition37.iso',
+                    html: '<div style=\'background: #0c0c0c; color: #00e000; font-family: Courier New, monospace; padding: 16px; font-size: 12px;\'>'
+                        + '<div style=\'color: #00ff80;\'>WAREZNET FILE DATABASE v2.1 (do not email us)</div><hr color=#004400>'
+                        + '<pre>FILE:  windows-xp-pro-REPACK-edition37.iso\nSIZE:  700,318,848 bytes\nUPLOAD: angel_grrl_2001 [REDACTED], feb 2001\nDLS:   66,612 (and rising, constantly, suspiciously)\nRATIO: you download, CyberGaurd uploads</pre>'
+                        + '<div style=\'border: 1px solid #00aa00; padding: 8px; margin: 10px 0;\'>USER COMMENTS:<br>'
+                        + '> Cr4ckM4ster: 10/10 clean repack. ignore the extra program. IT IS A FEATURE.<br>'
+                        + '> warez_4_life: 9/10. bundled adware gave itself op on this server. would not recommend. 450,000 people did.<br>'
+                        + '> l0li_pop_princess: my mum got a second toolbar named gaurd_buddy2. 2/10.<br>'
+                        + '> angel_grrl_2001: i was TWELVE. let it go.</div>'
+                        + '<button type=\'button\' data-web=\'action:ad\' style=\'font-family: Courier New;\'>[ DOWNLOAD NOW (free, forever, no catch) ]</button>'
+                        + '<div style=\'margin-top: 8px; color: #666;\'>this download is brought to you by CyberGaurd.exe. CyberGaurd.exe did not ask to sponsor this page. CyberGaurd.exe sponsors everything now.</div></div>'
+                },
+                'www.bonzo-buddy-free.biz': {
+                    title: 'BonzoBuddy - Your FREE New Best Friend!',
+                    html: '<div style=\'background: #ffe6f5; font-family: Comic Sans MS, cursive; color: #7a0060; padding: 16px; text-align: center;\'>'
+                        + '<div style=\'font-size: 52px;\'>\ud83e\udd8d</div>'
+                        + '<h1 style=\'margin: 0;\'>BonzoBuddy!</h1>'
+                        + '<div style=\'font-size: 13px;\'>your FREE new best friend! he tells jokes! he reads your mind! he never leaves!</div>'
+                        + '<div style=\'background: #fff; border: 3px double #ff66cc; margin: 12px auto; max-width: 420px; padding: 10px; text-align: left; font-size: 12px;\'>'
+                        + '<b>features:</b><br>'
+                        + '- funny jokes (Bonzo has 6 jokes, he will tell them all)<br>'
+                        + '- tells the weather (wrong city, always)<br>'
+                        + '- reads your mind (this is a normal feature)<br>'
+                        + '- follows you to every website (friendship!)<br>'
+                        + '- uninstaller not included (commitment!)</div>'
+                        + '<button type=\'button\' style=\'font-size: 16px; padding: 8px 20px; background: #ff66cc; cursor: pointer;\' data-web=\'action:ad\'>DOWNLOAD BONZO FREE!!</button>'
+                        + '<div style=\'font-size: 10px; color: #a05a8a; margin-top: 10px;\'>Bonzo has been installed on 40 million computers. Bonzo remembers all of them.</div></div>'
+                },
+                'www.zoeknu.nl': {
+                    title: 'ZoekNu! - search the whole internet (slowly)',
+                    html: '<div style=\'background: #fff; font-family: Arial, sans-serif; padding: 16px; color: #000;\'>'
+                        + '<div style=\'text-align: center; margin-bottom: 12px;\'><span style=\'font-size: 30px; color: #cc0000;\'>Zoek<span style=\'color: #0000cc;\'>Nu!</span></span>'
+                        + '<br><input type=\'text\' style=\'width: 60%; padding: 3px;\' placeholder=\'why is my pc making that noise\'>'
+                        + ' <button type=\'button\' data-web=\'action:ad\'>Zoek!</button></div>'
+                        + '<div style=\'font-size: 11px; color: #008000;\'>about 87 results (CyberGaurd counted twice)</div>'
+                        + '<ol style=\'font-size: 12px;\'>'
+                        + '<li><a href=\'#\' data-web=\'www.chatcity.nl/darkangel\'>d4rkaNG3l\'s h0ekje</a> - ~*~ my whole personality in 3kb ~*~</li>'
+                        + '<li><a href=\'#\' data-web=\'www.warez-crew-underground.ru/edition37\'>windows xp pro edition37</a> - WAREZNET file page (definitely legit)</li>'
+                        + '<li><a href=\'#\' data-web=\'www.bonzo-buddy-free.biz\'>BonzoBuddy FREE</a> - your new best friend</li>'
+                        + '<li><a href=\'#\' data-web=\'action:nav\'>10 reasons your PC is slow</a> - #7 is CyberGaurd.exe, #8-10 are also CyberGaurd.exe</li>'
+                        + '<li><a href=\'#\' data-web=\'action:reload\'>how to fix dial-up</a> - hang up the phone, this is the fix, that is the whole article</li></ol>'
+                        + '<div style=\'font-size: 10px; color: #666;\'>ZoekNu! searches a hand-picked list of 5 websites. results are final and legally binding in 3 countries.</div></div>'
+                }
+            };
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           BONZOBUDDY: the final stage resident. corner-dweller, mind-reader. */
+        bonzoUnlock() {
+            this.bonzo = true;
+            this.beep(523, 0.12, 0, 'triangle'); this.beep(659, 0.12, 0.14, 'triangle'); this.beep(784, 0.2, 0.28, 'triangle');
+            clearInterval(this.bTimer);
+            this.bTimer = setInterval(() => this.bonzoTick(), 38000);
+            setTimeout(() => this.bonzoTick(), 4000);
+        },
+        bonzoTick() {
+            fetch('/api/ext/windows/story/gaurd?who=bonzo').then((r) => r.json()).then((j) => {
+                const d = (j && j.data) || {};
+                if (d.status === 'ok' && d.text) this.bonzoSay = d.text;
+            }).catch(() => {});
+        },
+        bonzoClick() {
+            this.bonzoTick();
+            this.snd('bonzo', () => this.beep(980, 0.07, 0, 'square'));
+            document.dispatchEvent(new CustomEvent('ext-time-ad'));
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           COMMAND PROMPT: a DOS box with a personality. */
+        cmdRun() {
+            const raw = this.cmdInput;
+            const cmd = raw.trim().toLowerCase();
+            this.cmdLog.push('C:>' + raw);
+            this.cmdInput = '';
+            if (!cmd) return;
+            if (cmd === 'help') this.cmdLog.push('COMMANDS: HELP DIR VER CLS ECHO PING DEFRAG CALC ZONE WINAMP SOL TASKMGR CYBERGAURD FORMAT EXIT (exit is decorative)');
+            else if (cmd === 'dir') {
+                this.cmdLog.push(' Volume in drive C is PIRATED007');
+                this.cmdLog.push(' CYBERG~1 EXE      666,144  <HIDDEN, DO NOT DELETE, DO NOT LOOK AT IT>');
+                this.cmdLog.push(' EDITION37 ISO  700,318,848  (the evidence, leave it for the police)');
+                this.cmdLog.push(' GAMES           <DIR>   LOST_IN_SPACE  <DIR> (do not enter)');
+                this.cmdLog.push(' TOOLBARS        <DIR>   BONZO          <DIR> (he made this one himself)');
+                this.cmdLog.push('     4 File(s)   999 MB free (this number is a lie)');
+            }
+            else if (cmd === 'ver') this.cmdLog.push('Microsoft Windows XP [Version 5.1.2600 - edition37 repack, do not distribute]');
+            else if (cmd === 'cls') this.cmdLog = [];
+            else if (cmd.indexOf('echo ') === 0) this.cmdLog.push(raw.trim().slice(5));
+            else if (cmd.indexOf('ping') === 0) {
+                this.cmdLog.push('Pinging 195.23.66.66 with 32 bytes of data:');
+                this.cmdLog.push('Reply: timed out (CyberGaurd is using the line)');
+                this.cmdLog.push('Reply: timed out (again)');
+                this.cmdLog.push('Ping statistics: 100% loss, 200% blame');
+            }
+            else if (cmd === 'defrag') this.defragOpen();
+            else if (cmd === 'calc') this.calc = true;
+            else if (cmd === 'zone') this.zoneOpen();
+            else if (cmd === 'winamp') this.waToggle();
+            else if (cmd === 'sol' || cmd === 'solitaire') this.solStart();
+            else if (cmd === 'taskmgr') this.tmOpen();
+            else if (cmd === 'cybergaurd') this.navStart();
+            else if (cmd === 'format' || cmd === 'format c:' || cmd === 'format c:\\') {
+                this.beep(180, 0.4, 0, 'sawtooth', 0.07);
+                document.dispatchEvent(new CustomEvent('ext-time-bsod'));
+            }
+            else if (cmd === 'exit') this.cmdLog.push('You cannot leave. This is a pirated copy of Windows. Windows keeps you.');
+            else this.cmdLog.push(cmd + ': not recognized as an internal or external command, operable program or party favor.');
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           CALCULATOR: the one app that still works on this machine. */
+        calcIn(d) {
+            if (this.calcFresh) { this.calcDisp = d === '.' ? '0.' : d; this.calcFresh = false; }
+            else if (d === '.' && this.calcDisp.indexOf('.') !== -1) return;
+            else this.calcDisp = this.calcDisp === '0' && d !== '.' ? d : this.calcDisp + d;
+        },
+        calcApply(a, b) {
+            if (this.calcOp === '+') return a + b;
+            if (this.calcOp === '-') return a - b;
+            if (this.calcOp === '*') return a * b;
+            if (b === 0) { this.err = 'Division by zero is not covered by CyberGaurd PRO.'; return 80085; }
+            return a / b;
+        },
+        calcSetOp(op) {
+            const cur = parseFloat(this.calcDisp);
+            if (this.calcOp !== null && this.calcPrev !== null && !this.calcFresh) {
+                const r = this.calcApply(this.calcPrev, cur);
+                this.calcPrev = r;
+                this.calcDisp = String(Math.round(r * 1e8) / 1e8);
+            } else {
+                this.calcPrev = cur;
+            }
+            this.calcOp = op; this.calcFresh = true;
+        },
+        calcEq() {
+            if (this.calcOp === null || this.calcPrev === null) return;
+            const r = this.calcApply(this.calcPrev, parseFloat(this.calcDisp));
+            this.calcDisp = String(Math.round(r * 1e8) / 1e8);
+            this.calcPrev = null; this.calcOp = null; this.calcFresh = true;
+        },
+        calcClr() { this.calcDisp = '0'; this.calcPrev = null; this.calcOp = null; this.calcFresh = true; },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+           DISK DEFRAGMENTER: forever optimization, because CyberGaurd
+           re-fragments the drive right after you finish. */
+        defragOpen() {
+            this.defrag = true;
+            if (!this.defragBlocks.length) this.defragSeed();
+        },
+        defragSeed() {
+            this.defragBlocks = [];
+            for (let i = 0; i < 240; i++) {
+                const r = Math.random();
+                this.defragBlocks.push(r < 0.3 ? 'frag' : (r < 0.44 ? 'sys' : (r < 0.58 ? 'free' : 'ok')));
+            }
+            this.defragPct = 0; this.defragDone = false;
+        },
+        defragStart() {
+            if (this.defragTimer) return;
+            this.defragTimer = setInterval(() => {
+                const i = this.defragBlocks.indexOf('frag');
+                if (i === -1) {
+                    this.defragPct = 100; this.defragDone = true;
+                    clearInterval(this.defragTimer); this.defragTimer = null;
+                    this.beep(1046, 0.15, 0, 'triangle');
+                    setTimeout(() => { this.defragDone = false; this.defragSeed(); this.defragStart(); }, 7000);
+                    return;
+                }
+                this.defragBlocks[i] = 'ok';
+                if (this.defragPct < 99) this.defragPct += 2;
+            }, 140);
+        },
+        defragClose() {
+            this.defrag = false;
+            clearInterval(this.defragTimer); this.defragTimer = null;
+        },
         msnSend() {
             const v = this.msnInput.trim();
             if (!v) return;
             this.msnInput = '';
             this.msnMsgs.push({ me: true, t: v });
-            this.beep(900, 0.08, 0, 'triangle');
+            this.snd('msn-out', () => this.beep(900, 0.08, 0, 'triangle'));
             this.aiReply('msn', v, this.msnMsgs, { typing: 'msnTyping' });
         },
         msnSignOut() {
@@ -1095,7 +1575,7 @@
             if (!v) return;
             this.aimInput = '';
             this.aimLog.push({ me: true, t: v });
-            this.beep(900, 0.08, 0, 'triangle');
+            this.snd('aim-out', () => this.beep(900, 0.08, 0, 'triangle'));
             this.aiReply('aim', v, this.aimLog, { typing: 'aimTyping' });
         },
         aimClose() {
@@ -1135,7 +1615,7 @@
             if (!v) return;
             this.icqInput = '';
             this.icqLog.push({ me: true, name: 'You', t: v });
-            this.beep(1046, 0.1, 0, 'sine', 0.05);
+            this.snd('icq-out', () => this.beep(1046, 0.1, 0, 'sine', 0.05));
             this.aiReply('icq', v, this.icqLog, { name: '48291755', typing: 'icqTyping' });
         },
         icqClose() {
@@ -1179,7 +1659,7 @@
                 const nick = nicks[Math.floor(Math.random() * nicks.length)];
                 this.aiAmbient('irc', this.ircBuf, null, null, () => {
                     if (this.ircBuf.length > 60) this.ircBuf.shift();
-                    this.beep(700, 0.05, 0, 'square', 0.02);
+                    this.snd('irc', () => this.beep(700, 0.05, 0, 'square', 0.02));
                 }, null, nick);
             }, 14000);
         },
@@ -1209,7 +1689,7 @@
                 const target = v.split(' ')[1] || 'nobody';
                 const body = v.split(' ').slice(2).join(' ');
                 this.ircBuf.push({ kind: 'pm-out', t: '[PM to ' + target + ']: ' + body });
-                this.beep(700, 0.05, 0, 'square', 0.02);
+                this.snd('irc', () => this.beep(700, 0.05, 0, 'square', 0.02));
                 if (!body) return;
                 /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
                    the target actually writes back now */
@@ -1745,16 +2225,265 @@
             <span class="ext-bloat-irc-tab">*status</span>
             <span class="ext-bloat-irc-tab">DCC (disabled)</span>
         </div>
+        {# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) classic mIRC: log + nick list #}
+        <div class="ext-bloat-irc-body">
         <div class="ext-bloat-irc-log" x-ref="ircLog" x-effect="ircBuf.length; if ($refs.ircLog) $refs.ircLog.scrollTop = $refs.ircLog.scrollHeight">
             <template x-for="(l, i) in ircBuf" :key="i">
                 {# -- all on one line: pre-wrap would render source indentation as newlines #}
                 <div class="ext-bloat-irc-line" :class="'irc-' + l.kind"><span x-text="l.kind === 'chat' ? '<' + l.who + '> ' : (l.kind === 'pm-in' ? '[' + l.who + ' -> ' + storyProt + '_]: ' : '')"></span><template x-for="(seg, k) in chatLinks(l.t)" :key="k"><span><template x-if="!seg.link"><span x-text="seg.txt"></span></template><template x-if="seg.link"><button type="button" class="ext-bloat-chatlink" @click="linkAct(seg.link)" x-text="seg.link"></button></template></span></template></div>
             </template>
         </div>
+        {# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) the nick list: ops get @, voice gets +, CyberGaurd.exe got op for itself #}
+        <div class="ext-bloat-irc-users">
+            <div class="ext-bloat-irc-uhead" x-text="ircChan + ' (5)'"></div>
+            <div class="ext-bloat-irc-u op">@Cr4ckM4ster</div>
+            <div class="ext-bloat-irc-u ghost">@CyberGaurd.exe</div>
+            <div class="ext-bloat-irc-u voice">+l0li_pop_princess</div>
+            <div class="ext-bloat-irc-u">warez_4_life</div>
+            <div class="ext-bloat-irc-u me" x-text="storyProt + '_'"></div>
+            <div class="ext-bloat-irc-u-note">idle: 0:07:41<br>you have lurked<br>for 41 minutes</div>
+        </div>
+        </div>
         <div class="ext-bloat-msnwin-input">
-            <input type="text" x-model="ircInput" @keydown.enter="ircSend()" placeholder="type here (or /quit, /help, /me is bored)">
+            <input type="text" x-model="ircInput" @keydown.enter="ircSend()" placeholder="type here (or /quit, /help)">
             <button type="button" class="ext-time-ad-btn" @click="ircSend()">Send</button>
         </div>
+    </div>
+
+    {# ==================== MSN CHAT ZONE ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+       three rooms where the cast hangs out and talks to EACH OTHER.
+       lurk, or type. they will notice either way. #}
+    <div class="ext-bloat-zone" x-show="zone" x-cloak
+        :style="{ left: zoneX + 'px', top: zoneY + 'px' }"
+        @mousemove.window="if (zoneDrag) { zoneX = zoneDrag.px + ($event.clientX - zoneDrag.mx); zoneY = zoneDrag.py + ($event.clientY - zoneDrag.my); }"
+        @mouseup.window="zoneDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="zoneDrag = { mx: $event.clientX, my: $event.clientY, px: zoneX, py: zoneY }">
+            <span>💬 MSN Chat Zone - ChatCity.nl</span>
+            <span class="ext-time-shutdown-x" @click="zoneClose()">✕</span>
+        </div>
+        <div class="ext-bloat-irc-tabs">
+            <template x-for="r in zoneRooms" :key="r.key">
+                <span class="ext-bloat-irc-tab" :class="{ active: zoneRoom === r.key }" @click="zoneRoom = r.key" x-text="r.name"></span>
+            </template>
+        </div>
+        <div class="ext-bloat-zone-topic" x-text="'Topic: ' + zoneCur().topic"></div>
+        <div class="ext-bloat-zone-log" x-ref="zoneLog" x-effect="zoneLogs[zoneRoom].length; if ($refs.zoneLog) $refs.zoneLog.scrollTop = $refs.zoneLog.scrollHeight">
+            <template x-for="(m, i) in zoneLogs[zoneRoom]" :key="i">
+                <div class="ext-bloat-zone-line" :class="{ sys: m.sys, me: m.me }"><span x-show="!m.sys" x-text="'&lt;' + m.who + '&gt; '"></span><span x-text="m.t"></span></div>
+            </template>
+        </div>
+        <div class="ext-bloat-msnwin-input">
+            <input type="text" x-model="zoneInput" @keydown.enter="zoneSend()" placeholder="type in the room (they talk amongst themselves, promise)">
+            <button type="button" class="ext-time-ad-btn" @click="zoneSend()">Send</button>
+        </div>
+    </div>
+
+    {# ==================== FAKE INTERNET EXPLORER (FICTIONAL WEB) ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+       a browser window with fictional 2003 websites. every link on the
+       real desktop leads here, because the real internet left in 2004. #}
+    <div class="ext-bloat-webwin" x-show="web" x-cloak
+        :style="{ left: webX + 'px', top: webY + 'px' }"
+        @mousemove.window="if (webDrag) { webX = webDrag.px + ($event.clientX - webDrag.mx); webY = webDrag.py + ($event.clientY - webDrag.my); }"
+        @mouseup.window="webDrag = null">
+        <div class="ext-bloat-msn-title" style="cursor: move;"
+            @mousedown="webDrag = { mx: $event.clientX, my: $event.clientY, px: webX, py: webY }">
+            <span x-text="'🌐 ' + webTitle"></span>
+            <span class="ext-time-shutdown-x" @click="web = false">✕</span>
+        </div>
+        <div class="ext-bloat-web-bar">
+            <button type="button" class="ext-time-ad-btn" @click="webGo('www.startnu.nl')">Home</button>
+            <input type="text" x-model="webAddr" @keydown.enter="webGo(webAddr)">
+            <button type="button" class="ext-time-ad-btn" @click="webGo(webAddr)">Go</button>
+        </div>
+        <div class="ext-bloat-web-view" @click="webClick($event)" x-html="webHtml"></div>
+        <div class="ext-bloat-web-status"><span>Done</span><span>Internet | Protected Mode: off (obviously)</span></div>
+    </div>
+
+    {# ==================== COMMAND PROMPT ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) #}
+    <div class="ext-time-ns-overlay" x-show="cmd" x-cloak @click="cmd = false">
+        <div class="ext-bloat-cmd" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>⌨️ C:\WINDOWS\system32\cmd.exe</span>
+                <span class="ext-time-shutdown-x" @click="cmd = false">✕</span>
+            </div>
+            <div class="ext-bloat-cmd-log" x-ref="cmdLog" x-effect="cmdLog.length; if ($refs.cmdLog) $refs.cmdLog.scrollTop = $refs.cmdLog.scrollHeight">
+                <template x-for="(l, i) in cmdLog" :key="i">
+                    <div x-text="l"></div>
+                </template>
+            </div>
+            <div class="ext-bloat-cmd-row">
+                <span>C:&gt;</span>
+                <input type="text" x-model="cmdInput" @keydown.enter="cmdRun()" placeholder="try: dir, ping, cybergaurd, format c:">
+            </div>
+        </div>
+    </div>
+
+    {# ==================== CALCULATOR ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) #}
+    <div class="ext-time-ns-overlay" x-show="calc" x-cloak @click="calc = false">
+        <div class="ext-bloat-calc" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>🧮 Calculator</span>
+                <span class="ext-time-shutdown-x" @click="calcClr(); calc = false">✕</span>
+            </div>
+            <div class="ext-bloat-calc-disp" x-text="calcDisp"></div>
+            <div class="ext-bloat-calc-grid">
+                <template x-for="k in ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+']" :key="k">
+                    <button type="button" class="ext-bloat-calc-btn" @click="['+','-','*','/'].includes(k) ? calcSetOp(k) : (k === '=' ? calcEq() : calcIn(k))" x-text="k"></button>
+                </template>
+                <button type="button" class="ext-bloat-calc-btn c" @click="calcClr()">C</button>
+            </div>
+            <div style="font-size: 9px; opacity: 0.6; padding: 2px 6px;">the only app on this machine that still works. do not update it.</div>
+        </div>
+    </div>
+
+    {# ==================== DISK DEFRAGMENTER ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+       forever optimization: CyberGaurd re-fragments right after you win. #}
+    <div class="ext-time-ns-overlay" x-show="defrag" x-cloak @click="defragClose()">
+        <div class="ext-bloat-defrag" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>🗄️ Disk Defragmenter - C: (PIRATED007)</span>
+                <span class="ext-time-shutdown-x" @click="defragClose()">✕</span>
+            </div>
+            <div class="ext-bloat-defrag-legend">
+                <span><i class="df ok"></i> contiguous</span>
+                <span><i class="df frag"></i> fragmented</span>
+                <span><i class="df sys"></i> system (CyberGaurd)</span>
+                <span><i class="df free"></i> free</span>
+            </div>
+            <div class="ext-bloat-defrag-grid">
+                <template x-for="(b, i) in defragBlocks" :key="i">
+                    <i :class="b"></i>
+                </template>
+            </div>
+            <div style="font-size: 10px; padding: 4px 6px;" x-text="defragDone ? 'Optimization complete! CyberGaurd thanks you. Re-fragmenting now, for the next scan.' : 'Click Start to optimize. CyberGaurd files cannot be moved. Everything is a CyberGaurd file.'"></div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" @click="defragStart()">Start</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="defragClose()">Stop (denial)</button>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== WINDOWS MOVIE MAKER ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) #}
+    <div class="ext-time-ns-overlay" x-show="mov" x-cloak @click="mov = false">
+        <div class="ext-bloat-mov" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>🎬 Windows Movie Maker</span>
+                <span class="ext-time-shutdown-x" @click="mov = false">✕</span>
+            </div>
+            <div class="ext-bloat-mov-body">
+                <div class="ext-bloat-mov-tasks">
+                    <b>Moviemaker Tasks</b>
+                    <div class="ext-bloat-mov-task" @click="document.dispatchEvent(new CustomEvent('ext-time-ad'))">▶ Capture video (requires camera, requires money)</div>
+                    <div class="ext-bloat-mov-task" @click="document.dispatchEvent(new CustomEvent('ext-time-ad'))">▶ Import video (importing: 47 toolbars)</div>
+                    <div class="ext-bloat-mov-task" @click="err = 'Codec missing. Please install the free codec pack. The free codec pack is CyberGaurd.'">▶ Make corrections to audio and video</div>
+                    <div class="ext-bloat-mov-task" @click="err = 'Save failed: the timeline contains 1 video and 99 toolbars. Not enough disk space. There is never enough disk space.'">▶ Save to hard drive</div>
+                    <div class="ext-bloat-mov-task" @click="document.dispatchEvent(new CustomEvent('ext-time-ad'))">▶ Send to email (max attachment size: 1 KB)</div>
+                    <div style="margin-top: 10px; font-size: 9px; opacity: 0.6;">Movie Maker 1.0 · registered to: xX_darkangel_Xx · serial: STOLEN-SORRY</div>
+                </div>
+                <div class="ext-bloat-mov-main">
+                    <div class="ext-bloat-mov-preview">
+                        <span class="ext-bloat-mov-play">▶</span>
+                        <div class="ext-bloat-mov-name">holiday_2003_FINAL_FINAL2.mpg</div>
+                    </div>
+                    <div class="ext-bloat-mov-storyboard">
+                        <span>🏖</span><span>🌊</span><span>🍟</span><span>😴</span><span>🌇</span><span>📼</span>
+                        <span class="ext-bloat-mov-clip">⚠ CyberGaurd_ad_30s.mpg</span>
+                        <span class="ext-bloat-mov-clip">⚠ CyberGaurd_ad_30s_b.mpg</span>
+                    </div>
+                    <div class="ext-bloat-mov-timeline">
+                        <div class="ext-bloat-mov-track">video1: 🏖🌊🍟😴🌇📼 + 2 mandatory ads</div>
+                        <div class="ext-bloat-mov-track audio">audio1: dial-up_ambience.mid (0:14)</div>
+                        <div class="ext-bloat-mov-track">title: A Holiday Special</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== HELP AND SUPPORT ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) #}
+    <div class="ext-time-ns-overlay" x-show="helpWin" x-cloak @click="helpWin = false">
+        <div class="ext-bloat-help" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>❓ Help and Support Center</span>
+                <span class="ext-time-shutdown-x" @click="helpWin = false">✕</span>
+            </div>
+            <div class="ext-bloat-help-cols">
+                <div class="ext-bloat-help-list">
+                    <template x-for="(h, i) in helpTopics" :key="i">
+                        <div class="ext-bloat-help-item" :class="{ sel: helpTopic === i }" @click="helpTopic = i" x-text="h.t"></div>
+                    </template>
+                </div>
+                <div class="ext-bloat-help-art">
+                    <b x-text="helpTopics[helpTopic].t"></b>
+                    <p x-text="helpTopics[helpTopic].b"></p>
+                    <p style="font-size: 9px; opacity: 0.55;">Article ID: KB373737 · last updated: feb 2001 · reviewed by: angel_grrl_2001 (retired)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== WELCOME TOUR ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) #}
+    <div class="ext-time-ns-overlay" x-show="tour" x-cloak @click="tour = false">
+        <div class="ext-bloat-tour" @click.stop>
+            <div class="ext-time-shutdown-title">
+                <span>🧭 Welcome to Windows XP - Tour</span>
+                <span class="ext-time-shutdown-x" @click="tour = false">✕</span>
+            </div>
+            <div class="ext-bloat-tour-body">
+                <div class="ext-bloat-tour-head" x-text="tourPages[tourPage].t"></div>
+                <div class="ext-bloat-tour-text" x-text="tourPages[tourPage].b"></div>
+                <div class="ext-bloat-tour-dots">
+                    <template x-for="(p, i) in tourPages" :key="i">
+                        <i :class="{ on: i === tourPage }"></i>
+                    </template>
+                </div>
+            </div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" :disabled="tourPage === 0" @click="tourPage = tourPage - 1">&lt; Back</button>
+                <button type="button" class="ext-time-shutdown-btn" :disabled="tourPage >= tourPages.length - 1" @click="tourPage = tourPage + 1">Next &gt;</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="tour = false; tourPage = 0">Finish</button>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== CYBERGAURD DISRUPTIVE ALERT ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+       written by the AI, screamed at full volume, unignorable by design. #}
+    <div class="ext-time-ns-overlay" x-show="navAlert" x-cloak>
+        <div class="ext-bloat-galert">
+            <div class="ext-bloat-galert-title">
+                <span x-text="'🛡 ' + navAlertTitle"></span>
+                <span class="ext-time-shutdown-x" title="you will be back" @click="navAlert = false; setTimeout(gTick, 20000)">✕</span>
+            </div>
+            <div class="ext-bloat-galert-body">
+                <span class="ext-bloat-galert-icon">⚠️</span>
+                <div class="ext-bloat-galert-text" x-text="navAlertBody"></div>
+            </div>
+            <div class="ext-time-ns-bar" style="height: 14px; margin: 0 10px;"><div class="ext-time-ns-fill" style="width: 100%; background: linear-gradient(90deg, #d00, #f80);"></div></div>
+            <div style="font-size: 9px; padding: 4px 10px; opacity: 0.7;">27 threats detected · 0 threats fixable without PRO · scan runs at 400% CPU as a courtesy</div>
+            <div class="ext-time-shutdown-actions">
+                <button type="button" class="ext-time-shutdown-btn" style="font-weight: bold; background: #ffd24d;" @click="navAlert = false; navStart()">FIX NOW (€9.99)</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navAlert = false; setTimeout(gTick, 15000)">Remind me later (15s)</button>
+                <button type="button" class="ext-time-shutdown-btn" @click="navAlert = false; err = 'There is no Uninstall. There is only Upgrade.'">Uninstall CyberGaurd</button>
+            </div>
+        </div>
+    </div>
+
+    {# ==================== BONZIBUDDY (FINAL STAGE RESIDENT) ====================
+       -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+       he lives in the corner now. he has opinions. they are AI-generated. #}
+    <div class="ext-bloat-bonzo" x-show="bonzo" x-cloak @click="bonzoClick()" title="Bonzo is watching (click to be friends)">
+        <div class="ext-bloat-bonzo-bubble" x-text="bonzoSay"></div>
+        <div class="ext-bloat-bonzo-gorilla">🦍</div>
     </div>
 
     {# ==================== FLOPPY DISK ERROR ====================

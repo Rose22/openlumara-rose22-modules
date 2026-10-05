@@ -80,29 +80,36 @@
             window.removeEventListener('ext-bloat-install', this.rowWatcher);
         },
         go() {
-            // the address bar goes exactly where it always goes: nowhere.
-            window.location.reload();
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // the address bar finally goes SOMEWHERE: the desktop's fake
+            // browser window opens whatever you typed. 2003 technology!
+            window.dispatchEvent(new CustomEvent('ext-bloat-web', { detail: this.address }));
         },
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next) :: (2026-10-04)
            popup ads: unlimited quantity, and they bounce around the
            screen like they're in a screensaver. */
         spawnAd() {
-            // -- no popups on a clean machine: ads wait for level 1
-            if ((parseInt(document.body.getAttribute('data-threat') || '0', 10)) < 1) return;
+            // -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04)
+            // pop-up ads now wait until the SECOND TO LAST infection stage:
+            // the gate lives here (not in the x-for, which cannot track a
+            // DOM attribute and silently froze the ad list at empty)
+            if ((parseInt(document.body.getAttribute('data-threat') || '0', 10)) < 4) return;
             const ad = this.adPool[this.adCount % this.adPool.length];
             this.adCount++;
-            this.ads.push({
-                id: 'ad-' + Date.now() + '-' + Math.floor(Math.random() * 1e6),
-                title: ad.title,
-                body: ad.body,
-                x: 60 + Math.floor(Math.random() * Math.max(120, window.innerWidth - 420)),
-                y: 80 + Math.floor(Math.random() * Math.max(100, window.innerHeight - 360)),
-                vx: (Math.random() - 0.5) * 3,
-                vy: (Math.random() - 0.5) * 3,
-                w: 270,
-                dragging: false,
-                dodges: 0
-            });
+            if (this.adCount < 5) {
+                this.ads.push({
+                    id: 'ad-' + Date.now() + '-' + Math.floor(Math.random() * 1e6),
+                    title: ad.title,
+                    body: ad.body,
+                    x: 60 + Math.floor(Math.random() * Math.max(120, window.innerWidth - 420)),
+                    y: 80 + Math.floor(Math.random() * Math.max(100, window.innerHeight - 360)),
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 3,
+                    w: 270,
+                    dragging: false,
+                    dodges: 0
+                });
+            }
         },
         closeAd(id, ev) {
             const ad = this.ads.find(a => a.id === id);
@@ -365,7 +372,8 @@
     {# ---------- popup ads, teleported over the whole app ---------- #}
     <template x-teleport="body">
         <div>
-            <template x-for="ad in (parseInt(document.body.getAttribute('data-threat') || '0', 10) >= 1 ? ads : [])" :key="ad.id">
+            {# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-04) plain ads again: spawnAd() itself refuses before threat 4 #}
+            <template x-for="ad in ads" :key="ad.id">
                 <div class="ext-time-ad"
                     x-data="{ drag: null }"
                     @mousemove.window="if (drag) { ad.x = drag.px + ($event.clientX - drag.mx); ad.y = drag.py + ($event.clientY - drag.my); }"
