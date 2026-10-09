@@ -1,0 +1,19 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
+   meditation: the full-screen calm layer. Breathing circle, flowing
+   particles, countdown and narration all paint on the canvas;
+   assets/js/medita.js (Alpine.data bhMedita) drives it. #}
+
+{% macro above_page() %}
+<div class="md-overlay" x-data="bhMedita">
+    <canvas class="md-canvas" x-ref="cv" :style="{ opacity: opacity() }"></canvas>
+
+    {# the gentle exit: fades everything out over ~12 seconds #}
+    <div class="md-exit" x-show="active" x-cloak>
+        <button type="button" class="md-exit-btn" @click="endSession()" title="fade the meditation out gently - or press escape">✕ end</button>
+    </div>
+
+    <div class="md-msg" x-show="endMsg" x-cloak>
+        <div class="md-msg-pill" x-text="endMsg"></div>
+    </div>
+</div>
+{% endmacro %}

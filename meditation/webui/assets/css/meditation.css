@@ -1,0 +1,112 @@
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
+   guided meditation overlay: full-screen canvas, gentle exit button.
+   everything else (breathing circle, particles, countdown, narration)
+   paints on the canvas via medita.js. */
+
+.md-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 900;
+}
+
+.md-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.8s ease;
+}
+
+/* the gentle exit: bottom-right, low contrast until hovered */
+.md-exit {
+    position: fixed;
+    right: 18px;
+    bottom: 16px;
+    z-index: 902;
+    pointer-events: auto;
+}
+.md-exit-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    backdrop-filter: blur(4px);
+}
+.md-exit-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* soft message pill (session ended note) */
+.md-msg {
+    position: fixed;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 902;
+    pointer-events: none;
+}
+.md-msg-pill {
+    background: rgba(20, 26, 48, 0.75);
+    color: rgba(235, 242, 255, 0.9);
+    border: 1px solid rgba(150, 180, 255, 0.25);
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    box-shadow: 0 0 24px rgba(120, 160, 255, 0.25);
+}
+
+/* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
+   hide the chat UI while a session runs so the overlay is the whole world;
+   fade it back in slowly during the ending */
+body[data-medita="on"] #sidebar {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.9s ease, visibility 0s linear 0.9s;
+}
+body[data-medita="on"] #messages {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.9s ease, visibility 0s linear 0.9s;
+}
+body[data-medita="on"] #input {
+    opacity: 0.35;
+    transition: opacity 0.9s ease;
+}
+body[data-medita="on"][data-medita-ending="on"] #sidebar,
+body[data-medita="on"][data-medita-ending="on"] #messages,
+body[data-medita="on"][data-medita-ending="on"] #input {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity var(--md-end-dur, 12s) linear, visibility 0s linear;
+}
+
+/* sidebar quick buttons */
+.md-quick-btn {
+    background: rgba(127, 160, 255, 0.12);
+    color: inherit;
+    border: 1px solid rgba(127, 160, 255, 0.35);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.md-quick-btn:hover {
+    background: rgba(127, 160, 255, 0.25);
+}
+
+@media (max-width: 760px) {
+    .md-exit {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+}

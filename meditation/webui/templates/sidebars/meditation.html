@@ -1,0 +1,42 @@
+{# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
+   meditation: sidebar tab. Live status, quick drift-in on the current
+   breathing pattern, gentle fade-out and an instant stop. #}
+
+<div x-data="{
+        st: { active: false, ending: false, pattern: {}, tracks: [], ambient: {} },
+        pollT: null,
+        init() {
+            this.pull();
+            this.pollT = setInterval(() => this.pull(), 3000);
+        },
+        destroy() { clearInterval(this.pollT); },
+        pull() { window.meditation.state().then((d) => { if (d) this.st = d; }); },
+        start() { window.meditation.control({ active: true }); setTimeout(() => this.pull(), 300); },
+        fade() { window.meditation.control({ ending: true, secs: 12 }); setTimeout(() => this.pull(), 400); },
+        stop() { window.meditation.stop(); setTimeout(() => this.pull(), 300); },
+        patternText() {
+            const p = this.st.pattern || {};
+            const bits = [];
+            if (p.in) bits.push(p.in + ' in');
+            if (p.hold) bits.push('hold ' + p.hold);
+            if (p.out) bits.push(p.out + ' out');
+            if (p.hold_out) bits.push('hold ' + p.hold_out);
+            return bits.join(' · ') || '4 in · 7 hold · 8 out';
+        }
+    }">
+    <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; text-align: center;">
+            <b x-text="st.active ? (st.ending ? 'fading out 🌅' : 'meditating 🫧') : 'at peace'"></b>
+        </div>
+        <div style="font-size: 11px; opacity: 0.7; text-align: center;" x-text="patternText()"></div>
+        <div style="display: flex; gap: 8px; justify-content: center;">
+            <button type="button" class="md-quick-btn" @click="start()">▶ drift in</button>
+            <button type="button" class="md-quick-btn" @click="fade()" title="gentle fade-out">🌅</button>
+            <button type="button" class="md-quick-btn" @click="stop()">■ stop</button>
+        </div>
+        <p style="font-size: 11px; opacity: 0.65; text-align: center; margin: 0;">
+            ask lumara for a guided meditation: breathing circle, beats and ambience included 💙
+        </p>
+        <p style="font-size: 10px; opacity: 0.5; text-align: center; margin: 0;" x-text="(st.tracks || []).length + ' ambient loop(s) loaded'"></p>
+    </div>
+</div>

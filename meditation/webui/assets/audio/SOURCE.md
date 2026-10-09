@@ -1,0 +1,1 @@
+These sounds were taken from the [Blanket](https://github.com/rafaelmardojai/blanket) app, which in turn took them from royalty free sources around the internet. See [the licensing information on the Blanket github](https://github.com/rafaelmardojai/blanket/blob/master/SOUNDS_LICENSING.md)
