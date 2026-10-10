@@ -98,11 +98,52 @@ document.addEventListener('alpine:init', () => {
         amb: { on: false, track: '', vol: 35 },
         ambEnabled: true,
         tracks: [],
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           full music tracks from webui/assets/music: own state, own
+           pair of loop elements, per-frame crossfade in musTick */
+        mus: { on: false, track: '', vol: 25 },
+        musTracks: [],
+        musUrl: '',
+        /* whether the guide voice is available; the center only
+           mirrors narration text while speech is turned off */
+        speechOn: true,
         ambPlaylist: [],
         ambIdx: 0,
         events: [],
         speakLoop: null,
         binOk: true,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           bowl + beat-synced pulse (settings) and the live beat rate
+           the pulse rides (refreshed by applyBinaural) */
+        bowlOn: true,
+        /* beat strobe defaults OFF now (module setting flipped 2026-10-10) */
+        strobeOk: false,
+        _beatHz: 0,
+        /* practice modes from the module: trataka, color
+           breathing (null when not running) */
+        sg: null,
+        cb: null,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           relaxation depth (0-100, deepens vignette + bloom, no bar)
+           and the calm countdown state (null when not counting) */
+        depth: 0,
+        count: null,
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           entrainment extras: audio-visual coherence (strobe fires on
+           the audio pulse peak), music pulse strength, the breathing
+           bowl and the gaze lights */
+        musPulse: 0,
+        bowlMode: null,
+        eye: null,
+        _beatPhase: 0,
+        _flashes: [],
+        /* shape pop game: the module switch, the pointer position and
+           the live shapes (+ their burst animations) on screen */
+        shapes: null,
+        mx: -9999,
+        my: -9999,
+        popList: [],
+        nextPop: 0,
         /* breath_sounds from module settings: the synthesized inhale sigh */
         breathSnd: true,
         noiseBuf: null,
@@ -174,11 +215,19 @@ document.addEventListener('alpine:init', () => {
                 const c = this.ensureAudio();
                 if (c && c.state === 'suspended') c.resume().catch(() => {});
                 this.ambKick();
+                this.musKick();
             };
             window.addEventListener('pointerdown', this.onGesture);
             /* escape gently fades the meditation out */
             this.onKey = (e) => this.meditaKeys(e);
             window.addEventListener('keydown', this.onKey);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               pointer tracking for the shape pop game: listen on the
+               window so it works no matter how the overlay's own pointer
+               events are styled, and catch fingertips via pointerdown */
+            this.onPtr = (e) => { this.mx = e.clientX; this.my = e.clientY; };
+            window.addEventListener('pointermove', this.onPtr, { passive: true });
+            window.addEventListener('pointerdown', this.onPtr, { passive: true });
             /* narration from the live chat stream onto the overlay */
             try { this.stopStreamWatch = Alpine.effect(() => this.syncCenterText()); } catch (e) {}
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
@@ -225,6 +274,7 @@ document.addEventListener('alpine:init', () => {
             this.centerLayers = [];
             this.centerText = '';
             this.centerGate = 0;
+            this._flashes = [];
             const step = () => { this.draw(); this.raf = requestAnimationFrame(step); };
             step();
         },
@@ -235,11 +285,14 @@ document.addEventListener('alpine:init', () => {
             window.removeEventListener('md-refresh', this.onRefresh);
             window.removeEventListener('pointerdown', this.onGesture);
             window.removeEventListener('keydown', this.onKey);
+            window.removeEventListener('pointermove', this.onPtr);
+            window.removeEventListener('pointerdown', this.onPtr);
             if (this.stopStreamWatch) { try { this.stopStreamWatch(); } catch (e) {} }
             if (this._idleTimer) clearTimeout(this._idleTimer);
             if (this.stopIdleWatch) { try { this.stopIdleWatch(); } catch (e) {} }
             this.stopBinaural();
             this.ambStopAll();
+            this.musStopAll();
             if (this.kokoroTts) { try { this.kokoroTts.terminate(); } catch (e) {} }
         },
 
@@ -261,6 +314,18 @@ document.addEventListener('alpine:init', () => {
             this.subject = d.subject || 'Rosie';
             this.binOk = d.binaurals_enabled !== false;
             this.breathSnd = d.breath_sounds !== false;
+            this.bowlOn = d.bowl_enabled !== false;
+            this.strobeOk = d.beat_strobe !== false;
+            /* entrainment extras ride the same poll (av_sync is always
+               on - light and sound share one clock, no switch) */
+            this.musPulse = Math.max(0, Math.min(100, d.music_pulse || 0));
+            this.bowlMode = d.bowl_mode || null;
+            this.eye = d.eye_cues || null;
+            this.sg = d.soft_gaze || null;
+            this.cb = d.color_breathe || null;
+            this.depth = d.depth || 0;
+            this.shapes = d.shapes || null;
+            if (this.bin.bilateral) this.ambPanner();
             this.ttsEngine = d.tts_engine || 'kokoro';
             this.defaultVoice = d.default_voice || 'af_nicole';
             this.active = !!d.active;
@@ -277,11 +342,11 @@ document.addEventListener('alpine:init', () => {
             if (d.pattern) {
                 const key = [d.pattern.in, d.pattern.hold, d.pattern.out, d.pattern.hold_out].join('/');
                 if (key !== this.patternKey) {
-                    /* pattern changed: restart the breath clock so the
-                       circle re-syncs cleanly on the next breath */
-                    this.pattern = d.pattern;
-                    this.patternKey = key;
-                    this.breathT0 = Date.now() / 1000;
+                    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                       pattern changed: do NOT snap the clock mid-breath -
+                       park the new rhythm and let breathTick install it
+                       exactly when the next cycle begins on the inhale */
+                    this._pendPat = d.pattern;
                 }
             }
             if (d.scene) this.sceneT = d.scene;
@@ -306,6 +371,22 @@ document.addEventListener('alpine:init', () => {
                 this.amb = Object.assign({}, amb, { track: this.amb.track });
                 this.ambVolRamp();
             }
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               music tracks: volume updates every poll, the track and
+               on/off only rebuild the target url when they actually
+               change (musTick then crossfades over) */
+            this.speechOn = d.speech_enabled !== false;
+            const mus = d.music || { on: false, track: '', vol: 25 };
+            const mtracks = d.music_tracks || [];
+            const musKey = mtracks.join('|') + '#' + mus.on + '#' + mus.track;
+            if (musKey !== this._musKey) {
+                this._musKey = musKey;
+                this.musTracks = mtracks;
+                this.mus = mus;
+                this.musBuildUrl();
+            } else {
+                this.mus = mus;
+            }
             if (this.active && !wasActive) {
                 this.breathT0 = Date.now() / 1000;
                 this.startedAt = Date.now() / 1000;
@@ -321,6 +402,8 @@ document.addEventListener('alpine:init', () => {
                 if (ev.t === 'speak') this.speakNow(ev);
                 else if (ev.t === 'speak_stop') this.speakStopAll();
                 else if (ev.t === 'end_words') this.bhCenterCommit(ev.text || '');
+                else if (ev.t === 'bowl') this.strikeBowl(ev);
+                else if (ev.t === 'count') this.startCountdown(ev);
             }
             document.body.setAttribute('data-medita', this.active ? 'on' : 'off');
             /* ending fade-back: reveal the hidden UI slowly */
@@ -345,6 +428,17 @@ document.addEventListener('alpine:init', () => {
             if (p.out > 0) phases.push(['out', p.out]);
             if (p.hold_out > 0) phases.push(['hold_out', p.hold_out]);
             if (!phases.length) { this.phase = 'in'; this.phaseRem = 4; this.scale = 0; return phases; }
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               a new pattern never snaps mid-breath: it waits at the gate
+               and lands exactly when the NEXT cycle begins on the inhale,
+               so the circle glides into the new rhythm */
+            if (this._pendPat && this.phase === 'in') {
+                this.pattern = this._pendPat;
+                this.patternKey = [this._pendPat.in, this._pendPat.hold, this._pendPat.out, this._pendPat.hold_out].join('/');
+                this._pendPat = null;
+                this.breathT0 = nowSec;
+                return this.breathTick(nowSec);
+            }
             const total = phases.reduce((s, x) => s + x[1], 0);
             let t = (nowSec - this.breathT0) % total;
             if (t < 0) t += total;
@@ -1116,6 +1210,676 @@ document.addEventListener('alpine:init', () => {
             o.restore();
         },
 
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           practice-mode renderers: trataka candle and the
+           color breathing wash + words */
+        drawCandle(cx, cy, baseR, dp, t) {
+            const o = this.octx;
+            const pal = this.sg.color === 'blue'
+                ? { g: '#6ec8ff', m: '#bfe9ff', c: '#ffffff' }
+                : this.sg.color === 'rose'
+                    ? { g: '#ff8fbf', m: '#ffc9de', c: '#fff4f9' }
+                    : { g: '#ffb454', m: '#ffd9a0', c: '#fff8ec' };
+            const fh = baseR * 1.5;
+            /* barely-there flicker: trataka wants a steady flame */
+            const sway = Math.sin(t * 2.1) * 0.012 + Math.sin(t * 5.7) * 0.006;
+            o.save();
+            o.translate(cx, cy);
+            o.globalCompositeOperation = 'lighter';
+            const room = o.createRadialGradient(0, -fh * 0.1, 0, 0, -fh * 0.1, fh * 2.2);
+            room.addColorStop(0, MD_rgba(pal.g, 0.22 * dp));
+            room.addColorStop(1, MD_rgba(pal.g, 0));
+            o.fillStyle = room;
+            o.beginPath();
+            o.arc(0, -fh * 0.1, fh * 2.2, 0, Math.PI * 2);
+            o.fill();
+            const blaze = (h2, w2, fill) => {
+                o.beginPath();
+                o.moveTo(0, h2 * 0.5);
+                o.bezierCurveTo(w2, h2 * 0.2, w2 * 0.8, -h2 * 0.3, sway * h2, -h2 * 0.8);
+                o.bezierCurveTo(-w2 * 0.8, -h2 * 0.3, -w2, h2 * 0.2, 0, h2 * 0.5);
+                o.closePath();
+                o.fillStyle = fill;
+                o.fill();
+            };
+            blaze(fh, baseR * 0.42, MD_rgba(pal.g, 0.75 * dp));
+            blaze(fh * 0.62, baseR * 0.24, MD_rgba(pal.m, 0.9 * dp));
+            blaze(fh * 0.32, baseR * 0.12, MD_rgba(pal.c, 0.95 * dp));
+            o.globalCompositeOperation = 'source-over';
+            o.strokeStyle = MD_rgba('#d8cbb8', 0.35 * dp);
+            o.lineWidth = 2;
+            o.beginPath();
+            o.moveTo(0, fh * 0.5);
+            o.lineTo(0, fh * 0.62);
+            o.stroke();
+            o.restore();
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           color breathing, glow-up: the in-color floods the center and
+           tints the whole screen at its moment, the out-color drains
+           outward on the exhale, a glowing ring pulses with the breath,
+           and each word rises and falls like a tide (no association
+           note anymore - just the two words, clean) */
+        drawColorBreathe(cx, cy, r, dp, t) {
+            const o = this.octx;
+            const cb = this.cb;
+            const w = window.innerWidth, h = window.innerHeight;
+            o.save();
+            o.globalCompositeOperation = 'lighter';
+            /* screen-wide tint at each color's moment */
+            const inT = (this.phase === 'in') ? this.phaseFrac : (this.phase === 'hold' ? 1 : 0);
+            const outT = (this.phase === 'out') ? this.phaseFrac : (this.phase === 'hold_out' ? 1 : 0);
+            if (inT > 0.02) {
+                const vg = o.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(w, h) * 0.6);
+                vg.addColorStop(0, MD_rgba(cb.in_color, 0.075 * inT * this.scale * dp));
+                vg.addColorStop(1, MD_rgba(cb.in_color, 0));
+                o.fillStyle = vg;
+                o.fillRect(0, 0, w, h);
+            }
+            if (outT > 0.02) {
+                const vg = o.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(w, h) * 0.6);
+                vg.addColorStop(0, MD_rgba(cb.out_color, 0));
+                vg.addColorStop(1, MD_rgba(cb.out_color, 0.085 * outT * (1 - this.scale) * dp));
+                o.fillStyle = vg;
+                o.fillRect(0, 0, w, h);
+            }
+            /* in-color flood filling the breathing disc */
+            const ig = o.createRadialGradient(cx, cy, 0, cx, cy, r);
+            ig.addColorStop(0, MD_rgba(cb.in_color, (0.30 + 0.45 * this.scale) * dp));
+            ig.addColorStop(0.65, MD_rgba(cb.in_color, 0.18 * this.scale * dp));
+            ig.addColorStop(1, MD_rgba(cb.in_color, 0.03 * this.scale * dp));
+            o.fillStyle = ig;
+            o.beginPath();
+            o.arc(cx, cy, r, 0, Math.PI * 2);
+            o.fill();
+            /* out-color halo released on the exhale */
+            const oh = 1 - this.scale;
+            const og = o.createRadialGradient(cx, cy, r * 0.55, cx, cy, r * (1.5 + oh));
+            og.addColorStop(0, MD_rgba(cb.out_color, 0.24 * oh * dp));
+            og.addColorStop(1, MD_rgba(cb.out_color, 0));
+            o.fillStyle = og;
+            o.beginPath();
+            o.arc(cx, cy, r * (1.5 + oh), 0, Math.PI * 2);
+            o.fill();
+            /* glowing ring riding the breath */
+            o.strokeStyle = MD_rgba(cb.in_color, (0.22 + 0.5 * this.scale) * dp);
+            o.lineWidth = 2 + 2 * this.scale;
+            o.shadowColor = cb.in_color;
+            o.shadowBlur = MD_MOBILE ? 10 : 22;
+            o.beginPath();
+            o.arc(cx, cy, r * 1.12, 0, Math.PI * 2);
+            o.stroke();
+            o.shadowBlur = 0;
+            /* words rising and falling like a tide */
+            o.globalCompositeOperation = 'source-over';
+            const inA = (this.phase === 'in') ? Math.min(1, this.phaseFrac * 3) : (this.phase === 'hold' ? 1 : 0);
+            const outA = (this.phase === 'out') ? Math.min(1, this.phaseFrac * 3) : (this.phase === 'hold_out' ? 1 : 0);
+            const fs = Math.round(MD_clamp(r * 0.30, 16, 30));
+            o.textAlign = 'center';
+            o.textBaseline = 'middle';
+            o.font = '300 ' + fs + "px ui-sans-serif, system-ui, 'Segoe UI', sans-serif";
+            if (cb.in_word && inA > 0.01) {
+                const y = cy - r * 1.5 - 18 - 8 * inA;
+                o.shadowColor = cb.in_color;
+                o.shadowBlur = MD_MOBILE ? 12 : 26;
+                o.fillStyle = MD_rgba(cb.in_color, inA * 0.95 * dp);
+                o.fillText(cb.in_word, cx, y);
+                o.shadowBlur = 0;
+            }
+            if (cb.out_word && outA > 0.01) {
+                const y = cy + r * 1.5 + 18 + 8 * outA;
+                o.shadowColor = cb.out_color;
+                o.shadowBlur = MD_MOBILE ? 12 : 26;
+                o.fillStyle = MD_rgba(cb.out_color, outA * 0.9 * dp);
+                o.fillText(cb.out_word, cx, y);
+                o.shadowBlur = 0;
+            }
+            o.restore();
+        },
+        /* descent staircase renderer removed 2026-10-10 at Rosie's request */
+
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           shape popping: the playful attention game. shapes bloom into
+           the scene (one type per scene), the cursor or a fingertip
+           traces over them, and they answer with a scene-voice sound
+           and a scene-specific burst. missed shapes just drift away. */
+        tickShapes(w, h, now) {
+            if (!this.shapes || !this.active || this.ending) {
+                if (this.popList.length) this.popList = [];
+                return;
+            }
+            const minWH = Math.min(w, h);
+            const cx = w / 2, cy = h / 2;
+            const live = this.popList.filter((p) => !p.burst).length;
+            if (live < 3 && now >= this.nextPop) {
+                const iv = Math.max(2, Math.min(15, this.shapes.interval || 6));
+                this.nextPop = now + iv * 1000 * (0.7 + Math.random() * 0.6);
+                for (let tries = 0; tries < 8; tries++) {
+                    const x = w * (0.08 + Math.random() * 0.84);
+                    const y = h * (0.12 + Math.random() * 0.76);
+                    if (Math.hypot(x - cx, y - cy) < minWH * 0.26) continue;
+                    let clash = false;
+                    for (const q of this.popList) {
+                        if (!q.burst && Math.hypot(x - q.x, y - q.y) < minWH * 0.14) { clash = true; break; }
+                    }
+                    if (clash) continue;
+                    this.popList.push({ x: x, y: y, born: now, ttl: 10000, seed: Math.random(), burst: 0 });
+                    break;
+                }
+            }
+            const hitR = Math.max(34, minWH * 0.05);
+            for (const p of this.popList) {
+                if (p.burst) continue;
+                if (Math.hypot(this.mx - p.x, this.my - p.y) < hitR) {
+                    p.burst = now;
+                    this.playShapeSound(this.scene.mode);
+                }
+            }
+            this.popList = this.popList.filter((p) =>
+                (p.burst ? now - p.burst < 900 : now - p.born < p.ttl));
+        },
+        drawShapesField(minWH, dp, t, now) {
+            if (!this.popList.length) return;
+            const KIND = {
+                calm: 'orb', starfield: 'star', fireflies: 'fly', petals: 'petal',
+                deepsea: 'bubble', snowfall: 'flake', rain: 'drop', glitterfall: 'glit',
+                runes: 'rune', nebula: 'cosmic', sky: 'cloud',
+            };
+            const kind = KIND[this.scene.mode] || 'orb';
+            const o = this.octx;
+            o.save();
+            o.globalCompositeOperation = 'lighter';
+            for (const p of this.popList) {
+                const s = Math.max(16, minWH * 0.033);
+                if (!p.burst) {
+                    const age = now - p.born;
+                    const fin = Math.min(1, age / 450);
+                    const pop = 1 + 0.3 * Math.sin(fin * Math.PI);
+                    const a = dp * fin * Math.min(1, (p.ttl - age) / 1200);
+                    const bob = Math.sin(t * 1.6 + p.seed * 9) * 3;
+                    this.drawPopShape(o, kind, p.x, p.y + bob, s * (0.4 + 0.6 * pop), a, p.seed, t);
+                } else {
+                    this.drawPopBurst(o, kind, p.x, p.y, s, Math.min(1, (now - p.burst) / 800), dp, p.seed);
+                }
+            }
+            o.restore();
+        },
+        drawPopShape(o, kind, x, y, s, a, seed, t) {
+            if (a <= 0.01) return;
+            const core = this.scene.color_core;
+            const glow = this.scene.color_glow;
+            const text = this.scene.color_text;
+            o.save();
+            o.translate(x, y);
+            o.shadowColor = MD_rgba(glow, 0.9);
+            o.shadowBlur = MD_MOBILE ? 8 : 16;
+            if (kind === 'orb') {
+                const g = o.createRadialGradient(0, 0, 0, 0, 0, s * 1.6);
+                g.addColorStop(0, MD_rgba('#ffffff', 0.9 * a));
+                g.addColorStop(0.4, MD_rgba(core, 0.7 * a));
+                g.addColorStop(1, MD_rgba(glow, 0));
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s * 1.6, 0, Math.PI * 2); o.fill();
+            } else if (kind === 'star') {
+                o.rotate(t * 0.4 + seed * 3);
+                o.fillStyle = MD_rgba(text, 0.9 * a);
+                o.beginPath();
+                for (let i = 0; i < 8; i++) {
+                    const r = i % 2 === 0 ? s : s * 0.32;
+                    const ang = (i / 8) * Math.PI * 2;
+                    const px = Math.cos(ang) * r, py = Math.sin(ang) * r;
+                    if (i === 0) o.moveTo(px, py); else o.lineTo(px, py);
+                }
+                o.closePath(); o.fill();
+            } else if (kind === 'fly') {
+                const blink = 0.55 + 0.45 * Math.sin(t * 3 + seed * 20);
+                const g = o.createRadialGradient(0, 0, 0, 0, 0, s * 1.4);
+                g.addColorStop(0, MD_rgba('#fff6d8', 0.95 * a * blink));
+                g.addColorStop(0.5, MD_rgba('#ffd9a0', 0.5 * a * blink));
+                g.addColorStop(1, 'rgba(255,217,160,0)');
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s * 1.4, 0, Math.PI * 2); o.fill();
+            } else if (kind === 'petal') {
+                o.rotate(Math.sin(t * 1.2 + seed * 7) * 0.5 - 0.6);
+                o.fillStyle = MD_rgba(core, 0.85 * a);
+                o.beginPath();
+                o.ellipse(0, 0, s * 0.55, s, 0, 0, Math.PI * 2);
+                o.fill();
+                o.fillStyle = MD_rgba('#ffffff', 0.35 * a);
+                o.beginPath();
+                o.ellipse(-s * 0.14, -s * 0.2, s * 0.16, s * 0.5, 0, 0, Math.PI * 2);
+                o.fill();
+            } else if (kind === 'bubble') {
+                const g = o.createRadialGradient(-s * 0.3, -s * 0.3, s * 0.1, 0, 0, s);
+                g.addColorStop(0, MD_rgba('#ffffff', 0.5 * a));
+                g.addColorStop(0.75, MD_rgba(core, 0.12 * a));
+                g.addColorStop(1, MD_rgba(text, 0.55 * a));
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s, 0, Math.PI * 2); o.fill();
+                o.strokeStyle = MD_rgba('#ffffff', 0.7 * a);
+                o.lineWidth = 1.6;
+                o.beginPath(); o.arc(-s * 0.32, -s * 0.36, s * 0.22, 0, Math.PI * 2); o.stroke();
+            } else if (kind === 'flake') {
+                o.rotate(t * 0.3 + seed * 4);
+                o.strokeStyle = MD_rgba(text, 0.9 * a);
+                o.lineWidth = 2;
+                for (let i = 0; i < 6; i++) {
+                    const ang = (i / 6) * Math.PI * 2;
+                    const ex = Math.cos(ang) * s, ey = Math.sin(ang) * s;
+                    o.beginPath(); o.moveTo(0, 0); o.lineTo(ex, ey); o.stroke();
+                    const bx = Math.cos(ang) * s * 0.62, by = Math.sin(ang) * s * 0.62;
+                    for (const sd of [-1, 1]) {
+                        o.beginPath(); o.moveTo(bx, by);
+                        o.lineTo(bx + Math.cos(ang + sd * 0.9) * s * 0.3, by + Math.sin(ang + sd * 0.9) * s * 0.3);
+                        o.stroke();
+                    }
+                }
+            } else if (kind === 'drop') {
+                o.fillStyle = MD_rgba(core, 0.85 * a);
+                o.beginPath();
+                o.moveTo(0, -s * 1.25);
+                o.bezierCurveTo(s * 0.85, -s * 0.2, s * 0.75, s * 0.75, 0, s * 0.85);
+                o.bezierCurveTo(-s * 0.75, s * 0.75, -s * 0.85, -s * 0.2, 0, -s * 1.25);
+                o.closePath(); o.fill();
+                o.fillStyle = MD_rgba('#ffffff', 0.5 * a);
+                o.beginPath(); o.arc(-s * 0.24, s * 0.1, s * 0.16, 0, Math.PI * 2); o.fill();
+            } else if (kind === 'glit') {
+                const tw = 0.8 + 0.3 * Math.sin(t * 5 + seed * 30);
+                o.rotate(seed * 6 + t * 0.8);
+                o.fillStyle = MD_rgba(text, 0.95 * a * tw);
+                o.beginPath();
+                for (let i = 0; i < 16; i++) {
+                    const r = i % 2 === 0 ? s * tw : s * 0.22;
+                    const ang = (i / 16) * Math.PI * 2;
+                    const px = Math.cos(ang) * r, py = Math.sin(ang) * r;
+                    if (i === 0) o.moveTo(px, py); else o.lineTo(px, py);
+                }
+                o.closePath(); o.fill();
+            } else if (kind === 'rune') {
+                const glyphs = ['ᚠ', 'ᚱ', 'ᛉ', 'ᛃ', 'ᛞ', 'ᛟ', 'ᛵ', '✦'];
+                o.fillStyle = MD_rgba(text, (0.75 + 0.25 * Math.sin(t * 2 + seed * 12)) * a);
+                o.font = 'bold ' + Math.round(s * 2) + 'px serif';
+                o.textAlign = 'center';
+                o.textBaseline = 'middle';
+                o.fillText(glyphs[Math.floor(seed * 100) % glyphs.length], 0, 0);
+            } else if (kind === 'cosmic') {
+                const g = o.createRadialGradient(0, 0, 0, 0, 0, s * 1.3);
+                g.addColorStop(0, MD_rgba('#ffffff', 0.85 * a));
+                g.addColorStop(0.45, MD_rgba(core, 0.6 * a));
+                g.addColorStop(1, MD_rgba(glow, 0));
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s * 1.3, 0, Math.PI * 2); o.fill();
+                o.fillStyle = MD_rgba('#ffffff', 0.9 * a);
+                for (let i = 0; i < 3; i++) {
+                    const ang = seed * 20 + i * 2.1 + t * 0.5;
+                    o.beginPath();
+                    o.arc(Math.cos(ang) * s * 0.9, Math.sin(ang) * s * 0.9, 1.6, 0, Math.PI * 2);
+                    o.fill();
+                }
+            } else if (kind === 'cloud') {
+                try {
+                    const spr = this.cloudSprites()[Math.floor(seed * 3) % 3];
+                    o.globalAlpha = Math.min(1, a * 0.95);
+                    o.globalCompositeOperation = 'source-over';
+                    o.drawImage(spr, -s * 1.7, -s * 1.1, s * 3.4, s * 2.2);
+                    o.globalCompositeOperation = 'lighter';
+                    o.globalAlpha = 1;
+                } catch (e) {}
+            }
+            o.restore();
+        },
+        drawPopBurst(o, kind, x, y, s, f, dp, seed) {
+            const fade = 1 - f;
+            const core = this.scene.color_core;
+            const glow = this.scene.color_glow;
+            const text = this.scene.color_text;
+            o.save();
+            o.translate(x, y);
+            if (kind === 'bubble') {
+                /* the signature pop: a thin ring snaps outward + droplets */
+                o.strokeStyle = MD_rgba(text, 0.75 * fade * dp);
+                o.lineWidth = 2.5 * fade + 0.5;
+                o.beginPath(); o.arc(0, 0, s * (0.6 + 2.6 * f), 0, Math.PI * 2); o.stroke();
+                o.fillStyle = MD_rgba(core, 0.8 * fade * dp);
+                for (let i = 0; i < 6; i++) {
+                    const ang = seed * 9 + (i / 6) * Math.PI * 2;
+                    const d = s * (0.5 + 1.6 * f);
+                    o.beginPath();
+                    o.arc(Math.cos(ang) * d, Math.sin(ang) * d - f * s * 0.6, 2.2 * fade + 0.4, 0, Math.PI * 2);
+                    o.fill();
+                }
+            } else if (kind === 'drop') {
+                /* splash: a flat expanding ring + droplets arcing up */
+                o.strokeStyle = MD_rgba(core, 0.7 * fade * dp);
+                o.lineWidth = 2;
+                o.beginPath();
+                o.ellipse(0, s * 0.7, s * (0.4 + 2.2 * f), s * (0.12 + 0.5 * f), 0, 0, Math.PI * 2);
+                o.stroke();
+                o.fillStyle = MD_rgba(text, 0.8 * fade * dp);
+                for (let i = 0; i < 3; i++) {
+                    const dx = (i - 1) * s * 0.7;
+                    o.beginPath();
+                    o.arc(dx, s * 0.4 - f * s * 2.2 + f * f * s * 1.4, 2.4 * fade + 0.4, 0, Math.PI * 2);
+                    o.fill();
+                }
+            } else if (kind === 'star' || kind === 'glit') {
+                const rays = kind === 'glit' ? 10 : 8;
+                o.strokeStyle = MD_rgba(text, 0.8 * fade * dp);
+                o.lineWidth = 1.8 * fade + 0.4;
+                for (let i = 0; i < rays; i++) {
+                    const ang = (i / rays) * Math.PI * 2 + seed * 4;
+                    const r0 = s * (0.3 + 1.2 * f), r1 = s * (0.7 + 1.9 * f);
+                    o.beginPath();
+                    o.moveTo(Math.cos(ang) * r0, Math.sin(ang) * r0);
+                    o.lineTo(Math.cos(ang) * r1, Math.sin(ang) * r1);
+                    o.stroke();
+                }
+            } else if (kind === 'fly') {
+                const g = o.createRadialGradient(0, 0, 0, 0, 0, s * (1.5 - f * 0.8));
+                g.addColorStop(0, MD_rgba('#fff6d8', 0.9 * fade * fade * dp));
+                g.addColorStop(1, 'rgba(255,246,216,0)');
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s * (1.5 - f * 0.8), 0, Math.PI * 2); o.fill();
+            } else if (kind === 'petal') {
+                for (let i = 0; i < 5; i++) {
+                    const ang = seed * 8 + (i / 5) * Math.PI * 2;
+                    const d = s * (0.4 + 2.0 * f);
+                    o.save();
+                    o.translate(Math.cos(ang) * d, Math.sin(ang) * d);
+                    o.rotate(ang + f * 4);
+                    o.fillStyle = MD_rgba(core, 0.75 * fade * dp);
+                    o.beginPath();
+                    o.ellipse(0, 0, s * 0.22, s * 0.42, 0, 0, Math.PI * 2);
+                    o.fill();
+                    o.restore();
+                }
+            } else if (kind === 'flake') {
+                o.fillStyle = MD_rgba(text, 0.7 * fade * dp);
+                for (let i = 0; i < 8; i++) {
+                    const ang = (i / 8) * Math.PI * 2 + seed * 5;
+                    const d = s * (0.3 + 1.4 * f);
+                    o.beginPath();
+                    o.arc(Math.cos(ang) * d, Math.sin(ang) * d, 2 * fade + 0.5, 0, Math.PI * 2);
+                    o.fill();
+                }
+            } else if (kind === 'rune') {
+                o.rotate(f * 1.6);
+                const glyphs = ['ᚠ', 'ᚱ', 'ᛉ', 'ᛃ', 'ᛞ', 'ᛟ', 'ᛵ', '✦'];
+                o.fillStyle = MD_rgba(text, fade * fade * dp);
+                o.font = 'bold ' + Math.round(s * 2 * (1 - f * 0.55)) + 'px serif';
+                o.textAlign = 'center';
+                o.textBaseline = 'middle';
+                o.fillText(glyphs[Math.floor(seed * 100) % glyphs.length], 0, 0);
+                o.strokeStyle = MD_rgba(glow, 0.5 * fade * dp);
+                o.lineWidth = 1.5;
+                o.beginPath(); o.arc(0, 0, s * (0.8 + 1.8 * f), 0, Math.PI * 2); o.stroke();
+            } else if (kind === 'cosmic') {
+                o.strokeStyle = MD_rgba(glow, 0.65 * fade * dp);
+                o.lineWidth = 2.5 * fade + 0.5;
+                o.beginPath();
+                o.arc(0, 0, s * (0.5 + 2.2 * f), seed * 6, seed * 6 + f * Math.PI * 3.2);
+                o.stroke();
+            } else if (kind === 'cloud') {
+                const g = o.createRadialGradient(0, 0, 0, 0, 0, s * (1 + 2.5 * f));
+                g.addColorStop(0, MD_rgba('#ffffff', 0.4 * fade * dp));
+                g.addColorStop(1, 'rgba(255,255,255,0)');
+                o.fillStyle = g;
+                o.beginPath(); o.arc(0, 0, s * (1 + 2.5 * f), 0, Math.PI * 2); o.fill();
+            } else {
+                /* calm orb + fallback: one clean expanding ring of glow */
+                o.strokeStyle = MD_rgba(glow, 0.7 * fade * dp);
+                o.lineWidth = 3 * fade + 0.5;
+                o.beginPath(); o.arc(0, 0, s * (0.5 + 2.4 * f), 0, Math.PI * 2); o.stroke();
+            }
+            o.restore();
+        },
+        playShapeSound(mode) {
+            if (!this.active || this.ending || this.muted) return;
+            const c = this.ensureAudio();
+            if (!c) return;
+            const t0 = c.currentTime + 0.01;
+            const vol = 0.16 * Math.max(0.3, this.opacity());
+            const tone = (type, f0, f1, dur, v, attack) => {
+                const osc = c.createOscillator();
+                const g = c.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(f0, t0);
+                if (f1 !== f0) osc.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur * 0.8);
+                g.gain.setValueAtTime(0, t0);
+                g.gain.linearRampToValueAtTime(v, t0 + (attack || 0.008));
+                g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+                osc.connect(g); g.connect(c.destination);
+                osc.start(t0); osc.stop(t0 + dur + 0.05);
+            };
+            const noiseHit = (freq, q, dur, v, f1) => {
+                const src = c.createBufferSource();
+                src.buffer = this.mdNoise(c);
+                src.loop = true;
+                const bp = c.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.Q.value = q;
+                bp.frequency.setValueAtTime(freq, t0);
+                if (f1) bp.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+                const g = c.createGain();
+                g.gain.setValueAtTime(v, t0);
+                g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+                src.connect(bp); bp.connect(g); g.connect(c.destination);
+                src.start(t0); src.stop(t0 + dur + 0.05);
+            };
+            if (mode === 'deepsea') {
+                /* the bubble: rising blip + a tiny wet burst */
+                tone('sine', 300, 950, 0.10, vol * 1.1);
+                noiseHit(1500, 2, 0.06, vol * 0.6);
+            } else if (mode === 'rain') {
+                tone('sine', 900, 260, 0.22, vol);
+            } else if (mode === 'snowfall') {
+                tone('sine', 2093, 2093, 0.5, vol * 0.5);
+                tone('sine', 3136, 3136, 0.4, vol * 0.28);
+            } else if (mode === 'starfield') {
+                tone('sine', 1320, 1320, 0.35, vol * 0.8);
+                tone('sine', 1980, 1980, 0.25, vol * 0.32);
+            } else if (mode === 'fireflies') {
+                tone('triangle', 1560, 1400, 0.12, vol * 0.7);
+            } else if (mode === 'petals') {
+                tone('triangle', 540, 430, 0.3, vol * 0.9);
+            } else if (mode === 'glitterfall') {
+                tone('sine', 1760, 1760, 0.45, vol * 0.65);
+                tone('sine', 2640, 2640, 0.3, vol * 0.28);
+            } else if (mode === 'runes') {
+                tone('sine', 165, 165, 0.9, vol * 1.1, 0.06);
+                tone('sine', 247, 247, 0.7, vol * 0.5, 0.08);
+            } else if (mode === 'nebula') {
+                tone('sine', 523, 523, 1.1, vol * 0.65);
+                tone('sine', 527, 527, 1.1, vol * 0.65);
+            } else if (mode === 'sky') {
+                noiseHit(500, 1, 0.4, vol * 0.9, 1500);
+            } else {
+                tone('sine', 660, 660, 0.6, vol * 0.8);
+                tone('sine', 990, 990, 0.4, vol * 0.3);
+            }
+        },
+
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10) */
+        startCountdown(spec) {
+            this.count = null;
+            const from = Math.max(2, spec.from || 10);
+            const stepMs = Math.max(500, (spec.sec || 20) * 1000 / (from + 1));
+            const fromD = typeof spec.from_depth === 'number' ? spec.from_depth : this.depth;
+            const toD = typeof spec.to === 'number' ? spec.to : fromD;
+            this.count = {
+                n: from, from: from, stepMs: stepMs, fromD: fromD, toD: toD,
+                word: String(spec.word || '').slice(0, 40),
+                nextAt: performance.now(), numAt: performance.now(),
+                landAt: 0, sent: false,
+            };
+        },
+        tickCountdown(now) {
+            const c = this.count;
+            if (!c || now < c.nextAt) return;
+            c.nextAt = now + c.stepMs;
+            if (c.n > 0) {
+                c.numAt = now;
+                const d = Math.round(c.fromD + (c.toD - c.fromD) * ((c.from - c.n) / c.from));
+                this.depth = d;
+                try { window.meditation.control({ depth: d }); } catch (e) {}
+                c.n -= 1;
+                if (c.n === 0) c.nextAt = now + c.stepMs * 0.6;
+                return;
+            }
+            if (c.n === 0) {
+                /* zero: the landing - tell the server once, sink to target */
+                c.n = -1;
+                c.landAt = now;
+                this.depth = c.toD;
+                try {
+                    window.meditation.control({ depth: c.toD });
+                    if (!c.sent) { c.sent = true; window.meditation.control({ countdown_done: true }); }
+                } catch (e) {}
+                return;
+            }
+            if (now - c.landAt > 5600) this.count = null;
+        },
+        drawCountdown(cx, cy, baseR, minWH, dp, now) {
+            const c = this.count;
+            if (!c) return;
+            const o = this.octx;
+            o.save();
+            o.textAlign = 'center';
+            o.textBaseline = 'middle';
+            if (c.n >= 0) {
+                /* the current number: gentle in-and-out breath of alpha */
+                const age = now - c.numAt;
+                const fin = Math.min(1, age / 420);
+                const fout = Math.min(1, Math.max(0, (age - (c.stepMs - 520)) / 520));
+                const a = fin * (1 - fout * 0.55);
+                const grow = 1 + 0.06 * (1 - fin);
+                const fs = Math.round(baseR * 1.05 * grow);
+                o.font = '200 ' + fs + "px ui-sans-serif, system-ui, 'Segoe UI', sans-serif";
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   a real dark drop shadow instead of a scene-colored glow:
+                   the count always reads as a separate layer floating
+                   above the scene, never as part of it */
+                o.shadowColor = 'rgba(0, 0, 0, 0.65)';
+                o.shadowBlur = 16;
+                o.shadowOffsetY = 4;
+                o.fillStyle = MD_rgba(this.scene.color_text, Math.min(1, a * 0.95 * dp));
+                o.fillText(String(c.n), cx, cy + fs * 0.05);
+            } else {
+                /* the landing: one slow expanding bloom + the soft word */
+                const e = now - c.landAt;
+                const bl = Math.min(1, e / 2600);
+                const blA = (1 - bl) * 0.5 * dp;
+                if (blA > 0.004) {
+                    const br = baseR * (0.6 + 3.4 * bl);
+                    const g = o.createRadialGradient(cx, cy, 0, cx, cy, br);
+                    g.addColorStop(0, MD_rgba('#ffffff', blA * 0.55));
+                    g.addColorStop(0.35, MD_rgba(this.scene.color_glow, blA));
+                    g.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                    o.globalCompositeOperation = 'lighter';
+                    o.fillStyle = g;
+                    o.beginPath();
+                    o.arc(cx, cy, br, 0, Math.PI * 2);
+                    o.fill();
+                    o.globalCompositeOperation = 'source-over';
+                }
+                if (c.word) {
+                    const wa = Math.min(1, e / 1400) * (1 - Math.min(1, Math.max(0, (e - 3200) / 2200)));
+                    if (wa > 0.004) {
+                        const fs = Math.round(MD_clamp(minWH * 0.05, 24, 44));
+                        o.font = '300 ' + fs + "px ui-sans-serif, system-ui, 'Segoe UI', sans-serif";
+                        if ('letterSpacing' in o) o.letterSpacing = '8px';
+                        /* same dark drop shadow as the numbers, so the
+                           landing word floats clear of the bloom */
+                        o.shadowColor = 'rgba(0, 0, 0, 0.65)';
+                        o.shadowBlur = 18;
+                        o.shadowOffsetY = 4;
+                        o.fillStyle = MD_rgba(this.scene.color_text, wa * 0.92 * dp);
+                        o.fillText(c.word, cx, cy);
+                        if ('letterSpacing' in o) o.letterSpacing = '0px';
+                    }
+                }
+            }
+            o.restore();
+        },
+
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           bilateral gaze cue: ONE soft light drifting left-right at the
+           sweep rate with a blurred comet trail behind it; it lingers
+           at the edges (where the eyes turn) and glides fastest through
+           the middle, like a firefly on a string */
+        drawEyeOrbs(w, h, t, dp) {
+            const e = this.eye;
+            if (!e || !this.active || this.ending) return;
+            const o = this.octx;
+            const per = Math.max(2, Math.min(8, e.sweep || 4)) * 2;
+            const pos = (tt) => {
+                const f = 0.5 - 0.5 * Math.cos(Math.PI * 2 * (tt / per));
+                return w * (0.16 + 0.68 * f);
+            };
+            const oy = h * 0.5;
+            const r = Math.max(20, Math.min(w, h) * 0.035);
+            o.save();
+            o.globalCompositeOperation = 'lighter';
+            /* the trail: same path sampled backwards in time, fading
+               and shrinking - smeared by the additive glow */
+            const TRAIL = 14;
+            for (let i = TRAIL; i >= 1; i--) {
+                const k = i / TRAIL;
+                const tx = pos(t - i * 0.05);
+                const a = Math.pow(1 - k, 1.8) * dp * 0.30;
+                if (a < 0.004) continue;
+                const rr = r * (1.9 - 0.9 * k);
+                const g = o.createRadialGradient(tx, oy, 0, tx, oy, rr);
+                g.addColorStop(0, MD_rgba(this.scene.color_glow, a));
+                g.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                o.fillStyle = g;
+                o.beginPath();
+                o.arc(tx, oy, rr, 0, Math.PI * 2);
+                o.fill();
+            }
+            /* the dot itself: halo + hot core */
+            const hx = pos(t);
+            const a = dp * 0.85;
+            const g = o.createRadialGradient(hx, oy, 0, hx, oy, r * 2.6);
+            g.addColorStop(0, MD_rgba(this.scene.color_core, a));
+            g.addColorStop(0.35, MD_rgba(this.scene.color_glow, a * 0.5));
+            g.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+            o.fillStyle = g;
+            o.beginPath();
+            o.arc(hx, oy, r * 2.6, 0, Math.PI * 2);
+            o.fill();
+            o.fillStyle = MD_rgba('#ffffff', a * 0.9);
+            o.beginPath();
+            o.arc(hx, oy, r * 0.3, 0, Math.PI * 2);
+            o.fill();
+            o.restore();
+        },
+        /* bowl strike blooms (av_sync): a soft expanding halo of light
+           ringing out with the tone */
+        drawFlashes(cx, cy, minWH, dp, now) {
+            if (!this._flashes.length) return;
+            const o = this.octx;
+            o.save();
+            o.globalCompositeOperation = 'lighter';
+            for (let i = this._flashes.length - 1; i >= 0; i--) {
+                const fl = this._flashes[i];
+                const f = (now - fl.start) / fl.dur;
+                if (f >= 1) { this._flashes.splice(i, 1); continue; }
+                const a = fl.a * Math.pow(1 - f, 1.8) * dp;
+                if (a < 0.004) continue;
+                const r = minWH * (0.14 + 0.5 * f);
+                const g = o.createRadialGradient(cx, cy, 0, cx, cy, r);
+                g.addColorStop(0, MD_rgba('#ffffff', a * 0.5));
+                g.addColorStop(0.4, MD_rgba(this.scene.color_glow, a));
+                g.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                o.fillStyle = g;
+                o.beginPath();
+                o.arc(cx, cy, r, 0, Math.PI * 2);
+                o.fill();
+            }
+            o.restore();
+        },
+
         /* ---------------- narration mirror ---------------- */
         syncCenterText() {
             let s = null;
@@ -1137,23 +1901,20 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
-               mirror ONLY the current message's content segment (Rosie's
-               rule): tool_calls, reasoning and command segments never
-               reach the center, and a message that is nothing but the
-               start tool call - the session trigger - shows nothing */
-            let seg = null;
-            for (let i = segs.length - 1; i >= 0; i--) {
-                const m = segs[i];
-                if (m && m.type === 'content' && !m.is_cmd) { seg = m; break; }
+               reverted to the original mirror: every content segment of
+               the turn joins into one growing block of narration (the
+               latest-segment-only experiment flickered away whole lines
+               whenever a tool call landed). the mirror only runs while
+               speech is OFF - with the guide voice on, the words are
+               heard, not read */
+            if (this.speechOn) return;
+            const parts = [];
+            for (const m of segs) {
+                if (m && m.type === 'content' && !m.is_cmd && m.content) parts.push(String(m.content));
             }
-            if (seg) {
-                if (this.pendingSeg && this.pendingSeg !== seg) this.mdCommitPending();
-                this.pendingSeg = seg;
-                this.pendingText = MD_centerClean(seg.content);
-            } else {
-                this.mdCommitPending();
-                this.pendingSeg = null;
-            }
+            const text = MD_centerClean(parts.join('\n'));
+            if (text !== this.pendingText) this.mdCommitPending();
+            this.pendingText = text;
         },
         mdCommitPending() {
             const t = this.pendingText;
@@ -1208,10 +1969,12 @@ document.addEventListener('alpine:init', () => {
                 this.intSent = true;
                 this.speakStopAll();
                 this.ambStopAll();
+                this.musStopAll();
                 this.stopBinaural();
                 this.centerLayers = [];
                 this.centerText = '';
                 this.ripples = [];
+                this._flashes = [];
                 window.meditation.control({ active: false });
                 this.endMsg = 'session ended · welcome back, ' + this.subject;
                 setTimeout(() => { this.endMsg = ''; }, 5000);
@@ -1236,7 +1999,25 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.breathTick(t);
-            this.applyBinaural();
+            /* music crossfade + autoplay retries ride every frame */
+            this.musTick(dt);
+            this.applyBinaural(dt);
+            /* the beat pulse rides the live beat rate while beats sound */
+            const beatLive = this.active && !this.ending && !this.muted && this.binOk && this.bin.on;
+            this._beatHz = beatLive ? (this._binLiveHz || 0) : 0;
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               audio-visual coherence: one phase clock shared by the audio
+               pulse and every visual that rides it (strobe, music pulse,
+               bowl flashes), so light and sound are ONE event. free-runs
+               from wall time only when no audio clock exists yet.
+               phase 0 = the loud part of the pulse, matching the iso LFO
+               (0.5 + 0.5*sin). */
+            const musAudible = !!(this._musEls && this.musUrl && this.active && !this.ending && !this.muted);
+            if (this.audioCtx && (beatLive || musAudible)) {
+                this._beatPhase = ((this.audioCtx.currentTime * this._beatHz) % 1 + 1) % 1;
+            } else {
+                this._beatPhase = -1;
+            }
 
             /* background: deep wash in the chosen color, near-solid at
                full intensity for a true full-screen escape */
@@ -1259,6 +2040,8 @@ document.addEventListener('alpine:init', () => {
             if (this.prevMode !== this.scene.mode) this.drawEnv(this.prevMode, 1 - this.envMix, w, h, t, dt, dp);
             this.drawEnv(this.scene.mode, this.envMix, w, h, t, dt, dp);
             if (this.scene.dust > 0) this.drawDust(w, h, t, dt, dp);
+            /* bilateral gaze lights ride behind everything else */
+            if (this.eye) this.drawEyeOrbs(w, h, t, dp);
             if (this.scene.horizon > 0) {
                 const hg = o.createLinearGradient(0, h, 0, h * 0.6);
                 hg.addColorStop(0, MD_rgba(this.scene.color_glow, (0.05 + 0.11 * this.scale) * dp));
@@ -1424,19 +2207,82 @@ document.addEventListener('alpine:init', () => {
                Rosie's request - no connecting lines, ever */
             o.restore();
 
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               shape popping: spawn + fingertip hits, then paint the
+               shapes and their bursts over the particle field */
+            this.tickShapes(w, h, now);
+            if (this.popList.length) this.drawShapesField(minWH, dp, t, now);
+
+
+
             /* breathing center: shape crossfades (circle, lotus, flame,
                yantra, hexagram, infinity)
-               with the phase progress arc */
+               with the phase progress arc. soft gaze (trataka) replaces
+               the shape entirely with a single steady candle. */
             const baseR = minWH * 0.11;
             /* strong visible pulse: the disc nearly doubles between the
                empty hold and the full inhale */
             const r = baseR * (0.58 + 0.84 * this.scale);
-            this.drawCenter(cx, cy, r, dp, t);
+            if (this.sg) this.drawCandle(cx, cy, baseR, dp, t);
+            else this.drawCenter(cx, cy, r, dp, t);
+
+            /* color breathing washes the center */
+            if (this.cb) this.drawColorBreathe(cx, cy, r, dp, t);
+
+            /* bowl strike blooms ring out around the center (av_sync) */
+            if (this._flashes.length) this.drawFlashes(cx, cy, minWH, dp, now);
+
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               beat-synced pulse: a soft halo breathing at exactly the
+               binaural beat rate while beats sound. sin^2 = zero to
+               peak smoothly, capped low - a glow swell, never a flash */
+            if (this.strobeOk && this._beatHz > 0 && dp > 0.15) {
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   av_sync: when the shared audio clock runs, the strobe
+                   peaks exactly where the AUDIO peaks (cos at phase 0 =
+                   loud); otherwise the old free-running sin^2 */
+                const bp2 = (this._beatPhase >= 0)
+                    ? Math.cos(Math.PI * 2 * this._beatPhase)
+                    : Math.sin(Math.PI * 2 * this._beatHz * t);
+                const pulse = bp2 * bp2;
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   strength AND reach now ride the relaxation depth: at
+                   depth 0 a barely-there flicker at the disc's edge, at
+                   depth 100 a full soft swell around her - still SFW
+                   gentle at the top of the scale */
+                const depthF = MD_clamp((this.depth || 0) / 100, 0, 1);
+                const amp = (0.025 + 0.145 * depthF) * dp;
+                const sr = baseR * (2.6 + 1.4 * depthF);
+                o.save();
+                o.globalCompositeOperation = 'lighter';
+                const pg = o.createRadialGradient(cx, cy, 0, cx, cy, sr);
+                pg.addColorStop(0, MD_rgba(this.scene.color_glow, amp * pulse));
+                pg.addColorStop(0.5, MD_rgba(this.scene.color_glow, amp * pulse * (0.45 + 0.25 * depthF)));
+                pg.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                o.fillStyle = pg;
+                o.beginPath();
+                o.arc(cx, cy, sr, 0, Math.PI * 2);
+                o.fill();
+                o.restore();
+            }
 
             /* soft ripple rings released on every phase change */
             if (this.phase !== this.lastPhase) {
                 this.lastPhase = this.phase;
                 this.ripples.push({ start: now, dur: 2600 });
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   breathing bowl: every reversal of the breath strikes the
+                   bowl - bright strike turning in, low strike turning out */
+                /* only true reversals ring the bowl - a hold is a rest,
+                   not a turn: strikes fire switching INTO in or OUT only */
+                if (this.bowlMode && this.active && !this.ending && (this.phase === 'in' || this.phase === 'out')) {
+                    this.strikeBowl({
+                        vol: this.bowlMode.vol || 55,
+                        hz: (this.bowlMode.hz || 210) * (this.phase === 'in' ? 1 : 0.82),
+                        decay: this.phase === 'in' ? 4.5 : 6.5,
+                        flash: true
+                    });
+                }
                 /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
                    breath audio and shooting stars ride the same phase change */
                 if (this.phase === 'in') {
@@ -1486,6 +2332,17 @@ document.addEventListener('alpine:init', () => {
                 o.restore();
             }
 
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               calm countdown: tick the clock and paint numbers/bloom on
+               top of the scene; a fading or dead session drops the count */
+            if (this.count) {
+                if (!this.active || this.ending) this.count = null;
+                else {
+                    this.tickCountdown(now);
+                    this.drawCountdown(cx, cy, baseR, minWH, dp, now);
+                }
+            }
+
             /* narration layers (crossfading whole lines of guidance) */
             this.centerGate += ((this.active ? 1 : 0) - this.centerGate) * (1 - Math.exp(-4.5 * dt));
             if (this.centerLayers.length && this.centerGate > 0.01) {
@@ -1531,9 +2388,14 @@ document.addEventListener('alpine:init', () => {
                offscreen frame over before the atmosphere overlays. */
             c.drawImage(this.off, 0, 0, this.off.width, this.off.height, 0, 0, w, h);
 
-            /* atmosphere: gentle vignette + bloom halo, auto by default */
-            const vig = this.scene.vignette >= 0 ? this.scene.vignette / 100 : 0.55;
-            const blo = this.scene.bloom >= 0 ? this.scene.bloom / 100 : 0.5;
+            /* atmosphere: gentle vignette + bloom halo, auto by default.
+               -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               the auto strengths now ride the relaxation depth: depth 0
+               keeps the old look, depth 100 wraps the scene much closer
+               and warmer around her (manual vignette/bloom still win) */
+            const depthF = MD_clamp((this.depth || 0) / 100, 0, 1);
+            const vig = this.scene.vignette >= 0 ? this.scene.vignette / 100 : 0.55 + 0.25 * depthF;
+            const blo = this.scene.bloom >= 0 ? this.scene.bloom / 100 : 0.5 + 0.3 * depthF;
             c.save();
             if (vig > 0.01 && dp > 0.05) {
                 const g = c.createRadialGradient(cx, cy, minWH * 0.32, cx, cy, Math.hypot(w, h) * 0.62);
@@ -1569,17 +2431,7 @@ document.addEventListener('alpine:init', () => {
             if (!this.active || this.ending || this.muted || !this.breathSnd) return;
             const c = this.ensureAudio();
             if (!c) return;
-            if (!this.noiseBuf) {
-                const len = Math.floor(c.sampleRate * 2);
-                this.noiseBuf = c.createBuffer(1, len, c.sampleRate);
-                const d = this.noiseBuf.getChannelData(0);
-                let last = 0;
-                for (let i = 0; i < len; i++) {
-                    const w = Math.random() * 2 - 1;
-                    last = (last + 0.02 * w) / 1.02;
-                    d[i] = last * 3.5;
-                }
-            }
+            this.mdNoise(c);
             const dur = Math.max(1.2, this.phaseDur || 4);
             const t0 = c.currentTime + 0.02;
             const src = c.createBufferSource();
@@ -1625,6 +2477,15 @@ document.addEventListener('alpine:init', () => {
                     lp.pan.value = -1; rp.pan.value = 1;
                     lo.connect(lp); lp.connect(gBin);
                     ro.connect(rp); rp.connect(gBin);
+                    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                       monaural path: the io oscillator re-pitched to the BEAT
+                       frequency, amplitude-gated by the iso LFO - one tone
+                       whose loudness physically beats, true entrainment on
+                       speakers (beat_mode setting: 'speakers') */
+                    const monoGain = c.createGain();
+                    monoGain.gain.value = 0;
+                    monoGain.connect(g);
+                    io.connect(monoGain);
                     const isoGate = c.createGain();
                     isoGate.gain.value = 0.5;
                     const lfo = c.createOscillator(), lfoDepth = c.createGain();
@@ -1632,45 +2493,81 @@ document.addEventListener('alpine:init', () => {
                     lfo.connect(lfoDepth); lfoDepth.connect(isoGate.gain);
                     io.connect(isoGate); isoGate.connect(gIso);
                     lo.start(); ro.start(); io.start(); lfo.start();
-                    this.binNodes = { lo: lo, ro: ro, io: io, lfo: lfo, g: g, gBin: gBin, gIso: gIso };
+                    this.binNodes = { lo: lo, ro: ro, io: io, lfo: lfo, g: g, gBin: gBin, gIso: gIso, mono: monoGain };
                 } catch (e) { return; }
             }
         },
-        applyBinaural() {
+        applyBinaural(dtNow) {
             const c = this.audioCtx, n = this.binNodes;
             if (!c || !n) return;
             const mode = this.bin.mode || 'binaural';
             let base, beat, vol;
             if (this.ending || !this.active) {
                 base = 250; beat = 14; vol = 0;
-            } else if (this.bin.auto) {
-                /* drift 10 Hz alpha down to 3 Hz theta over ~10 minutes
-                   of session elapsed time */
-                const el = this.startedAt ? (Date.now() / 1000 - this.startedAt) : 0;
-                const prog = MD_clamp(el / 600, 0, 1);
-                base = MD_lerp(220, 110, prog);
-                beat = MD_lerp(10, 3, prog);
-                vol = MD_lerp(0.03, 0.16, prog) * this.intensity;
-            } else {
+            } else if (this.bin.manual) {
                 base = this.bin.base || 220;
                 beat = this.bin.beat || 10;
                 vol = ((this.bin.vol || 0) / 100) * 0.35 * this.intensity;
+            } else {
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   the beat rides her RELAXATION DEPTH (the elapsed-time
+                   autodrift is gone): alpha shallow, theta through the
+                   50s, drifting toward delta past 85. the targets ease
+                   per-frame so the pulse never jumps when depth moves */
+                const dF = MD_clamp((this.depth || 0) / 100, 0, 1);
+                const bT = Math.max(0.5, MD_lerp(10, 1.5, dF));
+                const baseT = MD_lerp(220, 110, dF);
+                const volT = (0.04 + 0.14 * dF) * this.intensity;
+                const es = 1 - Math.exp(-0.8 * (dtNow || 0.016));
+                this._smBeat = (this._smBeat === undefined) ? bT : this._smBeat + (bT - this._smBeat) * es;
+                this._smBase = (this._smBase === undefined) ? baseT : this._smBase + (baseT - this._smBase) * es;
+                this._smVol = (this._smVol === undefined) ? volT : this._smVol + (volT - this._smVol) * es;
+                beat = this._smBeat;
+                base = this._smBase;
+                vol = this._smVol;
             }
             if (!this.active || this.muted || !this.binOk || !this.bin.on) vol = 0;
+            this._binLiveHz = beat;
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               bilateral audio: the ambient bed drifts slowly L->R->L
+               (~14 s per sweep) through a shared StereoPanner */
+            if (this._ambPan) {
+                this._ambPan.g.gain.setTargetAtTime(
+                    (this.bin.on && this.bin.bilateral && vol > 0) ? 0.8 : 0,
+                    c.currentTime, 1.0);
+            }
             try {
                 const t = c.currentTime;
                 n.lo.frequency.setTargetAtTime(base, t, 1.5);
                 n.ro.frequency.setTargetAtTime(base + beat, t, 1.5);
                 n.io.frequency.setTargetAtTime(Math.max(40, base), t, 1.5);
                 n.lfo.frequency.setTargetAtTime(beat, t, 1.5);
-                n.gBin.gain.setTargetAtTime(mode === 'isochronic' ? 0 : 1, t, 0.6);
+                const monoOn = !!this.bin.mono;
+                n.gBin.gain.setTargetAtTime((mode === 'isochronic' || monoOn) ? 0 : 1, t, 0.6);
                 n.gIso.gain.setTargetAtTime(mode === 'binaural' ? 0 : 1, t, 0.6);
+                /* mono: the io oscillator becomes the beating tone itself */
+                n.mono.gain.setTargetAtTime(monoOn ? 0.8 : 0, t, 0.6);
                 n.g.gain.setTargetAtTime(vol, t, 1.2);
             } catch (e) {}
         },
         stopBinaural() {
             if (!this.binNodes || !this.audioCtx) return;
             try { this.binNodes.g.gain.setTargetAtTime(0, this.audioCtx.currentTime, 0.8); } catch (e) {}
+        },
+
+        /* shared brown-ish wind noise buffer for breath + bowl mallet */
+        mdNoise(c) {
+            if (this.noiseBuf) return this.noiseBuf;
+            const len = Math.floor(c.sampleRate * 2);
+            this.noiseBuf = c.createBuffer(1, len, c.sampleRate);
+            const d = this.noiseBuf.getChannelData(0);
+            let last = 0;
+            for (let i = 0; i < len; i++) {
+                const w = Math.random() * 2 - 1;
+                last = (last + 0.02 * w) / 1.02;
+                d[i] = last * 3.5;
+            }
+            return this.noiseBuf;
         },
 
         /* ---------------- ambient sound loops ---------------- */
@@ -1693,6 +2590,32 @@ document.addEventListener('alpine:init', () => {
             this.ambPlaylist = (idx >= 0 && idx < this.tracks.length) ? [idx] : [];
             this.ambIdx = 0;
             this.ambEnsure();
+        },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           bilateral panner: one StereoPanner shared by both ambient
+           elements, modulated by a slow LFO (~14 s per L-R-L sweep).
+           Built lazily; only ever active while bin.bilateral is on. */
+        ambPanner() {
+            if (this._ambPan) return this._ambPan;
+            const c = this.ensureAudio();
+            if (!c) return null;
+            try {
+                const p = c.createStereoPanner();
+                const g = c.createGain();
+                g.gain.value = 0;
+                p.connect(g);
+                g.connect(c.destination);
+                const lfo = c.createOscillator();
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.07;
+                const depth = c.createGain();
+                depth.gain.value = 0.75;
+                lfo.connect(depth);
+                depth.connect(p.pan);
+                lfo.start();
+                this._ambPan = { p: p, g: g, lfo: lfo };
+            } catch (e) { return null; }
+            return this._ambPan;
         },
         ambUrl(i) {
             return '/ext-assets/meditation/audio/' + encodeURIComponent(this.tracks[this.ambPlaylist[i] !== undefined ? this.ambPlaylist[i] : this.ambPlaylist[0]]);
@@ -1737,6 +2660,17 @@ document.addEventListener('alpine:init', () => {
         ambVolRamp() {
             if (!this._ambEls || !this.amb) return;
             const target = (this.amb.on && this.active && !this.ending && !this.muted) ? MD_clamp((this.amb.vol || 35) / 100, 0, 1) * 0.9 : 0;
+            /* route through the bilateral panner when it exists */
+            if (this._ambPan) {
+                for (const el of this._ambEls) {
+                    if (!el._routed) {
+                        try {
+                            this.ensureAudio().createMediaElementSource(el).connect(this._ambPan.p);
+                            el._routed = true;
+                        } catch (e) {}
+                    }
+                }
+            }
             const el = this._ambEls[this._ambCur];
             if (el && !el.paused) {
                 const from = el.volume, t0 = performance.now();
@@ -1748,12 +2682,192 @@ document.addEventListener('alpine:init', () => {
                 fade();
             }
         },
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           synthesized singing bowl: inharmonic partials (1 / 2.71 / 5.09
+           / 7.94) each with its own decay, a soft mallet thump up front,
+           all riding the session AudioContext. */
+        strikeBowl(spec) {
+            if (!this.active || this.muted || !this.bowlOn) return;
+            const c = this.ensureAudio();
+            if (!c) return;
+            const t0 = c.currentTime + 0.03;
+            const vol = MD_clamp((spec.vol || 60) / 100, 0, 1) * 0.35 * Math.max(0.25, this.opacity());
+            const f0 = MD_clamp(spec.hz || 210, 80, 600);
+            const dec = MD_clamp(spec.decay || 6, 1, 15);
+            /* every strike blooms a soft light with the tone, one
+               perceptual event - sound AND light, never just one */
+            this._flashes.push({ start: performance.now(), dur: 1400, a: MD_clamp((spec.vol || 60) / 100, 0, 1) * 0.5 });
+            const master = c.createGain();
+            master.gain.value = vol;
+            master.connect(c.destination);
+            const parts = [[1, 1, 1], [2.71, 0.5, 0.72], [5.09, 0.26, 0.5], [7.94, 0.13, 0.33]];
+            for (const [ratio, amp, dmul] of parts) {
+                const osc = c.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = f0 * ratio;
+                osc.detune.value = (Math.random() - 0.5) * 8;
+                const g = c.createGain();
+                g.gain.setValueAtTime(0.0001, t0);
+                g.gain.linearRampToValueAtTime(amp, t0 + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.0001, t0 + dec * dmul);
+                osc.connect(g);
+                g.connect(master);
+                osc.start(t0);
+                osc.stop(t0 + dec + 0.2);
+            }
+            if (this.noiseBuf) {
+                const src = c.createBufferSource();
+                src.buffer = this.noiseBuf;
+                const lp = c.createBiquadFilter();
+                lp.type = 'lowpass';
+                lp.frequency.value = f0 * 2.2;
+                const g2 = c.createGain();
+                g2.gain.setValueAtTime(0.5, t0);
+                g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+                src.connect(lp);
+                lp.connect(g2);
+                g2.connect(master);
+                src.start(t0);
+                src.stop(t0 + 0.2);
+            }
+        },
         ambStopAll() {
             if (!this._ambEls) return;
             for (const el of this._ambEls) {
                 const from = el.volume, t0 = performance.now();
                 const fade = () => {
                     const f = Math.min(1, (performance.now() - t0) / 1800);
+                    el.volume = from * (1 - f);
+                    if (f < 1) requestAnimationFrame(fade);
+                    else { try { el.pause(); } catch (e) {} }
+                };
+                fade();
+            }
+        },
+
+        /* ---------------- music tracks ---------------- */
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+           full songs from webui/assets/music, served through the same
+           /ext-assets route as the ambient loops. two elements cross-
+           fade whenever the target track changes; 'auto' resolves to a
+           random track once per session-like change, exactly like the
+           ambient playlist. no rotation: the chosen track loops. */
+        musBuildUrl() {
+            const m = this.mus || { on: false, track: '' };
+            if (!m.on || !this.musTracks.length) { this.musUrl = ''; return; }
+            const want = String(m.track || '').toLowerCase();
+            let name = '';
+            if (want && want !== 'auto' && want !== 'all') {
+                const hit = this.musTracks.filter((t) => t.toLowerCase() === want || t.toLowerCase().replace(/\.[a-z0-9]+$/, '') === want);
+                if (hit.length) name = hit[0];
+            }
+            if (!name) name = this.musTracks[Math.floor(Math.random() * this.musTracks.length)];
+            this.musUrl = '/ext-assets/meditation/music/' + encodeURIComponent(name);
+        },
+        musEls() {
+            if (!this._musEls) {
+                const mk = () => {
+                    const a = new Audio();
+                    a.preload = 'auto';
+                    a.volume = 0;
+                    a.loop = true;
+                    return a;
+                };
+                this._musEls = [mk(), mk()];
+                this._musCur = 0;
+                /* one linear fade snapshot per element (musTick) */
+                this._musFade = [{ from: null, t0: 0 }, { from: null, t0: 0 }];
+            }
+            return this._musEls;
+        },
+        musKick() {
+            if (!this._musEls || this.ending) return;
+            const el = this._musEls[this._musCur];
+            if (el && el.src && el.paused && this.mus && this.mus.on && this.active && this.musUrl) {
+                el.play().catch(() => {});
+            }
+        },
+        musTick(dt) {
+            /* runs every frame: eases both elements toward their target
+               volumes, and retries autoplay while the browser withholds
+               playback. track switches CROSSFADE - the new song starts
+               on the idle element while the old one sinks - and turning
+               the music off (or ending the session) fades out smoothly
+               before the element pauses. */
+            if (!this._musEls) { if (!this.mus || !this.mus.on || !this.active) return; }
+            const els = this.musEls();
+            const url = (this.musUrl && !this.ending) ? this.musUrl : '';
+            const k = MD_clamp(dt * 1.6, 0, 1);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               music pulse: the song itself rides the shared beat clock
+               (music_pulse setting = how deep the dips go), so the music
+               becomes part of the entrainment instead of fighting it */
+            let mp = 0;
+            if (this.musPulse > 0 && this._beatHz > 0 && this.active && !this.ending && !this.muted) {
+                const p = (this._beatPhase >= 0)
+                    ? 0.5 + 0.5 * Math.cos(Math.PI * 2 * this._beatPhase)
+                    : Math.pow(0.5 + 0.5 * Math.sin(Math.PI * 2 * this._beatHz * (performance.now() / 1000)), 2);
+                mp = (this.musPulse / 100) * p;
+            }
+            for (let i = 0; i < 2; i++) {
+                const el = els[i];
+                const isCur = i === this._musCur;
+                const raw = (isCur && url) ? MD_clamp((this.mus.vol || 25) / 100, 0, 1) * 0.9 : 0;
+                const tgt = raw * (1 - 0.8 * mp);
+                if (isCur && url && el.dataset.src !== url) {
+                    el.dataset.src = url;
+                    try { el.src = url; } catch (e) { continue; }
+                }
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   the fade fix: when the target drops to silence we take
+                   ONE snapshot of the current volume and ramp linearly to
+                   zero over 1.6s (fade is only re-armed when the element
+                   starts playing again - the old code re-snapshotted the
+                   already-dropping volume EVERY frame, so the decay was
+                   near-instant: it looked like a hard cut). rising
+                   targets keep the smooth per-frame ease. */
+                const fd = this._musFade[i];
+                if (tgt < 0.004) {
+                    if (el.paused) continue;
+                    if (fd.from === null) { fd.from = el.volume; fd.t0 = performance.now(); }
+                    const f = Math.min(1, (performance.now() - fd.t0) / 1600);
+                    el.volume = fd.from * (1 - f);
+                    if (f < 1) continue;
+                    const other = els[1 - i];
+                    if (!other.paused && other.volume > 0.004) continue;
+                    try { el.pause(); } catch (e) {}
+                    el.volume = 0;
+                    fd.from = null;
+                    continue;
+                }
+                if (fd.from !== null) fd.from = null;
+                el.volume = el.volume + (tgt - el.volume) * k;
+                if (el.paused) { el.play().catch(() => {}); }
+            }
+            /* track changed: the idle element takes the new song and
+               becomes current - the old one keeps playing while the
+               volume easing sinks it, so switches crossfade */
+            const cur = els[this._musCur];
+            if (url && cur.dataset.src !== url) {
+                const nxt = els[1 - this._musCur];
+                this._musCur = 1 - this._musCur;
+                nxt.dataset.src = url;
+                try { nxt.src = url; nxt.currentTime = 0; } catch (e) {}
+            }
+        },
+        musStopAll() {
+            /* the tick owns the fade: arm a linear fade from wherever
+               each element is right now (the tick keeps running until
+               the overlay fully dies, and even if it stops early the
+               element is left silent-and-paused by this snapshot) */
+            if (!this._musEls) return;
+            for (let i = 0; i < this._musEls.length; i++) {
+                const el = this._musEls[i];
+                if (el.paused) { el.volume = 0; continue; }
+                this._musFade[i] = { from: el.volume, t0: performance.now() };
+                const from = el.volume, t0 = performance.now();
+                const fade = () => {
+                    const f = Math.min(1, (performance.now() - t0) / 1600);
                     el.volume = from * (1 - f);
                     if (f < 1) requestAnimationFrame(fade);
                     else { try { el.pause(); } catch (e) {} }

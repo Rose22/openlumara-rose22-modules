@@ -49,6 +49,13 @@ THEMES = {
 AUDIO_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "webui", "assets", "audio"
 )
+# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+# full music tracks the user drops into the music folder: like the
+# ambient loops but meant for real songs, served through the same
+# /ext-assets route straight to the overlay
+MUSIC_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "webui", "assets", "music"
+)
 
 
 class Meditation(core.module.Module):
@@ -100,6 +107,37 @@ class Meditation(core.module.Module):
         "breath_sounds": {
             "description": "Soft synthesized breath audio: a wind-like swell on every inhale and a long falling sigh on every exhale, paced exactly with the circle.",
             "default": True,
+        },
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # synthesized singing bowl + beat-synced visual pulse
+        "bowl_enabled": {
+            "description": "Synthesized singing bowl the AI can strike at session start, phase turns or the close of a meditation.",
+            "default": True,
+        },
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # default flipped to off at Rosie's request: opt-in pulse.
+        "beat_strobe": {
+            "description": "Soft brightness pulse in time with the binaural beat frequency, centered on the breathing shape. Strength and reach follow the relaxation depth - a barely-there flicker at depth 0, a full soft swell at depth 100. Gentle by design - never a harsh flash.",
+            "default": False,
+        },
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # beat delivery style: binaural carriers (headphones) or one
+        # physically beating mono tone that works on speakers
+        "beat_mode": {
+            "type": "select",
+            "options": {
+                "headphones": "Binaural carriers, one per ear - the classic, needs headphones",
+                "speakers": "Monaural beats - one tone whose loudness physically beats, real entrainment on speakers",
+            },
+            "description": "How the beat frequency reaches her ears. Speakers mode mixes a true monaural beating tone instead of split-ear carriers.",
+            "default": "headphones",
+            "depends": "enable_binaurals",
+        },
+        # music volume dips in rhythm with the live beat clock
+        "music_pulse": {
+            "type": "number",
+            "description": "How strongly the music volume pulses with the beat clock, 0 to 100 (0 = music stays flat). Makes the song itself part of the entrainment.",
+            "default": 60,
         },
         "tts_engine": {
             "type": "select",
@@ -157,8 +195,32 @@ class Meditation(core.module.Module):
         self._speak_gen = 0
         self._speak_ack_gen = 0
         self._poll_count = 0
-        self._bin = {"on": True, "auto": True, "mode": "binaural", "base": 220, "beat": 10.0, "vol": 28}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # beats follow her relaxation depth by default (the elapsed-time
+        # autodrift is gone); manual=true pins them to explicit values
+        self._bin = {"on": True, "manual": False, "mode": "binaural", "base": 220, "beat": 10.0, "vol": 28, "bilateral": False}
         self._ambient = {"on": False, "track": "", "vol": int(self.config.get("ambient_volume") or 35)}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # full music tracks from webui/assets/music, looping next to the
+        # ambient bed (separate folder, separate volume, own crossfade)
+        self._music = {"on": False, "track": "", "vol": 25}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # breathing-locked bowl strikes
+        self._bowl = {"on": False, "vol": 55, "hz": 210}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # practice modes beyond plain breath-following
+        self._sg = {"on": False, "color": "warm"}
+        self._cb = {"on": False}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # relaxation depth 
+        self._depth = 0
+        self._count_evt = None
+        # playful attention game: shapes bloom around the screen and she
+        # pops them by tracing over them with the cursor or a finger
+        self._shapes = {"on": False, "interval": 6}
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # bilateral gaze-following lights (None when off)
+        self._eyes = None
         self._speak = None
         self._events = []
         self._session_started = 0
@@ -225,12 +287,30 @@ class Meditation(core.module.Module):
         el = str(int(elapsed // 60)) + "m" + str(int(elapsed % 60)).zfill(2) + "s"
         return " [session " + el + " elapsed]"
 
+    def _clamp_depth(self, value):
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # choke point, minus the max_depth setting:
+        # in the meditation module the AI steers depth freely within 0-100
+        try:
+            out = max(0, min(100, int(value)))
+        except (TypeError, ValueError):
+            return self._depth
+        return out
+
     def _stop_all(self, reason="stopped"):
         self._active = False
         self._ending = False
         self._end_started = 0
         self._bin["on"] = False
         self._ambient["on"] = False
+        self._music["on"] = False
+        self._bowl["on"] = False
+        self._eyes = None
+        self._sg["on"] = False
+        self._cb["on"] = False
+        self._shapes["on"] = False
+        self._depth = 0
+        self._count_evt = None
         self._speak = None
         self._events = []
         self._session_started = 0
@@ -249,6 +329,7 @@ class Meditation(core.module.Module):
         self._end_started = time.time()
         self._speak = None
         self._ambient["on"] = False
+        self._music["on"] = False
         # release any speak call still waiting on the browser
         self._speak_busy = False
         self._speak_busy_at = 0.0
@@ -273,6 +354,31 @@ class Meditation(core.module.Module):
                 "completed the meditation - then use end to fade everything out gently."
                 + self._session_note())
 
+    def _set_music(self, want):
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # shared music-track matching for start and scene:
+        # 'off' silences, 'auto' lets the browser random-pick, a name
+        # (with or without extension) starts that track. returns the
+        # chosen track, 'auto', or None (off / bad name keeps current)
+        tracks = self._list_music()
+        mus = str(want or "").strip().lower()
+        if not mus:
+            return None
+        if mus in ("off", "silence", "none", "stop"):
+            self._music["on"] = False
+            self._music["track"] = ""
+            return None
+        if mus in ("auto", "all"):
+            self._music["on"] = True
+            self._music["track"] = "auto"
+            return "auto"
+        match = [t for t in tracks if t.lower() == mus or os.path.splitext(t)[0].lower() == mus]
+        if match:
+            self._music["on"] = True
+            self._music["track"] = match[0]
+            return match[0]
+        return None
+
     def _clean_color(self, value, fallback):
         value = str(value).strip()[:30]
         if not value:
@@ -294,12 +400,28 @@ class Meditation(core.module.Module):
         except OSError:
             return []
 
+    def _list_music(self):
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # music folder listing, same rules as the ambient audio folder
+        try:
+            return sorted(
+                name for name in os.listdir(MUSIC_DIR)
+                if name.lower().endswith(AUDIO_EXTS)
+                and os.path.isfile(os.path.join(MUSIC_DIR, name))
+            )
+        except OSError:
+            return []
+
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
     # system prompt is a pure listing of what exists - scenes, shapes,
     # themes, sounds, voices. no instructions; the tool docstrings
     # carry all guidance.
     async def on_system_prompt(self):
         tracks = self._list_tracks() if self.config.get("ambient_enabled") is not False else []
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # full music tracks from the music folder (no setting gate:
+        # an empty folder simply lists nothing)
+        mtracks = self._list_music()
         voices = "af_nicole, af_sarah, af_heart, af_bella, am_*, bf_*, bm_*"
         try:
             rlo, rhi = int(self.config.get("voice_rate_min")), int(self.config.get("voice_rate_max"))
@@ -310,23 +432,32 @@ class Meditation(core.module.Module):
             "Center shapes: " + ", ".join(CENTER_SHAPES),
             "Themes: " + ", ".join(THEMES.keys()),
             "Ambient sound loops: " + (", ".join(tracks) if tracks else "none (audio folder is empty)"),
+            "Music tracks: " + (", ".join(mtracks) if mtracks else "none (music folder is empty)"),
             "Binaural beat modes: binaural, isochronic, both",
+            "Practice modes: soft_gaze (trataka), color_breathe, shapes (hover-to-pop attention game, themed per scene), eye_cues (slow bilateral drifting lights for gentle gaze-following)",
+            "Beat modes: binaural, isochronic, both; delivery set in settings (headphones = binaural carriers, speakers = monaural beats); by default the beat rides her depth (alpha shallow, delta deep) - pin exact values with binaural(manual=true) or silence it with action=stop",
+            "Depth: 0-100 relaxation level set freely with the depth tool (the scene grows more enveloping as it rises); the countdown tool slides it automatically and waits for the landing",
             "Guide voices (kokoro): " + voices,
             "Speech rate range: " + str(rlo) + " to " + str(rhi),
-            # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
-            # the one allowed directive: without this the AI narrates
-            # meditation sessions as plain chat text and never speaks them.
-            # phrasing matters because each speak call blocks until the
-            # line has fully played - tiny fragments leave dead air.
-            "During meditation sessions, deliver your guidance with the speak tool. Make each spoken line a full sentence or two at a slow, soothing pace. When choosing a scene, select an appropriate ambient sound loop.",
         ]
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # the one allowed directive, and ONLY when speech is enabled:
+        # without it the AI narrates sessions as plain chat text and
+        # never speaks them. phrasing matters because each speak call
+        # blocks until the line has fully played - tiny fragments leave
+        # dead air. with speech disabled the directive would point at a
+        # tool that isn't there, so it is simply left out.
+        if self.config.get("enable_speech") is not False:
+            lines.append(
+                "During meditation sessions, ALWAYS deliver your guidance with the speak tool - never as plain chat text. Make each spoken line a full sentence or two at a slow, soothing pace. When choosing a scene, select an appropriate ambient sound loop."
+            )
         return "\n".join(lines)
 
     # ------------------------------------------------------------------
     # AI tools
     # ------------------------------------------------------------------
 
-    async def start(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0, mode: str = "calm", shape: str = "circle", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", dust: bool = False, horizon: bool = False, ambient_track: str = "", beats: bool = True):
+    async def start(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0, mode: str = "calm", shape: str = "circle", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", dust: bool = False, horizon: bool = False, ambient_track: str = "", music_track: str = "", music_volume: int = 0, beats: bool = True, depth: int = 0):
         """
         Start (or re-shape) the guided meditation overlay with a breathing pattern YOU choose for this session. The center breathes with the pattern and the overlay counts every phase on screen, so the subject never has to count.
 
@@ -344,7 +475,10 @@ class Meditation(core.module.Module):
             dust: true for faint drifting dust motes in the air
             horizon: true for a soft glow along the bottom edge that brightens on the inhale
             ambient_track: ambient loop file name from the module's audio folder, 'auto' to pick one at random, empty for silence
-            beats: true to start binaural beats that drift from alpha to theta as the session unfolds
+            music_track: full music track from the module's music folder (with or without extension), 'auto' to random-pick one, empty for no music
+            music_volume: music volume 0 to 100 (0 uses the default level)
+            beats: true to start binaural beats that follow her relaxation depth (alpha shallow, delta deep)
+            depth: starting relaxation depth 0 to 100 (0 = just arrived, 100 = deeply settled); the scene grows cozier and more enveloping as depth rises
         """
         tracks = self._list_tracks()
         track = str(ambient_track or "").strip().lower()
@@ -354,6 +488,23 @@ class Meditation(core.module.Module):
                 where = " (audio folder is empty - ask " + self._subject() + " to drop loop files into user_modules/meditation/webui/assets/audio/)" if not tracks else ""
                 return "No ambient track named '" + ambient_track + "'. Available: " + (", ".join(tracks) if tracks else "none") + where
             track = match[0]
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # music tracks: a bad name doesn't sink the session start, it
+        # just comes back as a note with what actually exists
+        mtracks = self._list_music()
+        mwant = str(music_track or "").strip().lower()
+        m_note = ""
+        if mwant and mwant not in ("auto", "all", "off", "silence", "none", "stop"):
+            mmatch = [t for t in mtracks if t.lower() == mwant or os.path.splitext(t)[0].lower() == mwant]
+            if not mmatch:
+                m_note = " (no music track named '" + music_track + "'; available: " + (", ".join(mtracks) if mtracks else "none - music folder is empty") + ")"
+        mus_chosen = self._set_music(music_track)
+        try:
+            mv = int(music_volume)
+            if 0 < mv <= 100:
+                self._music["vol"] = mv
+        except (TypeError, ValueError):
+            pass
         if self._active and self._ending:
             self._ending = False
             self._end_started = 0
@@ -376,10 +527,14 @@ class Meditation(core.module.Module):
         if str(color_bg or "").strip():
             self._scene["color_bg"] = self._clean_color(color_bg, self._scene["color_bg"])
         self._bin["on"] = bool(beats) and self.config.get("enable_binaurals") is not False
-        self._bin["auto"] = True
+        self._bin["manual"] = False
+        self._depth = self._clamp_depth(depth)
         if track:
             self._ambient["on"] = self.config.get("ambient_enabled") is not False
             self._ambient["track"] = track
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # music rides from the very first breath when requested
+        self._set_music(music_track)
         self._active = True
         if not self._session_started:
             self._session_started = time.time()
@@ -390,14 +545,17 @@ class Meditation(core.module.Module):
 
                 + (", horizon" if self._scene["horizon"] else "")
                 + ", beats "
-                + ("on (auto drift)" if self._bin["on"] else "off") + ", ambience "
+                + ("on (depth-following)" if self._bin["on"] else "off") + ", ambience "
                 + (self._ambient["track"] if self._ambient["on"] and self._ambient["track"] not in ("auto", "all")
                    else "auto-picked" if self._ambient["on"] else "off")
+                + (", music " + (mus_chosen if mus_chosen not in (None, "auto") else "auto-picked")
+                   if self._music["on"] else "")
+                + m_note
                 + ". Begin the guided meditation now: slow, soft, short lines." + self._nudge())
 
     async def set_breathing(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0):
         """
-        Change the breathing pattern mid-session - the circle and the on-screen countdown re-sync instantly on the next breath. Use it to shift the session's energy (calmer, grounding, energizing).
+        Change the breathing pattern mid-session - the new rhythm is applied at the START of the next breath cycle, never mid-breath, so the circle glides into it instead of jumping. Use it to shift the session's energy (calmer, grounding, energizing).
 
         Args:
             breath_in: seconds to breathe in, 1 to 20
@@ -416,17 +574,18 @@ class Meditation(core.module.Module):
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
     # the standalone ambient tool is gone - the scene tool's
     # ambient_track / ambient_volume args cover soundscape control now.
-    async def binaural(self, action: str, mode: str = "binaural", base_hz: int = 220, beat_hz: float = 10.0, volume: int = 0, auto: bool = True):
+    async def binaural(self, action: str, mode: str = "binaural", base_hz: int = 220, beat_hz: float = 10.0, volume: int = 0, manual: bool = False, bilateral: bool = False):
         """
-        Control the binaural beat audio: binaural (left/right carriers, headphones ideal), isochronic (pulsing tone, fine on speakers) or both.
+        Control the binaural beat audio: binaural (left/right carriers, headphones ideal), isochronic (pulsing tone, fine on speakers) or both. By default the beat FOLLOWS her relaxation depth - alpha around depth 0, theta through the 50s, drifting toward delta past 85 - so your depth tool is the throttle. Set manual=true to pin an exact frequency yourself, or action=stop to silence it.
 
         Args:
             action: start, update or stop
             mode: binaural, isochronic or both
-            base_hz: carrier frequency in Hz, 20 to 2000 (ignored when auto is true)
-            beat_hz: beat frequency in Hz, 0.1 to 30 - e.g. 10 alpha calm, 6 light theta, 3 deep theta (ignored when auto is true)
-            volume: 0 to 100 (ignored when auto is true)
-            auto: true to let the session's elapsed time drift the beats from 10 Hz alpha down to 3 Hz theta; false for manual control
+            base_hz: carrier frequency in Hz, 20 to 2000 (used when manual is true)
+            beat_hz: beat frequency in Hz, 0.1 to 30 - e.g. 10 alpha calm, 6 light theta, 3 deep theta (used when manual is true)
+            volume: 0 to 100 (used when manual is true)
+            manual: true to pin the exact base/beat/volume above; false (default) lets the beat ride her depth
+            bilateral: true to drift the ambient soundscape slowly left-right-left across the headphones (about 14 s per sweep; headphones only, empty/false keeps current)
         """
         if not self._active:
             return "No active meditation."
@@ -437,7 +596,9 @@ class Meditation(core.module.Module):
         if guarded:
             return guarded
         self._bin["on"] = True
-        self._bin["auto"] = bool(auto)
+        self._bin["manual"] = bool(manual)
+        if bilateral is not None:
+            self._bin["bilateral"] = bool(bilateral)
         if mode in ("binaural", "isochronic", "both"):
             self._bin["mode"] = mode
         try:
@@ -454,11 +615,253 @@ class Meditation(core.module.Module):
                 self._bin["vol"] = v
         except (TypeError, ValueError):
             pass
-        if self._bin["auto"]:
-            return "Beats on auto: drifting 10 Hz alpha down to 3 Hz theta as the session deepens." + self._nudge()
-        return "Beats now " + str(self._bin["base"]) + " Hz + " + str(self._bin["beat"]) + " Hz beat, volume " + str(self._bin["vol"]) + "/100." + self._nudge()
+        bil = " Ambient drifts slowly left-right." if self._bin["bilateral"] else ""
+        if self._bin["manual"]:
+            return "Beats pinned manually: " + str(self._bin["base"]) + " Hz + " + str(self._bin["beat"]) + " Hz beat, volume " + str(self._bin["vol"]) + "/100." + bil + self._nudge()
+        return "Beats follow her depth - raise the depth and the beat slows." + bil + self._nudge()
 
-    async def scene(self, mode: str = "", shape: str = "", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", color_text: str = "", particles: float = 0, vignette: int = -2, bloom: int = -2, dust: int = -2, horizon: int = -2, ambient_track: str = "", ambient_volume: int = 0):
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # synthesized singing bowl: one struck-tone event, or a repeating
+    # mode where every change of breath direction strikes the bowl.
+    async def bowl(self, action: str = "", volume: int = 60, pitch_hz: int = 210, decay: float = 6.0):
+        """
+        Strike the singing bowl: one long shimmering tone rings out through the headphones or speakers. Beautiful at session start, to mark a phase change, or as the session closes. With action='on' the bowl keeps ringing itself instead: a strike on every change of breath direction, the breath becoming a slow bell.
+
+        Args:
+            action: empty for a single strike, 'on' to strike on every breath reversal, 'off' to stop the repeating strikes
+            volume: 0 to 100, how hard the bowl is struck
+            pitch_hz: fundamental frequency of the bowl in Hz, 80 to 600
+            decay: seconds the tone rings before it is gone, 2 to 15 (single strike only)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        if self.config.get("bowl_enabled") is False:
+            return "The singing bowl is disabled in the module settings."
+        a = str(action or "").strip().lower()
+        if a in ("on", "off"):
+            self._bowl["on"] = a == "on"
+            if a == "on":
+                try:
+                    self._bowl["vol"] = max(1, min(100, int(volume)))
+                except (TypeError, ValueError):
+                    pass
+                try:
+                    self._bowl["hz"] = max(80, min(600, int(pitch_hz)))
+                except (TypeError, ValueError):
+                    pass
+                return ("The bowl breathes with her now: a strike turning into each inhale "
+                        "(bright) and each exhale (low); holds stay silent rests." + self._nudge())
+            return "The bowl rests - only your hand strikes it again." + self._nudge()
+        try:
+            vol = max(1, min(100, int(volume)))
+        except (TypeError, ValueError):
+            vol = 60
+        try:
+            fr = max(80, min(600, int(pitch_hz)))
+        except (TypeError, ValueError):
+            fr = 210
+        try:
+            dec = max(2.0, min(15.0, float(decay)))
+        except (TypeError, ValueError):
+            dec = 6.0
+        self._events.append({"t": "bowl", "vol": vol, "hz": fr, "decay": dec})
+        return "The bowl speaks: " + str(fr) + " Hz, ringing " + str(dec) + "s." + self._nudge()
+
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # slow bilateral gaze-following: one soft light drifting left-right
+    # with a blurred trail, eyes (or attention) riding along like a
+    # gentle pendulum. processing sessions, EMDR-ish, or pure trance.
+    async def eye_cues(self, action: str, sweep_seconds: int = 4):
+        """
+        Bilateral eye cues: a single soft light drifts slowly from the left edge of the screen to the right and back, a blurred trail of glow streaming behind it - she lets her eyes (or just her attention) follow it, no head movement needed. It lingers at the edges and glides quickest through the middle, so the turns come as gentle pauses. A gentle bilateral stimulation: lovely for processing something emotional, for grounding a session inward, or simply as something soft to chase. Say very little while it runs; the eyes have work now.
+
+        Args:
+            action: on or off
+            sweep_seconds: seconds per left-to-right sweep, 2 to 8 (default 4 - dreamy but never sluggish)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        if str(action or "").strip().lower() == "off":
+            self._eyes = None
+            return "The lights rest at the edges, still." + self._nudge()
+        try:
+            sw = max(2, min(8, int(sweep_seconds)))
+        except (TypeError, ValueError):
+            sw = 4
+        self._eyes = {"sweep": sw}
+        return ("Eye cues on: one soft light with a glowing trail drifts left-right, "
+                + str(sw) + "s per sweep. Whisper, don't narrate." + self._nudge())
+
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # practice modes: trataka (soft gaze) and color breathing.
+    # (pmr, descent, grounding and the mbsr arc all came and went)
+    async def soft_gaze(self, action: str, color: str = ""):
+        """
+        Trataka, the candle-gazing practice: the breathing shape is replaced by a single steady candle flame and everything else gets out of the way. The practice is simply to gaze without straining - say very little while it runs, let the flame hold the attention.
+
+        Args:
+            action: on or off
+            color: flame color - warm (gold), blue (cool focus) or rose (soft) (empty keeps warm)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        if str(action or "").strip().lower() == "off":
+            self._sg["on"] = False
+            return "The flame is out - the breathing shape returns." + self._nudge()
+        c = str(color or "").strip().lower()
+        self._sg["color"] = c if c in ("warm", "blue", "rose") else "warm"
+        self._sg["on"] = True
+        return "Soft gaze on: a single " + self._sg["color"] + " flame holds the center. Whisper, don't narrate." + self._nudge()
+
+    async def color_breathe(self, action: str, in_color: str = "", in_word: str = "", out_color: str = "", out_word: str = ""):
+        """
+        Color breathing: she inhales a color that carries a meaning and exhales a color that carries another - the center fills with the in-color on the inhale and drains the out-color on the exhale, a glowing ring pulsing with the breath and both colors tinting the whole screen at their moments, each word floating up at its turn. Choose the colors WITH her so they mean something personal (ask what color calm is for her).
+
+        Args:
+            action: on or off
+            in_color: css color to breathe in (e.g. #7fd4ff)
+            in_word: what that color brings (e.g. calm)
+            out_color: css color to breathe out (e.g. #9aa0a6)
+            out_word: what it releases (e.g. tension)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        if str(action or "").strip().lower() == "off":
+            self._cb["on"] = False
+            return "Color breathing off - colors fade back to the scene palette." + self._nudge()
+        self._cb = {
+            "on": True,
+            "in_color": self._clean_color(in_color, "#8fd6ff"),
+            "in_word": str(in_word or "").strip()[:40],
+            "out_color": self._clean_color(out_color, "#9aa0a6"),
+            "out_word": str(out_word or "").strip()[:40],
+        }
+        return ("Color breathing: in " + self._cb["in_color"] + " (" + (self._cb["in_word"] or "in")
+                + "), out " + self._cb["out_color"] + " (" + (self._cb["out_word"] or "out") + ")."
+                + self._nudge())
+
+    # descent deepening removed 2026-10-10 at Rosie's request - the
+    # staircase never felt right; countdown carries the deepening now.
+
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # relaxation depth:
+    # the ceiling setting and the on-screen bar - the AI sets it at will
+    # and the scene simply grows cozier around it.
+    async def depth(self, depth: int):
+        """
+        Slide the relaxation depth (0 to 100) while a session runs. Pure atmosphere: the deeper she goes, the more enveloping the scene becomes - a deeper vignette, a warmer bloom - so your words feel like they land further in. Raise it gradually as the session unfolds, ease it back down as she returns.
+
+        Args:
+            depth: new depth 0 to 100 (0 just arrived, 100 deeply settled)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        self._depth = self._clamp_depth(depth)
+        return "Depth " + str(self._depth) + "/100 - the scene wraps a little closer around her." + self._nudge()
+
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    async def countdown(self, from_number: int, seconds: int, depth_to: int, landing_word: str = ""):
+        """
+        Run a calm deepening countdown - the module's way to walk her down (the staircase tool is gone): numbers glide down one at a time inside the breathing circle while the depth slides to its target automatically, and at zero the center blooms once like a long slow breath out with an optional soft word glowing for a few seconds. This call WAITS until the count has actually landed on her screen (or reports a cancellation if the session fades or dies mid-count) - so whatever you do next lands in perfect time. Go quiet while it works: the count is the voice right now.
+
+        Args:
+            from_number: count down from this number, 2 to 20
+            seconds: total duration of the countdown in seconds, 4 to 120
+            depth_to: depth to reach when the count lands, 0 to 100
+            landing_word: optional single soft word that glows at zero (settled, heavy, home); empty for a silent bloom
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        try:
+            frm = max(2, min(20, int(from_number)))
+        except (TypeError, ValueError):
+            frm = 10
+        try:
+            secs = max(4, min(120, int(seconds)))
+        except (TypeError, ValueError):
+            secs = 20
+        self._depth = self._clamp_depth(self._depth)
+        target = self._clamp_depth(depth_to)
+        word = str(landing_word or "").strip()[:40]
+        evt = asyncio.Event()
+        self._count_evt = evt
+        start = time.time()
+        self._events.append({
+            "t": "count", "from": frm, "sec": secs,
+            "to": target, "word": word, "from_depth": self._depth,
+        })
+        deadline = start + secs + 10.0
+        while time.time() < deadline:
+            if not self._active:
+                self._count_evt = None
+                return ("Countdown CANCELLED - the session ended mid-count, so it never landed."
+                        + self._session_note())
+            if self._ending:
+                self._count_evt = None
+                return ("Countdown CANCELLED - the meditation began fading out mid-count. "
+                        "Let her come back gently." + self._session_note())
+            try:
+                await asyncio.wait_for(evt.wait(), timeout=0.4)
+            except asyncio.TimeoutError:
+                continue
+            self._count_evt = None
+            self._depth = target
+            return ("Countdown LANDED - the count glided all the way down and she settled at "
+                    "depth " + str(target) + ". Let the quiet hold for a moment before your "
+                    "next line." + self._nudge())
+        self._count_evt = None
+        return ("Countdown started but the overlay never confirmed the landing - it may have "
+                "been closed mid-count. If she is still with you, run a fresh count so it "
+                "actually lands." + self._nudge())
+
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # the playful attention game: shapes bloom around the screen and she
+    # pops them by tracing over them; sound, shape and burst all follow
+    # the current scene (deepsea bubbles pop like bubbles).
+    async def shapes(self, action: str, interval: int = 6):
+        """
+        Shape popping: a gentle attention game. Little shapes bloom into the scene around her - themed to whatever scene is showing, one shape type per scene - and when she traces over one with the cursor or a fingertip it answers with a sound that belongs to that scene (underwater bubbles blip and pop, stars chime, runes hum...) and bursts in its own way. Nothing to score, nothing to fail: missed shapes just drift away. Lovely for restless days, fidgety minds, or turning watching-the-breath into watching-with-fingers. Explain it softly when you start it, then let it play under your voice.
+
+        Args:
+            action: on or off
+            interval: roughly how many seconds between new shapes when starting, 2 to 15 (default 6)
+        """
+        if not self._active:
+            return "No active meditation."
+        guarded = self._guard()
+        if guarded:
+            return guarded
+        if str(action or "").strip().lower() == "off":
+            self._shapes["on"] = False
+            return "The shapes stop coming - the scene keeps only its own weather." + self._nudge()
+        try:
+            iv = max(2, min(15, int(interval)))
+        except (TypeError, ValueError):
+            iv = 6
+        self._shapes = {"on": True, "interval": iv}
+        return ("Shape popping on: one shape at a time blooms into the scene every "
+                + str(iv) + "s or so, waiting for her fingertip. Tell her softly what to do - "
+                "trace them, pop them, no rush, no score." + self._nudge())
+
+    async def scene(self, mode: str = "", shape: str = "", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", color_text: str = "", particles: float = 0, vignette: int = -2, bloom: int = -2, dust: int = -2, horizon: int = -2, ambient_track: str = "", ambient_volume: int = 0, music_track: str = "", music_volume: int = 0):
         """
         Live-tune the scene: environments and shapes crossfade, colors glide smoothly. All args optional - empty string / -2 keeps the current value.
 
@@ -477,6 +880,8 @@ class Meditation(core.module.Module):
             horizon: 1 on, 0 off, -2 keep current (soft glow along the bottom edge)
             ambient_track: switch the soundscape mid-session - a loop file name from the audio folder (with or without extension), 'auto' to random-pick one, 'off' for silence (empty keeps current)
             ambient_volume: ambient loop volume 0 to 100 (0 keeps current level)
+            music_track: switch the music mid-session - a track file name from the music folder (with or without extension), 'auto' to random-pick one, 'off' for silence (empty keeps current)
+            music_volume: music volume 0 to 100 (0 keeps current level)
         """
         if not self._active:
             return "No active meditation."
@@ -540,6 +945,15 @@ class Meditation(core.module.Module):
                 amb_note += ", ambience volume " + str(av)
         except (TypeError, ValueError):
             pass
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # music level alongside the ambience level
+        try:
+            mv = int(music_volume)
+            if 0 < mv <= 100:
+                self._music["vol"] = mv
+                amb_note += ", music volume " + str(mv)
+        except (TypeError, ValueError):
+            pass
         amb = str(ambient_track or "").strip().lower()
         if amb:
             if amb in ("off", "silence", "none", "stop"):
@@ -559,6 +973,19 @@ class Meditation(core.module.Module):
                     amb_note += ", ambience " + match[0]
                 else:
                     amb_note = " (no ambient track named '" + ambient_track + "'; available: " + (", ".join(tracks) if tracks else "none - audio folder is empty") + ")"
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # music follows the same rules as ambience: off / auto / name,
+        # a bad name keeps the current track and reports what exists
+        mus = str(music_track or "").strip().lower()
+        if mus:
+            chosen = self._set_music(music_track)
+            if chosen is not None:
+                amb_note += ", music " + (chosen if chosen != "auto" else "auto-picked")
+            elif mus in ("off", "silence", "none", "stop"):
+                amb_note += ", music off"
+            else:
+                mtracks = self._list_music()
+                amb_note += " (no music track named '" + music_track + "'; available: " + (", ".join(mtracks) if mtracks else "none - music folder is empty") + ")"
         return "Scene updated: core " + self._scene["color_core"] + ", glow " + self._scene["color_glow"] + ", particles " + str(self._scene["particles"]) + "x." + amb_note + self._nudge()
 
     async def _speak_handshake(self, gen: int, before_polls: int, hard_deadline: float):
@@ -709,10 +1136,18 @@ class Meditation(core.module.Module):
             "end_secs": self._end_secs,
             "pattern": dict(self._pattern),
             "scene": dict(self._scene),
-            "binaural": dict(self._bin) if self._active else dict(self._bin, on=False),
+            # mono flag rides the beat_mode setting: speakers mode mixes
+            # a physically beating monaural tone instead of split carriers
+            "binaural": dict(self._bin, mono=(str(self.config.get("beat_mode") or "headphones") == "speakers")) if self._active else dict(self._bin, on=False),
             "ambient": dict(self._ambient) if self._active else dict(self._ambient, on=False),
             "ambient_enabled": self.config.get("ambient_enabled") is not False,
             "tracks": self._list_tracks() if self.config.get("ambient_enabled") is not False else [],
+            # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+            # music tracks + whether the guide voice is available at all
+            # (the overlay only mirrors narration text when speech is off)
+            "music": dict(self._music) if self._active else dict(self._music, on=False),
+            "music_tracks": self._list_music(),
+            "speech_enabled": self.config.get("enable_speech") is not False,
             "speak": dict(self._speak) if (self._speak and self._active) else None,
             "events": events,
             "max_opacity": max(0.1, min(1.0, max_op)),
@@ -721,6 +1156,20 @@ class Meditation(core.module.Module):
             "default_voice": str(self.config.get("default_voice") or "af_nicole"),
             "binaurals_enabled": self.config.get("enable_binaurals") is not False,
             "breath_sounds": self.config.get("breath_sounds") is not False,
+            "bowl_enabled": self.config.get("bowl_enabled") is not False,
+            "beat_strobe": self.config.get("beat_strobe") is not False,
+            # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+            # breathing bowl mode, gaze lights and music pulse strength
+            # (av_sync is always on: light and sound share one clock)
+            "bowl_mode": dict(self._bowl) if self._active and self._bowl["on"] else None,
+            "eye_cues": dict(self._eyes) if self._active and self._eyes else None,
+            "music_pulse": max(0, min(100, int(self.config.get("music_pulse") or 0))),
+            "soft_gaze": dict(self._sg) if self._active and self._sg["on"] else None,
+            "color_breathe": dict(self._cb) if self._active and self._cb["on"] else None,
+            # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+            # relaxation depth (no bar: the scene atmosphere rides it)
+            "depth": self._depth if self._active else 0,
+            "shapes": dict(self._shapes) if self._active and self._shapes["on"] else None,
         }
 
     @webui.route("control", method="POST")
@@ -749,6 +1198,13 @@ class Meditation(core.module.Module):
         if isinstance(body.get("pattern"), dict):
             p = body["pattern"]
             self._apply_pattern(p.get("in"), p.get("hold"), p.get("out"), p.get("hold_out"))
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # the countdown slides depth from the browser as each number
+        # lands, and reports the landing itself so the waiting tool returns
+        if "depth" in body:
+            self._depth = self._clamp_depth(body["depth"])
+        if body.get("countdown_done") and self._count_evt:
+            self._count_evt.set()
         # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
         # speech handshake: the overlay reports when the
         # voice pipeline begins (speaking=true doubles as the ack for the
