@@ -25,14 +25,26 @@ AUDIO_EXTS = (".mp3", ".ogg", ".wav", ".m4a", ".flac", ".webm", ".opus")
 
 # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
 # scene environments, breathing-center shapes and named color themes
-SCENE_MODES = ("calm", "starfield", "fireflies", "petals", "deepsea", "aurora", "snowfall")
-CENTER_SHAPES = ("circle", "lotus", "moon", "mandala")
+# citylights and lanterns removed 2026-10-10 at Rosie's request
+SCENE_MODES = ("calm", "starfield", "fireflies", "petals", "deepsea", "snowfall", "rain", "glitterfall", "runes", "nebula", "sky")
+# -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+# breathing-center shapes: flame, yantra (sri yantra-lite), hexagram
+# and infinity (snowflake, bell and hourglass removed same day)
+CENTER_SHAPES = ("circle", "lotus", "flame", "yantra", "hexagram", "infinity")
 THEMES = {
     "rose quartz": {"color_core": "#ffc7dd", "color_glow": "#ff8fbf", "color_bg": "#2a1024", "color_text": "#ffeaf4"},
     "lavender dusk": {"color_core": "#cbb3ff", "color_glow": "#9d7bff", "color_bg": "#170f2e", "color_text": "#f1eaff"},
     "deep ocean": {"color_core": "#8fd6ff", "color_glow": "#3f8fd6", "color_bg": "#06182b", "color_text": "#e8f7ff"},
     "dawn peach": {"color_core": "#ffd9b8", "color_glow": "#ff9d6b", "color_bg": "#2b1410", "color_text": "#fff3e8"},
     "moonstone": {"color_core": "#9fd8ff", "color_glow": "#7b9cff", "color_bg": "#0d1530", "color_text": "#ffffff"},
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # five extra palettes: candy softness, aurora, deep-space color,
+    # sea glass and gold-on-noir.
+    "cotton candy": {"color_core": "#ffb3e2", "color_glow": "#b388ff", "color_bg": "#231038", "color_text": "#ffe9fb"},
+    "aurora mint": {"color_core": "#9dffd8", "color_glow": "#4dc9ff", "color_bg": "#071a1e", "color_text": "#eafff7"},
+    "nebula bloom": {"color_core": "#ff6ec7", "color_glow": "#7c4dff", "color_bg": "#0a0620", "color_text": "#fff0ff"},
+    "sea glass": {"color_core": "#7fffd4", "color_glow": "#38b2ac", "color_bg": "#082019", "color_text": "#e6fff6"},
+    "sunset ember": {"color_core": "#ffb86b", "color_glow": "#ff5e7a", "color_bg": "#1c0a14", "color_text": "#fff0e8"},
 }
 AUDIO_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "webui", "assets", "audio"
@@ -63,8 +75,11 @@ class Meditation(core.module.Module):
             "description": "Hard ceiling for overlay opacity (0.1 to 1) at full intensity.",
             "default": 0.95,
         },
-        "sound_enabled": {
-            "description": "Master switch for the binaural beats audio.",
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # renamed from sound_enabled (which was already binaural-only);
+        # ambient loops and breath audio have their own switches.
+        "enable_binaurals": {
+            "description": "Master switch for the binaural beats audio only. Ambient loops and breath sounds have their own settings.",
             "default": True,
         },
         "ambient_enabled": {
@@ -130,7 +145,7 @@ class Meditation(core.module.Module):
             "color_bg": "#0d1530", "color_text": "#ffffff",
             "particles": 1.0, "vignette": -1, "bloom": -1,
             "mode": "calm", "shape": "circle",
-            "dust": 0, "threads": 0, "horizon": 0, "garland": 1,
+            "dust": 0, "horizon": 0,
         }
         # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
         # speech handshake v2: the overlay acks a
@@ -279,11 +294,39 @@ class Meditation(core.module.Module):
         except OSError:
             return []
 
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # system prompt is a pure listing of what exists - scenes, shapes,
+    # themes, sounds, voices. no instructions; the tool docstrings
+    # carry all guidance.
+    async def on_system_prompt(self):
+        tracks = self._list_tracks() if self.config.get("ambient_enabled") is not False else []
+        voices = "af_nicole, af_sarah, af_heart, af_bella, am_*, bf_*, bm_*"
+        try:
+            rlo, rhi = int(self.config.get("voice_rate_min")), int(self.config.get("voice_rate_max"))
+        except (TypeError, ValueError):
+            rlo, rhi = 50, 160
+        lines = [
+            "Scenes: " + ", ".join(SCENE_MODES),
+            "Center shapes: " + ", ".join(CENTER_SHAPES),
+            "Themes: " + ", ".join(THEMES.keys()),
+            "Ambient sound loops: " + (", ".join(tracks) if tracks else "none (audio folder is empty)"),
+            "Binaural beat modes: binaural, isochronic, both",
+            "Guide voices (kokoro): " + voices,
+            "Speech rate range: " + str(rlo) + " to " + str(rhi),
+            # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+            # the one allowed directive: without this the AI narrates
+            # meditation sessions as plain chat text and never speaks them.
+            # phrasing matters because each speak call blocks until the
+            # line has fully played - tiny fragments leave dead air.
+            "During meditation sessions, deliver your guidance with the speak tool. Make each spoken line a full sentence or two at a slow, soothing pace. When choosing a scene, select an appropriate ambient sound loop.",
+        ]
+        return "\n".join(lines)
+
     # ------------------------------------------------------------------
     # AI tools
     # ------------------------------------------------------------------
 
-    async def start(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0, mode: str = "calm", shape: str = "circle", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", dust: bool = False, threads: bool = False, horizon: bool = False, garland: bool = True, ambient_track: str = "", beats: bool = True):
+    async def start(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0, mode: str = "calm", shape: str = "circle", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", dust: bool = False, horizon: bool = False, ambient_track: str = "", beats: bool = True):
         """
         Start (or re-shape) the guided meditation overlay with a breathing pattern YOU choose for this session. The center breathes with the pattern and the overlay counts every phase on screen, so the subject never has to count.
 
@@ -292,16 +335,14 @@ class Meditation(core.module.Module):
             breath_hold: seconds to hold after the inhale, 0 to 30 (e.g. 7, 0 for no hold)
             breath_out: seconds to breathe out, 1 to 30 (e.g. 8)
             breath_hold_out: seconds to hold empty after the exhale, 0 to 30 (0 for none)
-            mode: scene environment - calm (plain starless void), starfield (twinkling stars, shooting stars on exhale), fireflies (lazy blinking lights), petals (falling blossom pushed by the breath), deepsea (rising bubbles + light shafts), aurora (light curtains rippling overhead) or snowfall (slow quiet snow)
-            shape: breathing center - circle (glowing disc), lotus (blooms open on the inhale), moon (crescent waxes to full as she breathes in), mandala (rotating rings and spokes)
-            theme: named color palette - 'rose quartz', 'lavender dusk', 'deep ocean', 'dawn peach' or 'moonstone'; empty keeps the current colors (an explicit color arg still wins over the theme)
+            mode: scene environment - calm (plain starless void), starfield (twinkling stars, shooting stars on exhale), fireflies (lazy blinking lights), petals (falling blossom pushed by the breath), deepsea (rising bubbles + light shafts), snowfall (slow quiet snow), rain (raindrop beads sitting on window glass, blurred palette-colored rainfall behind), glitterfall (pink and gold glitter flashing as it tumbles), runes (a magic circle of glowing glyphs orbiting the center), nebula (drifting clouds of vivid cosmic color over a starfield), sky (bright blue daytime sky, drifting forward through fluffy white clouds)
+            shape: breathing center - circle (glowing disc), lotus (blooms open on the inhale), flame (licks and flickers, grows on the inhale), yantra (sri yantra-lite: interlocking triangles on a bindu), hexagram (two slow counter-rotating triangles), infinity (the path itself lights up along the breath)
+            theme: named color palette - 'rose quartz', 'lavender dusk', 'deep ocean', 'dawn peach', 'moonstone', 'cotton candy', 'aurora mint', 'nebula bloom', 'sea glass' or 'sunset ember'; empty keeps the current colors (an explicit color arg still wins over the theme)
             color_core: optional core color override (e.g. #9fd8ff)
             color_glow: optional glow + particle color override (e.g. #7b9cff)
             color_bg: optional background color override (e.g. #0d1530)
             dust: true for faint drifting dust motes in the air
-            threads: true for constellation links where particles cluster
             horizon: true for a soft glow along the bottom edge that brightens on the inhale
-            garland: true (default) to grow one glowing bead around the center per completed breath
             ambient_track: ambient loop file name from the module's audio folder, 'auto' to pick one at random, empty for silence
             beats: true to start binaural beats that drift from alpha to theta as the session unfolds
         """
@@ -327,16 +368,14 @@ class Meditation(core.module.Module):
         if th in THEMES:
             self._scene.update(dict(THEMES[th]))
         self._scene["dust"] = 1 if dust else 0
-        self._scene["threads"] = 1 if threads else 0
         self._scene["horizon"] = 1 if horizon else 0
-        self._scene["garland"] = 1 if garland else 0
         if str(color_core or "").strip():
             self._scene["color_core"] = self._clean_color(color_core, self._scene["color_core"])
         if str(color_glow or "").strip():
             self._scene["color_glow"] = self._clean_color(color_glow, self._scene["color_glow"])
         if str(color_bg or "").strip():
             self._scene["color_bg"] = self._clean_color(color_bg, self._scene["color_bg"])
-        self._bin["on"] = bool(beats) and self.config.get("sound_enabled") is not False
+        self._bin["on"] = bool(beats) and self.config.get("enable_binaurals") is not False
         self._bin["auto"] = True
         if track:
             self._ambient["on"] = self.config.get("ambient_enabled") is not False
@@ -348,9 +387,8 @@ class Meditation(core.module.Module):
                 + self._scene["mode"] + " / " + self._scene["shape"]
                 + (" / " + str(theme or "").strip().lower() if str(theme or "").strip().lower() in THEMES else "")
                 + (", dust" if self._scene["dust"] else "")
-                + (", threads" if self._scene["threads"] else "")
+
                 + (", horizon" if self._scene["horizon"] else "")
-                + (", garland" if self._scene["garland"] else "")
                 + ", beats "
                 + ("on (auto drift)" if self._bin["on"] else "off") + ", ambience "
                 + (self._ambient["track"] if self._ambient["on"] and self._ambient["track"] not in ("auto", "all")
@@ -375,42 +413,9 @@ class Meditation(core.module.Module):
         self._apply_pattern(breath_in, breath_hold, breath_out, breath_hold_out)
         return "New breathing pattern: " + self._pattern_text() + ". Announce the change softly before it lands." + self._nudge()
 
-    async def ambient(self, action: str, track: str = "", volume: int = 0):
-        """
-        Control the ambient sound that plays under the meditation. Tracks are the loop files in the module's audio folder; the chosen track loops endlessly and gapless.
-
-        Args:
-            action: on or off
-            track: file name (with or without extension), 'auto' to pick one at random, empty keeps the current pick
-            volume: 0 to 100, empty/0 keeps the current level
-        """
-        if self.config.get("ambient_enabled") is False:
-            return "Ambient loops are disabled in the module settings."
-        if action != "on":
-            self._ambient["on"] = False
-            return "Ambience fading out."
-        tracks = self._list_tracks()
-        wanted = str(track or "").strip().lower()
-        if wanted and wanted not in ("auto", "all"):
-            match = [t for t in tracks if t.lower() == wanted or os.path.splitext(t)[0].lower() == wanted]
-            if not match:
-                return "No ambient track named '" + track + "'. Available: " + (", ".join(tracks) if tracks else "none - ask " + self._subject() + " to drop files into user_modules/meditation/webui/assets/audio/")
-            wanted = match[0]
-        elif not tracks and not wanted:
-            wanted = ""
-        self._ambient["track"] = wanted if wanted else self._ambient["track"]
-        try:
-            v = int(volume)
-            if 0 < v <= 100:
-                self._ambient["vol"] = v
-        except (TypeError, ValueError):
-            pass
-        self._ambient["on"] = True
-        if not tracks:
-            return "Ambience is on but the audio folder is empty - nothing to play yet. Ask " + self._subject() + " to add loops to user_modules/meditation/webui/assets/audio/."
-        label = "auto-picked from " + str(len(tracks)) + " track(s)" if wanted in ("auto", "all", "") else "'" + self._ambient["track"] + "'"
-        return "Ambience on: " + label + " looping gapless at volume " + str(self._ambient["vol"]) + "." + self._nudge()
-
+    # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    # the standalone ambient tool is gone - the scene tool's
+    # ambient_track / ambient_volume args cover soundscape control now.
     async def binaural(self, action: str, mode: str = "binaural", base_hz: int = 220, beat_hz: float = 10.0, volume: int = 0, auto: bool = True):
         """
         Control the binaural beat audio: binaural (left/right carriers, headphones ideal), isochronic (pulsing tone, fine on speakers) or both.
@@ -453,14 +458,14 @@ class Meditation(core.module.Module):
             return "Beats on auto: drifting 10 Hz alpha down to 3 Hz theta as the session deepens." + self._nudge()
         return "Beats now " + str(self._bin["base"]) + " Hz + " + str(self._bin["beat"]) + " Hz beat, volume " + str(self._bin["vol"]) + "/100." + self._nudge()
 
-    async def scene(self, mode: str = "", shape: str = "", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", color_text: str = "", particles: float = 0, vignette: int = -2, bloom: int = -2, dust: int = -2, threads: int = -2, horizon: int = -2, garland: int = -2):
+    async def scene(self, mode: str = "", shape: str = "", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", color_text: str = "", particles: float = 0, vignette: int = -2, bloom: int = -2, dust: int = -2, horizon: int = -2, ambient_track: str = "", ambient_volume: int = 0):
         """
         Live-tune the scene: environments and shapes crossfade, colors glide smoothly. All args optional - empty string / -2 keeps the current value.
 
         Args:
-            mode: scene environment - calm, starfield, fireflies, petals, deepsea, aurora or snowfall (empty keeps current)
-            shape: breathing center - circle, lotus, moon or mandala (empty keeps current)
-            theme: named palette - 'rose quartz', 'lavender dusk', 'deep ocean', 'dawn peach', 'moonstone'; colors glide over, explicit color args below still win
+            mode: scene environment - calm, starfield, fireflies, petals, deepsea, snowfall, rain, glitterfall, runes, nebula or sky (empty keeps current)
+            shape: breathing center - circle, lotus, flame, yantra, hexagram or infinity (empty keeps current)
+            theme: named palette - 'rose quartz', 'lavender dusk', 'deep ocean', 'dawn peach', 'moonstone', 'cotton candy', 'aurora mint', 'nebula bloom', 'sea glass', 'sunset ember'; colors glide over, explicit color args below still win
             color_core: core css color (e.g. #9fd8ff)
             color_glow: glow and particle css color (e.g. #7b9cff)
             color_bg: background wash css color (e.g. #0d1530)
@@ -469,9 +474,9 @@ class Meditation(core.module.Module):
             vignette: -1 auto (softens the edges), 0 off, 1 to 100 manual strength, -2 to keep current
             bloom: -1 auto halo of light around the circle, 0 off, 1 to 100 manual strength, -2 to keep current
             dust: 1 on, 0 off, -2 keep current (faint drifting dust motes)
-            threads: 1 on, 0 off, -2 keep current (constellation links between particles)
             horizon: 1 on, 0 off, -2 keep current (soft glow along the bottom edge)
-            garland: 1 on, 0 off, -2 keep current (a bead appears per completed breath)
+            ambient_track: switch the soundscape mid-session - a loop file name from the audio folder (with or without extension), 'auto' to random-pick one, 'off' for silence (empty keeps current)
+            ambient_volume: ambient loop volume 0 to 100 (0 keeps current level)
         """
         if not self._active:
             return "No active meditation."
@@ -489,7 +494,7 @@ class Meditation(core.module.Module):
         th = str(theme or "").strip().lower()
         if th in THEMES:
             self._scene.update(dict(THEMES[th]))
-        for key, val in (("dust", dust), ("threads", threads), ("horizon", horizon), ("garland", garland)):
+        for key, val in (("dust", dust), ("horizon", horizon)):
             try:
                 iv = int(val)
                 if iv in (0, 1):
@@ -522,7 +527,39 @@ class Meditation(core.module.Module):
                 self._scene["bloom"] = max(-1, min(100, b))
         except (TypeError, ValueError):
             pass
-        return "Scene updated: core " + self._scene["color_core"] + ", glow " + self._scene["color_glow"] + ", particles " + str(self._scene["particles"]) + "x." + self._nudge()
+        # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+        # the scene tool owns the soundscape entirely (the old ambient
+        # tool is gone): 'off' stops the ambience, 'auto' random-picks,
+        # a name starts that loop; a bad name keeps the current track
+        # and reports what exists. ambient_volume adjusts the loop level.
+        amb_note = ""
+        try:
+            av = int(ambient_volume)
+            if 0 < av <= 100:
+                self._ambient["vol"] = av
+                amb_note += ", ambience volume " + str(av)
+        except (TypeError, ValueError):
+            pass
+        amb = str(ambient_track or "").strip().lower()
+        if amb:
+            if amb in ("off", "silence", "none", "stop"):
+                self._ambient["on"] = False
+                self._ambient["track"] = ""
+                amb_note += ", ambience off"
+            elif amb in ("auto", "all"):
+                self._ambient["on"] = self.config.get("ambient_enabled") is not False
+                self._ambient["track"] = "auto"
+                amb_note += ", ambience auto-picked"
+            else:
+                tracks = self._list_tracks()
+                match = [t for t in tracks if t.lower() == amb or os.path.splitext(t)[0].lower() == amb]
+                if match:
+                    self._ambient["on"] = self.config.get("ambient_enabled") is not False
+                    self._ambient["track"] = match[0]
+                    amb_note += ", ambience " + match[0]
+                else:
+                    amb_note = " (no ambient track named '" + ambient_track + "'; available: " + (", ".join(tracks) if tracks else "none - audio folder is empty") + ")"
+        return "Scene updated: core " + self._scene["color_core"] + ", glow " + self._scene["color_glow"] + ", particles " + str(self._scene["particles"]) + "x." + amb_note + self._nudge()
 
     async def _speak_handshake(self, gen: int, before_polls: int, hard_deadline: float):
         # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
@@ -637,49 +674,7 @@ class Meditation(core.module.Module):
                 "(wiggle the fingers, come back when you are ready) and let the overlay stop itself."
                 + self._session_note())
 
-    # ------------------------------------------------------------------
-    # guidance for the AI
-    # ------------------------------------------------------------------
-
-    async def on_system_prompt(self):
-        subj = self._subject()
-        if self._active and self._ending:
-            status = ("FADING OUT over " + str(int(self._end_secs)) + "s: " + subj
-                      + " is returning NOW. Only warm re-orienting lines. The overlay stops itself."
-                      + self._session_note())
-        elif self._active:
-            tracks = self._list_tracks()
-            status = ("SESSION ACTIVE: breathing " + self._pattern_text() + ", beats "
-                      + (self._bin.get("mode", "binaural") + (" auto-drift" if self._bin["auto"] else " " + str(self._bin["base"]) + " Hz + " + str(self._bin["beat"]) + " Hz"))
-                      + (" (on)" if self._bin["on"] else " (off)") + ", ambience "
-                      + (("'" + self._ambient["track"] + "'") if self._ambient["on"] and self._ambient["track"] not in ("auto", "all") else "auto-picked" if self._ambient["on"] else "off")
-                      + " · " + str(len(tracks)) + " track(s) available · scene "
-                      + self._scene["mode"] + " / " + self._scene["shape"] + "." + self._session_note())
-        else:
-            status = "NO ACTIVE SESSION: call meditation_start when " + subj + " wants a guided meditation."
-        tracks = self._list_tracks()
-        track_note = (", ".join(tracks) if tracks else
-                      "NONE yet - the module's audio folder (user_modules/meditation/webui/assets/audio/) is empty; mention it gently if " + subj + " asks for ambience")
-        return f"""The meditation module paints a full-screen calm layer over {subj}'s webui that you drive with the meditation_* tools: a glowing breathing circle at the center, particles that flow outward on the inhale and drift back on the exhale, binaural beats, ambient sound loops, and your spoken guide voice. The overlay counts every breath phase on screen ("4 in", "hold for 7", "out for 8") so {subj} never has to count.
-
-Pick a breathing pattern to fit the session when you call start - e.g. 4-7-8 for deep calm and sleep, box 4-4-4-4 for grounding and focus, 4-0-6 for a simple flowing breath, 4-2-6 for gentle everyday relaxation. Change it anytime with set_breathing (announce the switch softly first).
-
-PAINT THE SCENE when you call start - pick a mode (environment), a shape (breathing center) and a theme (color palette) that fit the session's mood, and shift them with scene as it unfolds (everything crossfades, it is safe to change mid-session):
-- modes: calm (clean void), starfield (twinkles + shooting stars on her exhales), fireflies (lazy blinking lights), petals (falling blossom swept by her breath), deepsea (bubbles + light shafts), aurora (light curtains overhead), snowfall (slow quiet snow)
-- shapes: circle (glowing disc), lotus (blooms open as she breathes in - her favorite), moon (crescent waxes to full on the inhale), mandala (slow rotating rings)
-- themes: rose quartz, lavender dusk, deep ocean, dawn peach, moonstone
-- optional layers: dust (drifting motes), threads (constellation links), horizon (bottom glow) - use sparingly; garland (a glowing bead per breath, on by default) is a lovely progress marker for longer sessions
-A sleep session might be deepsea or snowfall + moon + deep ocean; a gentle everyday calm might be petals + lotus + rose quartz. Vary between sessions - surprise her.
-
-The speak tool returns once the line has played out in her browser - your words always land in order, never ahead of her voice. Speak in full sentences (2-4 per call) so the voice keeps rolling between your calls.
-
-AMBIENT TRACKS available: {track_note}. Open the ambience early (ambient on, track auto or a named file) and let it run under everything.
-
-{status}
-
-Running a session: speak slowly in short soft lines with ellipses; pace your narration around the breath cycle (a line fits nicely in an exhale); let silences breathe - you do NOT need to fill every second, the circle, beats and ambience keep working while you are quiet; check in softly every minute or two. IMPORTANT: when your reply ENDS, the module fades the session out automatically after a moment - so keep the meditation alive inside your reply (speak, scene shifts, pattern changes); if you stop guiding, {subj} drifts back on her own. Soft synthesized breath sounds ride every inhale and exhale for her - never narrate the counts, the screen and the breath audio already carry them. Match the scene colors to the mood with scene (deep sea blues, violet dusk, warm rose dawn). ALWAYS end with end (never just stop): it fades everything out gently. When the max session time is reached the overlay fades itself out - close warmly.
-
-{subj} can press the ✕ end button or the escape key at any moment to fade the session out - always respect that.{(' ' + str(self.config.get('instructions')).strip()) if str(self.config.get('instructions') or '').strip() else ''}"""
+    # I removed the system prompt. Way too much cruft, tool definitions are enough. ~Rose22
 
     # ------------------------------------------------------------------
     # webui routes (frontend polls state; sidebar/overlay post actions)
@@ -724,7 +719,7 @@ Running a session: speak slowly in short soft lines with ellipses; pace your nar
             "subject": self._subject(),
             "tts_engine": str(self.config.get("tts_engine") or "kokoro"),
             "default_voice": str(self.config.get("default_voice") or "af_nicole"),
-            "sound": self.config.get("sound_enabled") is not False,
+            "binaurals_enabled": self.config.get("enable_binaurals") is not False,
             "breath_sounds": self.config.get("breath_sounds") is not False,
         }
 
@@ -738,7 +733,7 @@ Running a session: speak slowly in short soft lines with ellipses; pace your nar
                 self._active = True
                 self._ending = False
                 self._end_started = 0
-                self._bin["on"] = self.config.get("sound_enabled") is not False
+                self._bin["on"] = self.config.get("enable_binaurals") is not False
                 if not self._session_started:
                     self._session_started = time.time()
             else:

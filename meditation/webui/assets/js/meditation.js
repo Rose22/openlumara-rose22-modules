@@ -86,14 +86,13 @@ document.addEventListener('alpine:init', () => {
             color_text: '#ffffff', particles: 1, vignette: -1, bloom: -1,
             /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
                scene modes, breathing-center shapes and optional layers */
-            mode: 'calm', shape: 'circle', dust: 0, threads: 0, horizon: 0, garland: 1
+            mode: 'calm', shape: 'circle', dust: 0, horizon: 0
         },
         sceneT: null,
         envs: {},
-        garlandPts: [],
         prevMode: 'calm', envMix: 1,
         prevShape: 'circle', shapeMix: 1,
-        _pPos: [],
+
         _dust: [],
         bin: { on: false, auto: true, mode: 'binaural', base: 220, beat: 10, vol: 28 },
         amb: { on: false, track: '', vol: 35 },
@@ -103,7 +102,7 @@ document.addEventListener('alpine:init', () => {
         ambIdx: 0,
         events: [],
         speakLoop: null,
-        soundOn: true,
+        binOk: true,
         /* breath_sounds from module settings: the synthesized inhale sigh */
         breathSnd: true,
         noiseBuf: null,
@@ -260,7 +259,7 @@ document.addEventListener('alpine:init', () => {
             const wasActive = this.active;
             this.maxOpacity = d.max_opacity || 0.95;
             this.subject = d.subject || 'Rosie';
-            this.soundOn = d.sound !== false;
+            this.binOk = d.binaurals_enabled !== false;
             this.breathSnd = d.breath_sounds !== false;
             this.ttsEngine = d.tts_engine || 'kokoro';
             this.defaultVoice = d.default_voice || 'af_nicole';
@@ -287,7 +286,7 @@ document.addEventListener('alpine:init', () => {
             }
             if (d.scene) this.sceneT = d.scene;
             if (d.binaural) this.bin = d.binaural;
-            if (!this.active || this.muted || !this.soundOn || !this.bin.on) this.stopBinaural();
+            if (!this.active || this.muted || !this.binOk || !this.bin.on) this.stopBinaural();
             else this.startBinaural();
             this.ambEnabled = d.ambient_enabled !== false;
             const newSpeak = d.speak || null;
@@ -312,7 +311,6 @@ document.addEventListener('alpine:init', () => {
                 this.startedAt = Date.now() / 1000;
                 this.intSent = false;
                 this.endMsg = '';
-                this.garlandPts = [];
                 if (this.enginePref() === 'kokoro') this.kokoroReady().catch(() => {});
             }
             if (!this.active) {
@@ -366,6 +364,11 @@ document.addEventListener('alpine:init', () => {
             this.phaseDur = dur;
             this.phaseFrac = f;
             this.scale = sc;
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               fraction through the whole breath cycle - the infinity
+               shape rides this so its tracer loops exactly once per
+               breath (inhale = right lobe, exhale = left lobe) */
+            this._breathCyc = (nowSec - this.breathT0) / total;
             return phases;
         },
 
@@ -391,24 +394,96 @@ document.addEventListener('alpine:init', () => {
 
         /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
            environment layers per scene mode: starfield, petals, deep
-           sea, aurora and snowfall paint behind the breathing field;
+           sea, snowfall, rain, glitterfall, runes, nebula
+           and sky paint behind the breathing field;
            calm and fireflies have no environment (fireflies instead
            re-style the main particle field). each mode keeps its own
            lazily-built item state and crossfades on switch. */
+        /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
+           pre-rendered sprites: fluffy multi-lobe clouds and a glassy
+           raindrop bead, drawn once offscreen for cheap reuse */
+        cloudSprites() {
+            if (this._cloudSpr) return this._cloudSpr;
+            const mkp = seed => {
+                const c = document.createElement('canvas');
+                c.width = 256; c.height = 256;
+                const g = c.getContext('2d');
+                let s = seed;
+                const rnd = () => { s = (s * 16807) % 2147483647; return (s % 1000) / 1000; };
+                for (let i = 0; i < 8; i++) {
+                    const bx = 128 + (rnd() - 0.5) * 150;
+                    const by = 128 + (rnd() - 0.5) * 96;
+                    const br = 34 + rnd() * 54;
+                    const rg = g.createRadialGradient(bx, by, 0, bx, by, br);
+                    rg.addColorStop(0, 'rgba(255,255,255,0.5)');
+                    rg.addColorStop(0.55, 'rgba(255,255,255,0.24)');
+                    rg.addColorStop(1, 'rgba(255,255,255,0)');
+                    g.fillStyle = rg;
+                    g.beginPath();
+                    g.arc(bx, by, br, 0, Math.PI * 2);
+                    g.fill();
+                }
+                return c;
+            };
+            this._cloudSpr = [mkp(12345), mkp(6789), mkp(4242)];
+            return this._cloudSpr;
+        },
+        dropSprite() {
+            if (this._dropSpr) return this._dropSpr;
+            const c = document.createElement('canvas');
+            c.width = 64; c.height = 64;
+            const g = c.getContext('2d');
+            const rg = g.createRadialGradient(26, 26, 2, 32, 32, 30);
+            rg.addColorStop(0, 'rgba(255,255,255,0.28)');
+            rg.addColorStop(0.62, 'rgba(215,228,226,0.10)');
+            rg.addColorStop(0.88, 'rgba(25,45,50,0.40)');
+            rg.addColorStop(1, 'rgba(25,45,50,0)');
+            g.fillStyle = rg;
+            g.beginPath();
+            g.arc(32, 32, 30, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = 'rgba(255,255,255,0.5)';
+            g.beginPath();
+            g.ellipse(32, 44, 12, 6.5, 0, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = 'rgba(255,255,255,0.7)';
+            g.beginPath();
+            g.ellipse(23, 20, 5, 3.4, -0.6, 0, Math.PI * 2);
+            g.fill();
+            this._dropSpr = c;
+            return c;
+        },
         envData(mode, w, h) {
-            if (!this.envs[mode]) this.envs[mode] = { w: 0, h: 0, items: [], shots: [] };
+            if (!this.envs[mode]) this.envs[mode] = { w: 0, h: 0, items: [], shots: [], stars: [] };
             const e = this.envs[mode];
             if (e.w !== w || e.h !== h) {
-                e.w = w; e.h = h; e.items = [];
+                e.w = w; e.h = h; e.items = []; e.stars = [];
                 const mk = {
-                    starfield: () => ({ x: Math.random() * w, y: Math.random() * h, sz: 0.5 + Math.random() * 1.4, tw: Math.random() * 6.28, twS: 0.25 + Math.random() * 0.9 }),
+                    starfield: () => ({ x: Math.random() * w, y: Math.random() * h, sz: 0.4 + Math.pow(Math.random(), 1.7) * 2.6, tw: Math.random() * 6.28, twS: 0.25 + Math.random() * 0.9, big: Math.random() < 0.07 ? 1 : 0, col: Math.floor(Math.random() * 3) }),
                     petals: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 12 + Math.random() * 22, wob: Math.random() * 6.28, wobS: 0.3 + Math.random() * 0.7, rot: Math.random() * 6.28, rotS: (Math.random() - 0.5) * 1.2, sz: 4 + Math.random() * 7, hue: Math.random() }),
                     deepsea: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 10 + Math.random() * 26, wob: Math.random() * 6.28, r: 1.5 + Math.random() * 5 }),
-                    snowfall: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 6 + Math.random() * 14, wob: Math.random() * 6.28, wobS: 0.2 + Math.random() * 0.5, sz: 1 + Math.random() * 2.4 })
+                    snowfall: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 6 + Math.random() * 14, wob: Math.random() * 6.28, wobS: 0.2 + Math.random() * 0.5, sz: 1 + Math.random() * 2.4 }),
+                    rainfall: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 600 + Math.random() * 380, len: 16 + Math.random() * 22, g: 0.5 + Math.random() * 0.5 }),
+                    rain: () => (Math.random() < 0.08
+                        ? { bl: 1, x: Math.random() * w, y: h * (0.15 + Math.random() * 0.8), sz: 40 + Math.random() * 130 }
+                        : { x: Math.random() * w, y: Math.random() * h, r: 1.2 + Math.pow(Math.random(), 2.6) * 16, sl: Math.random() < 0.14 ? 1 : 0, vy: 6 + Math.random() * 22 }),
+                    glitterfall: () => ({ x: Math.random() * w, y: Math.random() * h, vy: 10 + Math.random() * 22, wob: Math.random() * 6.28, wobS: 0.2 + Math.random() * 0.6, sz: 1.2 + Math.random() * 2.4, tw: Math.random() * 6.28, twS: 1.5 + Math.random() * 3, spin: Math.random() * 6.28, hue: Math.random() }),
+                    runes: () => ({ ring: Math.floor(Math.random() * 3), ang: Math.random() * 6.28, tw: Math.random() * 6.28, g: Math.floor(Math.random() * 14), sz: 13 + Math.random() * 10 }),
+                    nebula: () => ({ x: Math.random() * w, y: Math.random() * h, r: Math.min(w, h) * (0.16 + Math.random() * 0.32), vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 5, col: Math.floor(Math.random() * 4), a: 0.10 + Math.random() * 0.09 }),
+                    sky: () => ({ x: (Math.random() - 0.5) * 2.6, y: (Math.random() - 0.35) * 2.1, z: 0.1 + Math.random() * 1.5, sz: 0.09 + Math.random() * 0.16, sp: Math.floor(Math.random() * 3), streak: Math.random() < 0.18 ? 1 : 0 })
                 };
-                const counts = { starfield: MD_MOBILE ? 90 : 170, petals: MD_MOBILE ? 20 : 40, deepsea: MD_MOBILE ? 18 : 34, snowfall: MD_MOBILE ? 60 : 120 };
+                const counts = { starfield: MD_MOBILE ? 130 : 240, petals: MD_MOBILE ? 20 : 40, deepsea: MD_MOBILE ? 18 : 34, snowfall: MD_MOBILE ? 60 : 120, rain: MD_MOBILE ? 150 : 260, rainfall: MD_MOBILE ? 90 : 180, glitterfall: MD_MOBILE ? 160 : 320, runes: MD_MOBILE ? 9 : 16, nebula: MD_MOBILE ? 6 : 10, sky: MD_MOBILE ? 18 : 34 };
                 if (mk[mode]) {
                     for (let i = 0; i < counts[mode]; i++) e.items.push(mk[mode]());
+                }
+                /* citylights environment removed 2026-10-10 at Rosie's request */
+                if (mode === 'nebula') {
+                    /* fixed cosmic palette: vivid magenta, cyan and
+                       violet clouds that ignore the scene colors, plus
+                       a dense twinkling starfield underneath */
+                    const sn = MD_MOBILE ? 80 : 150;
+                    for (let i = 0; i < sn; i++)
+                        e.stars.push({ x: Math.random() * w, y: Math.random() * h, r: 0.4 + Math.random() * 1.3, tw: Math.random() * 6.28, twS: 0.4 + Math.random() * 1.8 });
                 }
             }
             return e;
@@ -421,27 +496,62 @@ document.addEventListener('alpine:init', () => {
                 const e = this.envData('starfield', w, h);
                 o.save();
                 o.globalCompositeOperation = 'lighter';
+                /* faint milky-way band slanting across the sky */
+                o.save();
+                o.translate(w / 2, h / 2);
+                o.rotate(-0.55);
+                const mw = o.createLinearGradient(0, -h * 0.17, 0, h * 0.17);
+                mw.addColorStop(0, MD_rgba(this.scene.color_glow, 0));
+                mw.addColorStop(0.5, MD_rgba(this.scene.color_text, a * 0.05));
+                mw.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                o.fillStyle = mw;
+                o.fillRect(-w, -h * 0.17, w * 2, h * 0.34);
+                o.restore();
                 for (const s of e.items) {
                     const tw = 0.35 + 0.65 * Math.abs(Math.sin(t * s.twS + s.tw));
-                    o.fillStyle = MD_rgba(this.scene.color_text, a * 0.55 * tw * (0.75 + 0.25 * this.scale));
+                    const scol = s.col === 1 ? this.scene.color_glow : s.col === 2 ? '#ffffff' : this.scene.color_text;
+                    if (s.big) {
+                        /* bright star: halo plus a cross sparkle */
+                        o.shadowColor = scol;
+                        o.shadowBlur = MD_MOBILE ? 8 : 14;
+                        o.strokeStyle = MD_rgba(scol, a * 0.45 * tw);
+                        o.lineWidth = 1;
+                        const ray = s.sz * 4.5 * (0.7 + 0.5 * tw);
+                        o.beginPath();
+                        o.moveTo(s.x - ray, s.y);
+                        o.lineTo(s.x + ray, s.y);
+                        o.moveTo(s.x, s.y - ray);
+                        o.lineTo(s.x, s.y + ray);
+                        o.stroke();
+                        o.shadowBlur = 0;
+                    }
+                    o.fillStyle = MD_rgba(scol, a * (s.big ? 0.95 : 0.55) * tw * (0.75 + 0.25 * this.scale));
                     o.beginPath();
-                    o.arc(s.x, s.y, s.sz, 0, Math.PI * 2);
+                    o.arc(s.x, s.y, s.big ? s.sz * 1.4 : s.sz, 0, Math.PI * 2);
                     o.fill();
                 }
                 for (let i = e.shots.length - 1; i >= 0; i--) {
                     const sh = e.shots[i];
-                    const f = (performance.now() - sh.start) / 900;
+                    const f = (performance.now() - sh.start) / 1400;
                     if (f >= 1) { e.shots.splice(i, 1); continue; }
                     const x = sh.x + sh.vx * f, y = sh.y + sh.vy * f;
-                    const g = o.createLinearGradient(x, y, x - sh.vx * 0.18, y - sh.vy * 0.18);
-                    g.addColorStop(0, MD_rgba('#ffffff', a * 0.9 * (1 - f)));
+                    const g = o.createLinearGradient(x, y, x - sh.vx * 0.32, y - sh.vy * 0.32);
+                    g.addColorStop(0, MD_rgba('#ffffff', a * (1 - f)));
+                    g.addColorStop(0.4, MD_rgba(this.scene.color_glow, a * 0.55 * (1 - f)));
                     g.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
                     o.strokeStyle = g;
-                    o.lineWidth = 2;
+                    o.lineWidth = MD_MOBILE ? 2.5 : 3.5;
+                    o.shadowColor = this.scene.color_glow;
+                    o.shadowBlur = 10;
                     o.beginPath();
                     o.moveTo(x, y);
-                    o.lineTo(x - sh.vx * 0.18, y - sh.vy * 0.18);
+                    o.lineTo(x - sh.vx * 0.32, y - sh.vy * 0.32);
                     o.stroke();
+                    o.shadowBlur = 0;
+                    o.fillStyle = MD_rgba('#ffffff', a * 0.95 * (1 - f));
+                    o.beginPath();
+                    o.arc(x, y, 2.4, 0, Math.PI * 2);
+                    o.fill();
                 }
                 o.restore();
             } else if (mode === 'petals') {
@@ -458,9 +568,13 @@ document.addEventListener('alpine:init', () => {
                     o.save();
                     o.translate(p.x, p.y);
                     o.rotate(p.rot);
-                    o.fillStyle = MD_rgba(p.hue < 0.5 ? this.scene.color_glow : this.scene.color_core, a * 0.4);
+                    o.fillStyle = MD_rgba(p.hue < 0.5 ? this.scene.color_glow : this.scene.color_core, a * 0.45);
+                    /* teardrop petal: pointed at the stem, round at the tip */
                     o.beginPath();
-                    o.ellipse(0, 0, p.sz, p.sz * 0.55, 0, 0, Math.PI * 2);
+                    o.moveTo(-p.sz, 0);
+                    o.bezierCurveTo(-p.sz * 0.3, -p.sz * 0.85, p.sz * 0.7, -p.sz * 0.7, p.sz, 0);
+                    o.bezierCurveTo(p.sz * 0.7, p.sz * 0.7, -p.sz * 0.3, p.sz * 0.85, -p.sz, 0);
+                    o.closePath();
                     o.fill();
                     o.restore();
                 }
@@ -499,31 +613,6 @@ document.addEventListener('alpine:init', () => {
                     o.fill();
                 }
                 o.restore();
-            } else if (mode === 'aurora') {
-                o.save();
-                o.globalCompositeOperation = 'lighter';
-                for (let band = 0; band < 3; band++) {
-                    const baseY = h * (0.10 + band * 0.07);
-                    const amp = h * 0.045 * (1 + 0.35 * this.scale);
-                    const spd = 0.11 + band * 0.05;
-                    const hueCol = band === 1 ? this.scene.color_core : this.scene.color_glow;
-                    const g = o.createLinearGradient(0, baseY - amp, 0, baseY + h * 0.22);
-                    g.addColorStop(0, MD_rgba(hueCol, 0));
-                    g.addColorStop(0.35, MD_rgba(hueCol, a * 0.10));
-                    g.addColorStop(1, MD_rgba(hueCol, 0));
-                    o.fillStyle = g;
-                    o.beginPath();
-                    o.moveTo(0, h);
-                    for (let x = 0; x <= w; x += Math.max(8, w / 90)) {
-                        const y = baseY + Math.sin(x * 0.004 + t * spd * 3 + band * 2.4) * amp
-                                  + Math.sin(x * 0.0016 - t * spd) * amp * 0.6;
-                        o.lineTo(x, y);
-                    }
-                    o.lineTo(w, h);
-                    o.closePath();
-                    o.fill();
-                }
-                o.restore();
             } else if (mode === 'snowfall') {
                 const e = this.envData('snowfall', w, h);
                 o.save();
@@ -536,6 +625,202 @@ document.addEventListener('alpine:init', () => {
                     o.arc(s.x, s.y, s.sz, 0, Math.PI * 2);
                     o.fill();
                 }
+                o.restore();
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
+               six new environments: raindrops on glass, glitter, an orbiting
+               magic circle of runes, nebula clouds */
+            } else if (mode === 'rain') {
+                const e = this.envData('rain', w, h);
+                const DR = this.dropSprite();
+                o.save();
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   blurred view through wet glass, tinted by the current
+                   palette: bright core color up top, glow in the middle,
+                   dark bg below, a few out-of-focus silhouettes */
+                const bg = o.createLinearGradient(0, 0, w * 0.25, h);
+                bg.addColorStop(0, MD_rgba(this.scene.color_core, a * 0.92));
+                bg.addColorStop(0.5, MD_rgba(this.scene.color_glow, a * 0.92));
+                bg.addColorStop(1, MD_rgba(this.scene.color_bg, a * 0.92));
+                o.fillStyle = bg;
+                o.fillRect(0, 0, w, h);
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   the rain pattern falls behind the glass, softened by a
+                   translucent veil so it reads as blurred through it */
+                const re = this.envData('rainfall', w, h);
+                const slant = 0.5 + 0.15 * this.scale;
+                for (const s of re.items) {
+                    s.y += s.vy * dt;
+                    s.x -= slant * s.vy * dt;
+                    if (s.y > h + s.len) { s.y = -s.len; s.x = Math.random() * (w + 120); }
+                    if (s.x < -60) s.x += w + 120;
+                    if (s.x > w + 60) s.x -= w + 120;
+                    const sx = s.len * slant;
+                    o.strokeStyle = MD_rgba(this.scene.color_text, a * 0.32 * s.g);
+                    o.lineWidth = 2;
+                    o.beginPath();
+                    o.moveTo(s.x + sx, s.y - s.len);
+                    o.lineTo(s.x, s.y);
+                    o.stroke();
+                }
+                const veil = o.createLinearGradient(0, 0, w * 0.25, h);
+                veil.addColorStop(0, MD_rgba(this.scene.color_core, a * 0.34));
+                veil.addColorStop(0.5, MD_rgba(this.scene.color_glow, a * 0.34));
+                veil.addColorStop(1, MD_rgba(this.scene.color_bg, a * 0.34));
+                o.fillStyle = veil;
+                o.fillRect(0, 0, w, h);
+                for (const s of e.items) {
+                    if (!s.bl) continue;
+                    const g = o.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.sz);
+                    g.addColorStop(0, MD_rgba(this.scene.color_bg, a * 0.5));
+                    g.addColorStop(1, MD_rgba(this.scene.color_bg, 0));
+                    o.fillStyle = g;
+                    o.beginPath();
+                    o.arc(s.x, s.y, s.sz, 0, Math.PI * 2);
+                    o.fill();
+                }
+                /* droplets sit on the glass; a few slowly slide down,
+                   stretching as they go, speed easing on the exhale */
+                for (const s of e.items) {
+                    if (s.bl) continue;
+                    if (s.sl) {
+                        s.y += s.vy * dt * (0.4 + 0.6 * this.scale);
+                        if (s.y > h + s.r) { s.y = -s.r * 2; s.x = Math.random() * w; }
+                    }
+                    const rh = s.sl ? s.r * 1.25 : s.r;
+                    o.globalAlpha = a;
+                    o.drawImage(DR, s.x - s.r, s.y - rh, s.r * 2, rh * 2);
+                }
+                o.globalAlpha = 1;
+                o.restore();
+            } else if (mode === 'glitterfall') {
+                const e = this.envData('glitterfall', w, h);
+                o.save();
+                o.globalCompositeOperation = 'lighter';
+                for (const s of e.items) {
+                    const flow = (this.scale - 0.5) * 2;
+                    s.y += s.vy * dt * (1 - 0.4 * Math.max(flow, 0));
+                    s.x += Math.sin(t * s.wobS + s.wob) * 12 * dt + flow * 14 * dt;
+                    if (s.y > h + 6) { s.y = -6; s.x = Math.random() * w; }
+                    if (s.x > w + 8) s.x = -8;
+                    if (s.x < -8) s.x = w + 8;
+                    const twk = Math.max(0, Math.sin(t * s.twS + s.tw));
+                    const br = 0.12 + 0.88 * twk * twk;
+                    o.save();
+                    o.translate(s.x, s.y);
+                    o.rotate(Math.PI / 4 + Math.sin(t * 0.6 + s.spin) * 0.5);
+                    o.fillStyle = MD_rgba(s.hue < 0.55 ? this.scene.color_core : '#ffd76b', a * 0.75 * br);
+                    const d = s.sz * (0.7 + 0.6 * br);
+                    o.fillRect(-d / 2, -d / 2, d, d);
+                    o.restore();
+                }
+                o.restore();
+            } else if (mode === 'runes') {
+                const e = this.envData('runes', w, h);
+                const GL = 'ᚠᚢᚦᚨᚱᚲᛃᛗᛟᛞ✧✦✶☾';
+                const minWH = Math.min(w, h);
+                o.save();
+                o.globalCompositeOperation = 'lighter';
+                o.textAlign = 'center';
+                o.textBaseline = 'middle';
+                for (const s of e.items) {
+                    const spd = (s.ring % 2 === 0 ? 1 : -1) * (0.10 - s.ring * 0.022);
+                    const ang = s.ang + t * spd;
+                    const rad = minWH * (0.24 + s.ring * 0.10);
+                    const x = w / 2 + Math.cos(ang) * rad;
+                    const y = h / 2 + Math.sin(ang) * rad * 0.94;
+                    const glow = 0.3 + 0.7 * Math.max(0, Math.sin(t * 0.7 + s.tw));
+                    const al = a * (0.2 + 0.55 * this.scale) * glow;
+                    o.shadowColor = this.scene.color_glow;
+                    o.shadowBlur = MD_MOBILE ? 8 : 16;
+                    o.fillStyle = MD_rgba(s.ring === 1 ? this.scene.color_glow : this.scene.color_core, al);
+                    o.font = Math.round(s.sz * (0.85 + 0.3 * this.scale)) + 'px serif';
+                    o.fillText(GL[s.g % GL.length], x, y);
+                }
+                o.restore();
+            } else if (mode === 'nebula') {
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   cosmic rework: dense twinkling starfield underneath,
+                   vivid fixed-palette clouds (magenta/cyan/violet/gold,
+                   deliberately NOT palette-themed) with brighter cores */
+                const e = this.envData('nebula', w, h);
+                o.save();
+                for (const s of e.stars) {
+                    const tw = 0.35 + 0.65 * Math.sin(t * s.twS + s.tw);
+                    o.fillStyle = MD_rgba('#ffffff', a * 0.75 * tw);
+                    o.beginPath();
+                    o.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    o.fill();
+                }
+                o.globalCompositeOperation = 'lighter';
+                const NEB = ['#ff5ec8', '#4dd8ff', '#9d5cff', '#ffd36e'];
+                for (const b of e.items) {
+                    b.x += b.vx * dt;
+                    b.y += b.vy * dt;
+                    if (b.x < -b.r) b.x = w + b.r;
+                    if (b.x > w + b.r) b.x = -b.r;
+                    if (b.y < -b.r) b.y = h + b.r;
+                    if (b.y > h + b.r) b.y = -b.r;
+                    const col = NEB[b.col % NEB.length];
+                    const al = a * b.a * (0.75 + 0.55 * this.scale);
+                    const g = o.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+                    g.addColorStop(0, MD_rgba(col, al));
+                    g.addColorStop(0.5, MD_rgba(col, al * 0.45));
+                    g.addColorStop(1, MD_rgba(col, 0));
+                    o.fillStyle = g;
+                    o.beginPath();
+                    o.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    o.fill();
+                    const cg = o.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 0.3);
+                    cg.addColorStop(0, MD_rgba('#ffffff', al * 0.35));
+                    cg.addColorStop(1, MD_rgba('#ffffff', 0));
+                    o.fillStyle = cg;
+                    o.beginPath();
+                    o.arc(b.x, b.y, b.r * 0.3, 0, Math.PI * 2);
+                    o.fill();
+                }
+                o.restore();
+            /* lanterns environment removed 2026-10-10 at Rosie's request */
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-09)
+               sky = pseudo-3D forward drift through cloud puffs toward a
+               vanishing point */
+            } else if (mode === 'sky') {
+                const e = this.envData('sky', w, h);
+                const SP = this.cloudSprites();
+                const vx = w / 2, vy = h * 0.5;
+                o.save();
+                /* a real daytime sky: deep blue up top, pale at the
+                   horizon, with a low sun glow sitting on it */
+                const sg = o.createLinearGradient(0, 0, 0, h);
+                sg.addColorStop(0, MD_rgba('#2f83d8', a));
+                sg.addColorStop(0.55, MD_rgba('#9fd8f2', a * 0.95));
+                sg.addColorStop(0.78, MD_rgba('#eaf9ff', a));
+                sg.addColorStop(1, MD_rgba('#cfeef8', a * 0.9));
+                o.fillStyle = sg;
+                o.fillRect(0, 0, w, h);
+                const sunX = w * 0.6, sunY = h * 0.6;
+                const sun = o.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.min(w, h) * 0.55);
+                sun.addColorStop(0, MD_rgba('#ffffff', a * (0.45 + 0.25 * this.scale)));
+                sun.addColorStop(1, MD_rgba('#ffffff', 0));
+                o.fillStyle = sun;
+                o.fillRect(0, 0, w, h);
+                /* fluffy sprite clouds drifting toward her; biased to
+                   sit above and below the vanishing point like the
+                   cloud bands in her reference, plus thin wisps */
+                for (const c of e.items) {
+                    c.z -= (0.05 + 0.07 * this.scale) * dt;
+                    if (c.z < 0.06) { c.z = 1.6; c.x = (Math.random() - 0.5) * 2.6; c.y = (Math.random() - 0.35) * 2.1; }
+                    const sx = vx + (c.x / c.z) * w * 0.42;
+                    const sy = vy + (c.y / c.z) * h * 0.42;
+                    const r = (c.sz / c.z) * Math.min(w, h) * 0.9;
+                    if (sx < -r || sx > w + r || sy < -r || sy > h + r) continue;
+                    const fade = Math.min(1, (1.6 - c.z) * 2.2) * Math.min(1, c.z * 5);
+                    const al = 0.85 * fade;
+                    if (al <= 0.02) continue;
+                    o.globalAlpha = a * al;
+                    const hh = c.streak ? r * 0.22 : r * 0.62;
+                    o.drawImage(SP[c.sp % SP.length], sx - r, sy - hh, r * 2, hh * 2);
+                }
+                o.globalAlpha = 1;
                 o.restore();
             }
         },
@@ -642,64 +927,10 @@ document.addEventListener('alpine:init', () => {
                 o.beginPath();
                 o.arc(0, 0, r * 0.42, 0, Math.PI * 2);
                 o.fill();
-            } else if (shape === 'moon') {
-                o.shadowColor = this.scene.color_glow;
-                o.shadowBlur = MD_MOBILE ? 16 : 38;
-                const disc = o.createRadialGradient(-r * 0.25, -r * 0.25, 0, 0, 0, r);
-                disc.addColorStop(0, MD_rgba('#ffffff', 0.95 * dp));
-                disc.addColorStop(0.7, MD_rgba(this.scene.color_core, 0.7 * dp));
-                disc.addColorStop(1, MD_rgba(this.scene.color_core, 0.25 * dp));
-                o.fillStyle = disc;
-                o.beginPath();
-                o.arc(0, 0, r, 0, Math.PI * 2);
-                o.fill();
-                o.shadowBlur = 0;
-                /* the shadow slides away as she breathes in: full moon
-                   at the top of the inhale, crescent when empty */
-                o.save();
-                o.beginPath();
-                o.arc(0, 0, r, 0, Math.PI * 2);
-                o.clip();
-                o.fillStyle = MD_rgba('#05070f', 0.94 * dp);
-                o.beginPath();
-                o.arc(-(0.4 + 1.9 * (1 - this.scale)) * r, -r * 0.12, r * 1.02, 0, Math.PI * 2);
-                o.fill();
-                o.restore();
-                o.strokeStyle = MD_rgba(this.scene.color_text, 0.35 * dp);
-                o.lineWidth = 1.5;
-                o.beginPath();
-                o.arc(0, 0, r, 0, Math.PI * 2);
-                o.stroke();
-            } else if (shape === 'mandala') {
-                const rot = t * 0.03 + (this.garlandPts ? this.garlandPts.length : 0) * 0.35;
-                o.shadowColor = this.scene.color_glow;
-                o.shadowBlur = MD_MOBILE ? 8 : 18;
-                o.strokeStyle = MD_rgba(this.scene.color_core, 0.75 * dp);
-                for (const rr of [r, r * 0.62, r * 0.3]) {
-                    o.lineWidth = 1.5;
-                    o.beginPath();
-                    o.arc(0, 0, rr, 0, Math.PI * 2);
-                    o.stroke();
-                }
-                o.strokeStyle = MD_rgba(this.scene.color_glow, 0.4 * dp);
-                o.lineWidth = 1;
-                for (let i = 0; i < 12; i++) {
-                    const ang = rot + (i / 12) * Math.PI * 2;
-                    o.beginPath();
-                    o.moveTo(Math.cos(ang) * r * 0.3, Math.sin(ang) * r * 0.3);
-                    o.lineTo(Math.cos(ang) * r, Math.sin(ang) * r);
-                    o.stroke();
-                }
-                o.fillStyle = MD_rgba(this.scene.color_text, 0.7 * dp);
-                for (let i = 0; i < 12; i++) {
-                    const ang = -rot * 1.6 + (i / 12) * Math.PI * 2;
-                    const dr = r * (1.18 + 0.08 * this.scale);
-                    o.beginPath();
-                    o.arc(Math.cos(ang) * dr, Math.sin(ang) * dr, 2 + this.scale, 0, Math.PI * 2);
-                    o.fill();
-                }
-            } else {
-                /* circle: the original glowing disc */
+            } else if (shape === 'circle') {
+                /* circle: the original glowing disc. was an `else`
+                   fallback until 2026-10-10 - it kept painting its
+                   sphere under every new shape (Rosie spotted it) */
                 o.shadowColor = this.scene.color_glow;
                 o.shadowBlur = MD_MOBILE ? 18 : 42;
                 const disc = o.createRadialGradient(0, 0, 0, 0, 0, r);
@@ -717,32 +948,171 @@ document.addEventListener('alpine:init', () => {
                 o.arc(0, 0, r, 0, Math.PI * 2);
                 o.stroke();
             }
-            o.restore();
-        },
-
-        /* breath garland: one glowing bead per completed breath cycle,
-           so she watches a necklace of breaths grow around the center */
-        drawGarland(cx, cy, r, dp, now) {
-            if (!(this.scene.garland > 0) || !this.garlandPts.length || dp <= 0.05) return;
-            const o = this.octx;
-            const n = this.garlandPts.length;
-            const rr = r + 34;
-            o.save();
-            o.translate(cx, cy);
-            o.globalCompositeOperation = 'lighter';
-            for (let i = 0; i < n; i++) {
-                const g = this.garlandPts[i];
-                const fin = MD_clamp((now - g.start) / 600, 0, 1);
-                const ang = -Math.PI / 2 + (i / Math.max(n, 12)) * Math.PI * 2;
-                const x = Math.cos(ang) * rr, y = Math.sin(ang) * rr;
-                const a = dp * 0.75 * fin;
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               breathing-center shapes: flame, yantra, hexagram, infinity */
+            if (shape === 'flame') {
+                const fh = r * (1.15 + 0.55 * this.scale);
+                const sway = Math.sin(t * 1.7) * 0.05 + Math.sin(t * 4.3 + 1.2) * 0.02;
+                const drawBlaze = (h, w, fill) => {
+                    o.beginPath();
+                    o.moveTo(0, h * 0.62);
+                    o.bezierCurveTo(w, h * 0.3, w * 0.85, -h * 0.25, sway * h, -h * 0.78);
+                    o.bezierCurveTo(-w * 0.85, -h * 0.25, -w, h * 0.3, 0, h * 0.62);
+                    o.closePath();
+                    o.fillStyle = fill;
+                    o.fill();
+                };
                 o.shadowColor = this.scene.color_glow;
-                o.shadowBlur = 10;
-                o.fillStyle = MD_rgba(i % 2 ? this.scene.color_core : this.scene.color_text, a);
+                o.shadowBlur = MD_MOBILE ? 14 : 30;
+                drawBlaze(fh, r * 0.72, MD_rgba(this.scene.color_glow, 0.5 * dp));
+                o.shadowBlur = MD_MOBILE ? 6 : 12;
+                drawBlaze(fh * 0.62, r * 0.42, MD_rgba(this.scene.color_core, 0.85 * dp));
+                o.shadowBlur = 0;
+                drawBlaze(fh * 0.34, r * 0.2, MD_rgba('#ffffff', 0.9 * dp));
+                const bed = o.createRadialGradient(0, r * 0.5, 0, 0, r * 0.5, r * 0.55);
+                bed.addColorStop(0, MD_rgba(this.scene.color_core, 0.5 * dp));
+                bed.addColorStop(1, MD_rgba(this.scene.color_core, 0));
+                o.fillStyle = bed;
                 o.beginPath();
-                o.arc(x, y, 2.6, 0, Math.PI * 2);
+                o.arc(0, r * 0.5, r * 0.55, 0, Math.PI * 2);
                 o.fill();
             }
+            if (shape === 'yantra') {
+                o.shadowColor = this.scene.color_glow;
+                o.shadowBlur = MD_MOBILE ? 6 : 12;
+                o.lineWidth = 1.4;
+                o.strokeStyle = MD_rgba(this.scene.color_core, 0.8 * dp);
+                const tri = (rad, up, al) => {
+                    o.strokeStyle = MD_rgba(this.scene.color_core, al * dp);
+                    o.beginPath();
+                    for (let i = 0; i < 3; i++) {
+                        const ang = (up ? -Math.PI / 2 : Math.PI / 2) + (i / 3) * Math.PI * 2;
+                        const x = Math.cos(ang) * rad, y = Math.sin(ang) * rad;
+                        if (i === 0) o.moveTo(x, y); else o.lineTo(x, y);
+                    }
+                    o.closePath();
+                    o.stroke();
+                };
+                const k = 0.82 + 0.18 * this.scale;
+                tri(r * k, true, 0.85);
+                tri(r * k * 0.62, true, 0.6);
+                tri(r * k * 0.34, true, 0.45);
+                tri(r * k * 0.86, false, 0.8);
+                tri(r * k * 0.54, false, 0.55);
+                tri(r * k * 0.26, false, 0.4);
+                o.strokeStyle = MD_rgba(this.scene.color_glow, 0.35 * dp);
+                o.beginPath();
+                o.arc(0, 0, r * 1.02, 0, Math.PI * 2);
+                o.stroke();
+                o.shadowBlur = MD_MOBILE ? 8 : 16;
+                o.fillStyle = MD_rgba('#ffffff', (0.55 + 0.4 * this.scale) * dp);
+                o.beginPath();
+                o.arc(0, 0, r * 0.07, 0, Math.PI * 2);
+                o.fill();
+            }
+            if (shape === 'hexagram') {
+                o.shadowColor = this.scene.color_glow;
+                o.shadowBlur = MD_MOBILE ? 10 : 22;
+                o.lineWidth = 2;
+                const spin = t * 0.12;
+                const tri2 = (rot, al) => {
+                    o.strokeStyle = MD_rgba(this.scene.color_core, al * dp);
+                    o.beginPath();
+                    for (let i = 0; i < 3; i++) {
+                        const ang = rot + (i / 3) * Math.PI * 2 - Math.PI / 2;
+                        const x = Math.cos(ang) * r, y = Math.sin(ang) * r;
+                        if (i === 0) o.moveTo(x, y); else o.lineTo(x, y);
+                    }
+                    o.closePath();
+                    o.stroke();
+                };
+                tri2(spin, 0.85);
+                tri2(-spin + Math.PI, 0.85);
+                o.shadowBlur = MD_MOBILE ? 8 : 16;
+                const hg = o.createRadialGradient(0, 0, 0, 0, 0, r * 0.4);
+                hg.addColorStop(0, MD_rgba('#ffffff', (0.5 + 0.4 * this.scale) * dp));
+                hg.addColorStop(1, MD_rgba(this.scene.color_core, 0));
+                o.fillStyle = hg;
+                o.beginPath();
+                o.arc(0, 0, r * 0.4, 0, Math.PI * 2);
+                o.fill();
+            }
+            /* snowflake shape removed 2026-10-10 at Rosie's request */
+            /* hourglass shape removed 2026-10-10 at Rosie's request */
+            if (shape === 'infinity') {
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   comet v2: the lit section is ONE continuous polyline
+                   sampled at 720 points along the lemniscate (no integer
+                   snapping, no segment gaps), stroked in three additive
+                   passes - wide glow, mid glow, hot white core - with a
+                   linear gradient fading tail->head across the chord so
+                   the whole trail eases smoothly into the dark path. */
+                const s2 = r * 1.05;
+                const lp = f => {
+                    const u = f * Math.PI * 2;
+                    const d = 1 + Math.sin(u) * Math.sin(u);
+                    return [(s2 * Math.cos(u)) / d, (s2 * Math.sin(u) * Math.cos(u)) / d];
+                };
+                o.shadowBlur = 0;
+                o.strokeStyle = MD_rgba(this.scene.color_core, 0.22 * dp);
+                o.lineWidth = 2;
+                o.beginPath();
+                for (let i = 0; i <= 144; i++) {
+                    const pt = lp(i / 144);
+                    if (i === 0) o.moveTo(pt[0], pt[1]); else o.lineTo(pt[0], pt[1]);
+                }
+                o.stroke();
+                const cyc = (this._breathCyc === undefined) ? (t * 0.05 % 1) : this._breathCyc;
+                const head = ((cyc % 1) + 1) % 1;
+                const TAIL = 0.3;
+                const N = MD_MOBILE ? 40 : 72;
+                const pts = [];
+                for (let k = 0; k <= N; k++) {
+                    /* quadratic spacing: samples bunch near the head
+                       where the curve moves fastest visually */
+                    const f = (k / N) * (k / N);
+                    pts.push(lp(head - TAIL + TAIL * f));
+                }
+                const hp = pts[N], tp = pts[0];
+                o.globalCompositeOperation = 'lighter';
+                o.lineCap = 'round';
+                o.lineJoin = 'round';
+                const trailStroke = (colA, gA) => {
+                    const g = o.createLinearGradient(tp[0], tp[1], hp[0], hp[1]);
+                    g.addColorStop(0, MD_rgba(colA, 0));
+                    g.addColorStop(0.55, MD_rgba(colA, gA * 0.25 * dp));
+                    g.addColorStop(1, MD_rgba(colA, gA * dp));
+                    return g;
+                };
+                o.lineWidth = MD_MOBILE ? 8 : 12;
+                o.strokeStyle = trailStroke(this.scene.color_glow, 0.5);
+
+                o.beginPath();
+                o.moveTo(pts[0][0], pts[0][1]);
+                for (let k = 1; k <= N; k++) o.lineTo(pts[k][0], pts[k][1]);
+                o.stroke();
+                o.lineWidth = MD_MOBILE ? 4 : 6;
+                o.strokeStyle = trailStroke(this.scene.color_glow, 0.85);
+                o.beginPath();
+                o.moveTo(pts[0][0], pts[0][1]);
+                for (let k = 1; k <= N; k++) o.lineTo(pts[k][0], pts[k][1]);
+                o.stroke();
+                o.lineWidth = 2.4;
+                o.strokeStyle = trailStroke('#ffffff', 0.95);
+                o.beginPath();
+                o.moveTo(pts[0][0], pts[0][1]);
+                for (let k = 1; k <= N; k++) o.lineTo(pts[k][0], pts[k][1]);
+                o.stroke();
+                const hg = o.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], r * 0.3);
+                hg.addColorStop(0, MD_rgba('#ffffff', 0.85 * dp));
+                hg.addColorStop(0.35, MD_rgba(this.scene.color_glow, 0.4 * dp));
+                hg.addColorStop(1, MD_rgba(this.scene.color_glow, 0));
+                o.fillStyle = hg;
+                o.beginPath();
+                o.arc(hp[0], hp[1], r * 0.3, 0, Math.PI * 2);
+                o.fill();
+            }
+            /* bell shape removed 2026-10-10 at Rosie's request */
             o.restore();
         },
 
@@ -766,11 +1136,20 @@ document.addEventListener('alpine:init', () => {
                 this.pendingSeg = null;
                 return;
             }
-            const lastSeg = segs[segs.length - 1];
-            if (lastSeg.type === 'content') {
-                if (this.pendingSeg && this.pendingSeg !== lastSeg) this.mdCommitPending();
-                this.pendingSeg = lastSeg;
-                this.pendingText = MD_centerClean(lastSeg.content);
+            /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+               mirror ONLY the current message's content segment (Rosie's
+               rule): tool_calls, reasoning and command segments never
+               reach the center, and a message that is nothing but the
+               start tool call - the session trigger - shows nothing */
+            let seg = null;
+            for (let i = segs.length - 1; i >= 0; i--) {
+                const m = segs[i];
+                if (m && m.type === 'content' && !m.is_cmd) { seg = m; break; }
+            }
+            if (seg) {
+                if (this.pendingSeg && this.pendingSeg !== seg) this.mdCommitPending();
+                this.pendingSeg = seg;
+                this.pendingText = MD_centerClean(seg.content);
             } else {
                 this.mdCommitPending();
                 this.pendingSeg = null;
@@ -851,7 +1230,7 @@ document.addEventListener('alpine:init', () => {
                 this.scene.bloom = this.sceneT.bloom;
                 /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
                    optional layers snap to their target values */
-                for (const lk of ['dust', 'threads', 'horizon', 'garland']) {
+                for (const lk of ['dust', 'horizon']) {
                     if (this.sceneT[lk] !== undefined) this.scene[lk] = this.sceneT[lk];
                 }
             }
@@ -906,17 +1285,16 @@ document.addEventListener('alpine:init', () => {
             /* particles: the whole field breathes with the circle -
                pushed outward on the inhale, drawn back on the exhale,
                with per-particle parallax so they streak past each other;
-               in fireflies mode they wander lazily and blink instead */
+               in fireflies mode they wander lazily and blink instead,
+               and every other mode restyles the field to match itself */
             this.buildParticles(w, h);
             const maxR = this.partsMaxR;
             const flow = (this.scale - 0.5) * 2;
             const ff = this.scene.mode === 'fireflies';
-            const wantThreads = this.scene.threads > 0;
-            this._pPos.length = 0;
             o.save();
             o.globalCompositeOperation = 'lighter';
             for (const p of this.parts) {
-                let x, y, a, col, sz;
+                let x, y, a, col, sz, shape = 'dot';
                 if (ff) {
                     p.a += p.drift * dt * 0.35;
                     const wob = Math.sin(t * 0.3 + p.tw) * 0.06;
@@ -938,46 +1316,117 @@ document.addEventListener('alpine:init', () => {
                     a = dp * tw * 0.55;
                     sz = p.sz * (0.7 + 0.5 * this.scale);
                     col = p.hue < 0.5 ? this.scene.color_glow : this.scene.color_core;
+                    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                       theme the breathing particle field per scene mode:
+                       each mode restyles color, size and shape */
+                    const sm = this.scene.mode;
+                    if (sm === 'starfield') { col = p.hue < 0.4 ? this.scene.color_text : this.scene.color_glow; }
+                    else if (sm === 'petals') { shape = 'petal'; }
+                    else if (sm === 'deepsea') { shape = 'bubble'; }
+                    else if (sm === 'snowfall') { col = p.hue < 0.5 ? '#ffffff' : this.scene.color_text; sz *= 1.15; }
+                    else if (sm === 'rain') { shape = 'bead'; }
+                    else if (sm === 'glitterfall') { shape = 'glit'; col = p.hue < 0.55 ? this.scene.color_core : '#ffd76b'; }
+                    else if (sm === 'runes') { if (p.hue < 0.18) shape = 'glyph'; }
+                    /* nebula field = starfield-style crisp stars, only
+                       the color mix leans cosmic (magenta/cyan) */
+                    else if (sm === 'nebula') { col = p.hue < 0.3 ? '#ff6ec7' : p.hue < 0.55 ? '#6ee7ff' : p.hue < 0.8 ? this.scene.color_text : this.scene.color_glow; }
+                    else if (sm === 'sky') { shape = 'puff'; }
                 }
-                o.fillStyle = MD_rgba(col, a);
-                o.beginPath();
-                o.arc(x, y, sz, 0, Math.PI * 2);
-                o.fill();
-                if (wantThreads && this._pPos.length < 70) this._pPos.push([x, y]);
-                /* faint radial streak while the field moves */
-                if (!ff && Math.abs(flow) > 0.15) {
-                    const sx = Math.cos(p.a), sy = Math.sin(p.a) * 0.86;
-                    const len = flow * 14 * p.par;
-                    o.strokeStyle = MD_rgba(col, a * 0.4);
-                    o.lineWidth = sz * 0.5;
-                    o.beginPath();
-                    o.moveTo(x, y);
-                    o.lineTo(x - sx * len, y - sy * len);
-                    o.stroke();
-                }
-            }
-            /* constellation threads: faint links where particles cluster */
-            if (wantThreads) {
-                const P = this._pPos, lim = P.length, thr = minWH * 0.09;
-                o.lineWidth = 1;
-                for (let i = 0; i < lim; i++) {
-                    for (let j = i + 1; j < lim; j++) {
-                        const dx = P[i][0] - P[j][0], dy = P[i][1] - P[j][1];
-                        const d2 = dx * dx + dy * dy;
-                        if (d2 < thr * thr) {
-                            o.strokeStyle = MD_rgba(this.scene.color_text, (1 - Math.sqrt(d2) / thr) * 0.14 * dp);
-                            o.beginPath();
-                            o.moveTo(P[i][0], P[i][1]);
-                            o.lineTo(P[j][0], P[j][1]);
-                            o.stroke();
-                        }
+                if (shape === 'dot') {
+                    /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                       fireflies bloom: a wide soft halo rides the blink
+                       so each firefly flares like a real light source */
+                    if (ff) {
+                        const hr = sz * 6.5;
+                        const hg = o.createRadialGradient(x, y, 0, x, y, hr);
+                        hg.addColorStop(0, MD_rgba(col, a * 0.5));
+                        hg.addColorStop(0.4, MD_rgba(col, a * 0.16));
+                        hg.addColorStop(1, MD_rgba(col, 0));
+                        o.fillStyle = hg;
+                        o.beginPath();
+                        o.arc(x, y, hr, 0, Math.PI * 2);
+                        o.fill();
                     }
+                    o.fillStyle = MD_rgba(col, a);
+                    o.beginPath();
+                    o.arc(x, y, sz, 0, Math.PI * 2);
+                    o.fill();
+                } else if (shape === 'bubble') {
+                    o.strokeStyle = MD_rgba(this.scene.color_text, a * 0.9);
+                    o.lineWidth = 1;
+                    o.beginPath();
+                    o.arc(x, y, sz * 1.6, 0, Math.PI * 2);
+                    o.stroke();
+                    o.fillStyle = MD_rgba('#ffffff', a * 0.5);
+                    o.beginPath();
+                    o.arc(x - sz * 0.55, y - sz * 0.55, Math.max(0.5, sz * 0.35), 0, Math.PI * 2);
+                    o.fill();
+                } else if (shape === 'petal') {
+                    o.save();
+                    o.translate(x, y);
+                    o.rotate(p.tw + t * 0.4);
+                    o.fillStyle = MD_rgba(col, a);
+                    const L = sz * 2.4, W = sz * 1.15;
+                    o.beginPath();
+                    o.moveTo(-L / 2, 0);
+                    o.bezierCurveTo(-L * 0.15, -W, L * 0.35, -W * 0.85, L / 2, 0);
+                    o.bezierCurveTo(L * 0.35, W * 0.85, -L * 0.15, W, -L / 2, 0);
+                    o.closePath();
+                    o.fill();
+                    o.restore();
+                } else if (shape === 'streak') {
+                    o.strokeStyle = MD_rgba(col, a);
+                    o.lineWidth = 1;
+                    o.beginPath();
+                    o.moveTo(x + sz * 1.3, y - sz * 2.6);
+                    o.lineTo(x - sz * 1.3, y + sz * 2.6);
+                    o.stroke();
+                } else if (shape === 'bead') {
+                    const bs = sz * 3.4;
+                    o.save();
+                    o.globalCompositeOperation = 'source-over';
+                    o.globalAlpha = a;
+                    o.drawImage(this.dropSprite(), x - bs, y - bs, bs * 2, bs * 2);
+                    o.restore();
+                } else if (shape === 'glit') {
+                    const twk = Math.max(0, Math.sin(t * p.twS * 2 + p.tw));
+                    const br = 0.15 + 0.85 * twk * twk;
+                    o.save();
+                    o.translate(x, y);
+                    o.rotate(Math.PI / 4 + p.tw);
+                    o.fillStyle = MD_rgba(col, Math.min(1, a * br * 1.6));
+                    const d = sz * (0.8 + 0.7 * br);
+                    o.fillRect(-d / 2, -d / 2, d, d);
+                    o.restore();
+                } else if (shape === 'glyph') {
+                    o.save();
+                    o.shadowColor = this.scene.color_glow;
+                    o.shadowBlur = 10;
+                    o.fillStyle = MD_rgba(col, Math.min(1, a * 1.3));
+                    o.font = Math.round(sz * 6) + 'px serif';
+                    o.textAlign = 'center';
+                    o.textBaseline = 'middle';
+                    o.fillText('✦✧ᚠᚱᛗ☾'[Math.floor(p.hue * 100) % 6], x, y);
+                    o.restore();
+                } else if (shape === 'puff') {
+                    const ps = sz * 6;
+                    o.save();
+                    o.globalCompositeOperation = 'source-over';
+                    o.globalAlpha = a * 0.9;
+                    o.drawImage(this.cloudSprites()[Math.floor(p.hue * 3) % 3], x - ps, y - ps * 0.62, ps * 2, ps * 1.24);
+                    o.restore();
                 }
+                /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+                   the faint radial motion streaks are gone - Rosie
+                   found them noisy; the field now draws clean dots */
             }
+            /* constellation threads layer removed 2026-10-10 at
+               Rosie's request - no connecting lines, ever */
             o.restore();
 
-            /* breathing center: shape crossfades (circle, lotus, moon,
-               mandala) with the phase progress arc */
+            /* breathing center: shape crossfades (circle, lotus, flame,
+               yantra, hexagram, infinity)
+               with the phase progress arc */
             const baseR = minWH * 0.11;
             /* strong visible pulse: the disc nearly doubles between the
                empty hold and the full inhale */
@@ -989,21 +1438,22 @@ document.addEventListener('alpine:init', () => {
                 this.lastPhase = this.phase;
                 this.ripples.push({ start: now, dur: 2600 });
                 /* -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-08)
-                   breath audio, garland beads and shooting stars all
-                   ride the same phase change */
+                   breath audio and shooting stars ride the same phase change */
                 if (this.phase === 'in') {
                     this.playBreath('in');
-                    if (this.scene.garland > 0 && this.garlandPts.length < 40) this.garlandPts.push({ start: now });
                 } else if (this.phase === 'out') {
                     this.playBreath('out');
-                    if (this.scene.mode === 'starfield' && this.envs.starfield && Math.random() < 0.35) {
-                        this.envs.starfield.shots.push({
-                            x: w * (0.15 + Math.random() * 0.7),
-                            y: h * Math.random() * 0.3,
-                            vx: (Math.random() < 0.5 ? -1 : 1) * (w * 0.22 + Math.random() * w * 0.2),
-                            vy: h * 0.16 + Math.random() * h * 0.1,
-                            start: now
-                        });
+                    if (this.scene.mode === 'starfield' && this.envs.starfield) {
+                        const nShots = (Math.random() < 0.75 ? 1 : 0) + (Math.random() < 0.35 ? 1 : 0);
+                        for (let si = 0; si < nShots; si++) {
+                            this.envs.starfield.shots.push({
+                                x: w * (0.1 + Math.random() * 0.8),
+                                y: h * Math.random() * 0.35,
+                                vx: (Math.random() < 0.5 ? -1 : 1) * (w * 0.26 + Math.random() * w * 0.22),
+                                vy: h * 0.18 + Math.random() * h * 0.12,
+                                start: now + si * 180
+                            });
+                        }
                     }
                 }
             }
@@ -1018,9 +1468,6 @@ document.addEventListener('alpine:init', () => {
                 o.arc(cx, cy, r + 12 + f * minWH * 0.42, 0, Math.PI * 2);
                 o.stroke();
             }
-            /* necklace of completed breaths around the center */
-            this.drawGarland(cx, cy, r, dp, now);
-
             /* phase countdown under the circle: "4 in" / "hold for 7"
                / "out for 8" */
             if (dp > 0.15 && this.active && !this.ending) {
@@ -1209,7 +1656,7 @@ document.addEventListener('alpine:init', () => {
                 beat = this.bin.beat || 10;
                 vol = ((this.bin.vol || 0) / 100) * 0.35 * this.intensity;
             }
-            if (!this.active || this.muted || !this.soundOn || !this.bin.on) vol = 0;
+            if (!this.active || this.muted || !this.binOk || !this.bin.on) vol = 0;
             try {
                 const t = c.currentTime;
                 n.lo.frequency.setTargetAtTime(base, t, 1.5);
