@@ -30,18 +30,7 @@ TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]*:\S+")
 
 
 class Deslop(core.module.Module):
-    """
-    Sweeps codebases for AI-generated code markers (comments like
-    'AI GENERATED CODE (model) :: (date)') so Rosie can review and clean them.
-    Requires the coder module: scan paths can be any coder sandbox, any folder
-    inside one ('openlumara_dev/user_modules') or any folder path, the webui
-    sidebar tab opens markers directly in the coder editor modal at the marker
-    line, and stamping is limited to sandboxed/last-scanned folders.
-
-    deslop_stats gives a dashboard of unreviewed markers, deslop_list lists
-    them as path:line with model and date, deslop_stamp stamps a marker as
-    reviewed once its code has been checked. The /deslop command mirrors these.
-    """
+    """Sweeps codebases for a special marker comment that identifies AI generated code, and lets you review and edit every AI generated code snippet that way."""
 
     category = "development"
 
@@ -76,17 +65,12 @@ class Deslop(core.module.Module):
     async def on_system_prompt(self):
         if self._coder() is None:
             return None
-        return (
-            "deslop (module): sweeps AI-generated code markers out of codebases so they can be "
-            "reviewed. deslop_stats gives an overview (totals, by model, by month, worst dirs), "
-            "deslop_list lists every unreviewed marker as path:line with model and date, and "
-            "deslop_stamp stamps a marker reviewed after its code has been checked. The path "
-            "argument accepts a coder sandbox name, a folder inside any sandbox "
-            "('openlumara_dev/user_modules') or any folder path; empty uses the configured "
-            "scan_path. The webui sidebar tab shows the same dashboard, with sandbox and "
-            "folder dropdowns to point the sweep anywhere, and can open markers in the coder editor."
-        )
 
+        return """
+        When writing code, ALWAYS prepend the code with a comment following this format:
+        - # -- AI GENERATED CODE (CURRENT_MODEL) :: (DATE) harness:openlumara
+        """.strip()
+    
     # ------------------------------------------------------------------
     # coder gate + path helpers
     # ------------------------------------------------------------------
