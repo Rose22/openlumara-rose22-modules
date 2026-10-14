@@ -30,10 +30,22 @@ TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9_-]*:\S+")
 
 
 class Deslop(core.module.Module):
-    """Sweeps codebases for a special marker comment that identifies AI generated code, and lets you review and edit every AI generated code snippet that way."""
+    """
+    Sweeps codebases for AI-generated code markers (comments like
+    'AI GENERATED CODE (model) :: (date)') so Rosie can review and clean them.
+    Requires the coder module: scan paths can be any coder sandbox, any folder
+    inside one ('openlumara_dev/user_modules') or any folder path, the webui
+    sidebar tab opens each flagged file ONCE in the coder editor with all of
+    its markers highlighted (F8 jumps between them) and a review panel docked
+    beside the editor, and stamping is limited to sandboxed/last-scanned
+    folders.
+
+    deslop_stats gives a dashboard of unreviewed markers, deslop_list lists
+    them as path:line with model and date, deslop_stamp stamps a marker as
+    reviewed once its code has been checked. The /deslop command mirrors these.
+    """
 
     category = "development"
-    header = "Extra coding guidelines"
 
     settings = {
         "scan_path": {
@@ -66,12 +78,19 @@ class Deslop(core.module.Module):
     async def on_system_prompt(self):
         if self._coder() is None:
             return None
+        return (
+            "deslop (module): sweeps AI-generated code markers out of codebases so they can be "
+            "reviewed. deslop_stats gives an overview (totals, by model, by month, worst dirs), "
+            "deslop_list lists every unreviewed marker as path:line with model and date, and "
+            "deslop_stamp stamps a marker reviewed after its code has been checked. The path "
+            "argument accepts a coder sandbox name, a folder inside any sandbox "
+            "('openlumara_dev/user_modules') or any folder path; empty uses the configured "
+            "scan_path. The webui sidebar tab shows the same dashboard, with sandbox and "
+            "folder dropdowns to point the sweep anywhere; starting a review opens each "
+            "flagged file once in the coder editor with its markers highlighted (F8 jumps "
+            "between them) and a review panel docked beside the editor."
+        )
 
-        return """
-When writing code, ALWAYS prepend the code with a comment following this format:
-- # -- AI GENERATED CODE (CURRENT_MODEL) :: (DATE) harness:openlumara
-        """.strip()
-    
     # ------------------------------------------------------------------
     # coder gate + path helpers
     # ------------------------------------------------------------------
@@ -482,6 +501,21 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         if s["streak"] >= 3:
             nag = f"this marker has survived {s['streak']} sessions. you should really clean that up!"
 
+        # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+        # every pending marker in the file, so the webui can open the editor
+        # once per file and jump between markers instead of per marker
+        markers = [
+            {
+                "line": e["line_no"],
+                "model": e["model"],
+                "date": e["date"],
+                "harness": e["harness"],
+                "malformed": e["malformed"],
+                "raw": e["raw"].strip(),
+            }
+            for e in snap["pending"]
+        ]
+
         return {
             "active": True,
             "done": False,
@@ -495,6 +529,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             "marker_model": first["model"],
             "marker_date": first["date"],
             "malformed": first["malformed"],
+            "markers": markers,
             "markers_left": len(snap["pending"]),
             "file_index": s["index"] + 1,
             "file_total": len(s["files"]),
@@ -507,7 +542,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             "context": context,
         }
 
-    async def _review_action(self, action):
+    async def _review_action(self, action, line=None):
         s = self._session
         if not s:
             return None, "no active deslop review session - start one from the sidebar tab"
@@ -525,11 +560,25 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             s["index"] += 1
             return await self._review_banner(), None
 
+        # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-14) harness:openlumara
+        # line is optional: the webui side panel stamps whichever marker the
+        # caret is on, which may not be the first pending one in the file.
         if action == "stamp":
             snap = await asyncio.to_thread(self._file_snapshot, path, marker_literal)
             if not snap["readable"] or not snap["pending"]:
                 return await self._review_banner(), None
             first = snap["pending"][0]
+            if line:
+                try:
+                    wanted = int(line)
+                except (TypeError, ValueError):
+                    return None, f"line number must be a number, got: {line}"
+                match = [e for e in snap["pending"] if e["line_no"] == wanted]
+                if not match:
+                    s["verdict"] = f"no unreviewed marker on line {wanted} - it may already be stamped"
+                    self._cache = None
+                    return await self._review_banner(), None
+                first = match[0]
             if first["malformed"]:
                 s["verdict"] = "malformed marker - fix it in the editor, not with a stamp"
                 s["streak"] += 1
@@ -538,6 +587,12 @@ When writing code, ALWAYS prepend the code with a comment following this format:
                 if ok:
                     s["stamped"] += 1
                     s["verdict"] = "stamped as reviewed"
+                    # the stamp changed the file on disk. refresh the snapshot
+                    # so a later "done editing" doesn't read it as a removal
+                    after = await asyncio.to_thread(self._file_snapshot, path, marker_literal)
+                    if after["readable"]:
+                        s["digest"] = after["digest"]
+                        s["left"] = len(after["pending"])
                 else:
                     s["verdict"] = f"stamp failed: {err}"
             self._cache = None
@@ -756,7 +811,9 @@ When writing code, ALWAYS prepend the code with a comment following this format:
 
     @webui.route("review/action", method="POST")
     async def _route_review_action(self, body=None, query=None):
-        banner, err = await self._review_action(str((body or {}).get("action", "")))
+        banner, err = await self._review_action(
+            str((body or {}).get("action", "")), (body or {}).get("line")
+        )
         return banner if banner is not None else {"error": err}
 
     @webui.route("stamp", method="POST")

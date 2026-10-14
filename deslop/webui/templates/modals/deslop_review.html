@@ -1,7 +1,9 @@
 {# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
-   deslop: auto-discovered review modal. simulates the CLI's interactive
-   mode one marker at a time; body content is rendered by deslop.js from
-   the /api/ext/deslop/review/* routes. #}
+   deslop: auto-discovered modal. since the 2026-10-14 rework it covers
+   the end-of-session summary and files outside every coder sandbox;
+   sandboxed reviewing happens in the coder editor with a side panel.
+   body content is rendered by deslop.js from the /api/ext/deslop/review/*
+   routes. #}
 
 <template x-if="$store.ui.currentModal === 'deslop_review'" x-cloak>
     <div @keydown.escape.window="$store.ui.closeModal()">

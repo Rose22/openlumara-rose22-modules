@@ -1,18 +1,27 @@
 // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
 // deslop webui logic. the sidebar tab is a compact dashboard with a
-// start/resume button; the actual reviewing happens in the deslop_review
-// modal, which simulates the CLI's interactive mode one marker at a time.
-// opening a marker hands over to the coder module's editor modal (the
-// coderPanel store) and re-opens the review banner once the editor closes,
-// just like returning from $EDITOR does in the terminal.
+// start/resume button. reviewing happens in the coder editor: each flagged
+// file opens ONCE with all of its pending markers highlighted (the same
+// line-handle + F8 trick the git sidebar uses for diff points, via the
+// coderPanel store), and a deslop side panel docks beside the editor with
+// the marker list, session stats and the stamp/next/skip/quit actions.
+// the deslop_review modal is kept for summaries and for files that live
+// outside every coder sandbox.
 (function () {
     const API = "/api/ext/deslop";
     const PANEL_SEL = "[data-deslop='panel']";
     const RV_SEL = "[data-deslop-rv]";
     const POLL_MS = 90000;
+    const SIDE_MS = 500;
 
     let lastState = null;
-    let editorWatch = null;
+
+    // review session: the latest banner from /review/*. the side panel and
+    // the editor's marker highlights are both rendered from this.
+    let session = null;
+    let selIdx = 0;      // marker selected in the side panel
+    let sideHost = null; // element appended to the coder modal's .coder-editor-split
+    let sideNote = "";   // transient warning line inside the panel
 
     // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
     // sweep target: deslop never inherits the sandbox selected in the coder
@@ -284,10 +293,7 @@
         });
     }
 
-    // autoOpen: hand straight over to the coder editor at the marker line,
-    // like the CLI's interactive mode dropping into $EDITOR. the reopen
-    // after the editor closes must NOT auto-open (that would loop).
-    function openReviewModal(p, autoOpen) {
+    function openReviewModal(p) {
         if (!window.Alpine) return;
         Alpine.store("ui").openModal("deslop_review");
         // the modal body lives inside an x-if template: it only exists once
@@ -296,65 +302,188 @@
         renderReview(p);
         requestAnimationFrame(() => renderReview(p));
         setTimeout(() => renderReview(p), 80);
-        if (autoOpen && p && p.active && !p.done && p.sandbox) {
-            setTimeout(() => openInCoder(p.sandbox, p.rel, p.line), 150);
-        }
     }
 
-    async function reviewAction(action) {
-        const p = await fetchJSON(API + "/review/action", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: action }),
-        });
-        renderReview(p);
-        refreshPanel(false);
-        // next marker: banner first, then straight into the editor for it
-        if (p && p.active && !p.done && p.sandbox) {
-            setTimeout(() => openInCoder(p.sandbox, p.rel, p.line), 150);
-        }
-    }
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    // -- review engine: one editor per file + a side panel --------------------
+    // advance() is the single entry point after every session transition
+    // (start / stamp / continue / skip). sandboxed files open in the coder
+    // editor with their markers as F8 nav points; the modal only covers
+    // summaries and files outside every sandbox.
 
-    // -- coder editor handoff -----------------------------------------------------
-
-    async function openInCoder(sandbox, rel, line) {
-        console.log("[deslop] open request:", sandbox, rel, "line", line);
-        if (!sandbox || !rel) { showRvError("this file lives outside every coder sandbox - open it manually"); return; }
-        if (!window.Alpine) { showRvError("alpine not loaded"); return; }
+    async function openFileFor(p) {
         const panel = Alpine.store("coderPanel");
-        if (!panel) { showRvError("coder module store missing - is the coder module enabled?"); return; }
+        if (!panel) return false;
+        // assign directly: switchSandbox() no-ops while the store's sandbox
+        // list is still empty (it only loads when the coder tab mounts). the
+        // tree reload is fire-and-forget: openFile doesn't need it.
+        if (panel.sandbox !== p.sandbox) {
+            panel.sandbox = p.sandbox;
+            panel.onSandboxChange();
+        }
+        await panel.openFile({ path: p.rel }, p.line || 0, {
+            adds: (p.markers || []).map((m) => m.line),
+            dels: [],
+            label: "deslop markers",
+            kind: "deslop",
+        });
+        return true;
+    }
 
-        try {
-            // same handoff the git sidebar uses (git.js editFile): assign directly,
-            // because switchSandbox() no-ops while the store's sandbox list is still
-            // empty (it only loads when the coder tab mounts). the tree reload is
-            // fire-and-forget: openFile doesn't need it.
-            if (panel.sandbox !== sandbox) {
-                panel.sandbox = sandbox;
-                panel.onSandboxChange();
-            }
-            await panel.openFile({ path: rel }, line || 0);
-            console.log("[deslop] openFile resolved, modal now:", Alpine.store("ui").currentModal);
-        } catch (err) {
-            console.error("[deslop] openFile threw:", err);
-            showRvError("opening in the editor failed: " + (err && err.message ? err.message : err));
+    async function advance(p) {
+        if (!p) return;
+        sideNote = "";
+
+        if (p.error) {
+            session = null;
+            detachSide();
+            openReviewModal(p);
+            return;
+        }
+        if (p.done || !p.active) {
+            // session over (or nothing to do): summary in the modal
+            session = null;
+            detachSide();
+            openReviewModal(p);
+            refreshPanel(false);
+            return;
+        }
+        if (!p.sandbox) {
+            // outside every sandbox: fall back to the modal's context view
+            session = p;
+            detachSide();
+            openReviewModal(p);
             return;
         }
 
-        // the coder modal replaces the review modal (one modal at a time).
-        // like returning from $EDITOR: re-open the banner once it closes.
-        // note: closeModal() sets currentModal to null, NOT "" - check falsy.
-        if (editorWatch) clearInterval(editorWatch);
-        editorWatch = setInterval(async () => {
-            const ui = Alpine.store("ui");
-            if (!ui) { clearInterval(editorWatch); editorWatch = null; return; }
-            if (ui.currentModal === "coder_file") return; // still editing
-            clearInterval(editorWatch);
-            editorWatch = null;
-            if (ui.currentModal) return; // user went to some other modal
-            const p = await fetchJSON(API + "/review/current");
-            if (p && p.active) openReviewModal(p, false);
-        }, 400);
+        const panel = window.Alpine ? Alpine.store("coderPanel") : null;
+        if (!panel) return;
+
+        const sameFile = panel.editor && panel.editor.path === p.rel;
+        if (panel.editor && panel.editor.dirty) {
+            if (sameFile) {
+                // a stamp rewrote the file on disk; never clobber unsaved
+                // edits by re-fetching. keep the buffer, warn about the clash.
+                session = p;
+                selIdx = Math.min(selIdx, Math.max(0, (p.markers || []).length - 1));
+                attachSide();
+                renderSide();
+                sideWarn("stamped on disk while this file has unsaved edits - saving now would undo the stamp. check the marker text in the editor.");
+                refreshPanel(false);
+                return;
+            }
+            if (!window.confirm("Unsaved changes in " + panel.editor.path + " will be lost. Open the next deslop file?")) return;
+        }
+
+        session = p;
+        selIdx = 0;
+        try {
+            await openFileFor(p);
+        } catch (err) {
+            console.error("[deslop] openFile threw:", err);
+            sideNote = "opening in the editor failed: " + (err && err.message ? err.message : err);
+        }
+        attachSide();
+        renderSide();
+        refreshPanel(false);
+    }
+
+    async function doAction(action, line) {
+        const body = { action: action };
+        if (line) body.line = line;
+        const p = await fetchJSON(API + "/review/action", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+        await advance(p);
+    }
+
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    // -- side panel ------------------------------------------------------------
+    // docked inside the coder modal's split row (the same slot the markdown
+    // preview uses). a pump loop attaches/detaches it as the modal opens or
+    // the session ends; Alpine's unmount takes it down with the modal too.
+
+    function sideHTML(p) {
+        if (!p) return '<div class="deslop-side-empty">no active session</div>';
+
+        const status =
+            "file " + p.file_index + "/" + p.file_total +
+            " · cleaned " + p.cleaned +
+            " · removed " + p.removed +
+            " · stamped " + p.stamped +
+            (p.skipped ? " · skipped " + p.skipped : "");
+
+        let html =
+            '<div class="deslop-side-head">' +
+            '<span class="deslop-side-title" title="' + esc(p.root) + '">&#129529; deslop</span>' +
+            '<span class="deslop-badge">' + (p.markers_left || 0) + " left</span>" +
+            "</div>" +
+            '<div class="deslop-side-file" title="' + esc(p.file) + '">' + esc(p.file_rel) + "</div>" +
+            '<div class="deslop-side-status">' + esc(status) + "</div>" +
+            '<div class="deslop-side-sec">markers in this file</div>' +
+            '<div class="deslop-side-list">';
+
+        const markers = p.markers || [];
+        markers.forEach(function (m, i) {
+            const meta = m.malformed ? "malformed" : [m.model, m.date].filter(Boolean).join(" · ");
+            html +=
+                '<button type="button" class="deslop-marker-row' + (i === selIdx ? " active" : "") + (m.malformed ? " malformed" : "") + '"' +
+                ' data-deslop-marker="' + i + '" title="' + esc(m.raw) + '">' +
+                '<span class="deslop-marker-line">:' + m.line + "</span>" +
+                '<span class="deslop-marker-meta">' + esc(meta) + "</span>" +
+                "</button>";
+        });
+        if (!markers.length) html += '<div class="deslop-side-empty">no pending markers here</div>';
+        html += "</div>";
+
+        const m = markers[selIdx];
+        if (m) {
+            html +=
+                '<div class="deslop-side-sec">selected marker</div>' +
+                '<pre class="deslop-side-detail">' + esc(m.raw) + "</pre>";
+        }
+        if (p.verdict) html += '<div class="deslop-verdict">' + esc(p.verdict) + "</div>";
+        if (p.nag) html += '<div class="deslop-nag">' + esc(p.nag) + "</div>";
+        if (sideNote) html += '<div class="deslop-nag">' + esc(sideNote) + "</div>";
+
+        html +=
+            '<div class="deslop-side-actions">' +
+            '<button type="button" class="deslop-btn-big ok" data-deslop-side="stamp"' +
+            (m && m.malformed ? ' disabled title="malformed - fix it in the editor"' : "") +
+            '>\u2713 stamp</button>' +
+            '<button type="button" class="deslop-btn-big" data-deslop-side="continue" title="re-check this file, then move to the next one">\u2192 done editing</button>' +
+            '<button type="button" class="deslop-btn-big" data-deslop-side="skip">\u00bb skip file</button>' +
+            '<button type="button" class="deslop-btn-big quit" data-deslop-side="quit">\u2715 quit</button>' +
+            "</div>" +
+            '<div class="deslop-side-hint">F8 / shift+F8 jumps between markers \u00b7 click a marker to jump to it</div>';
+        return html;
+    }
+
+    function renderSide() {
+        if (sideHost && sideHost.isConnected) sideHost.innerHTML = sideHTML(session);
+    }
+
+    // returns true when the panel was freshly attached (so the caller renders)
+    function attachSide() {
+        if (sideHost && sideHost.isConnected) return false;
+        const split = document.querySelector(".coder-editor-modal .coder-editor-split");
+        if (!split) return false;
+        sideHost = document.createElement("div");
+        sideHost.className = "deslop-side";
+        split.appendChild(sideHost);
+        return true;
+    }
+
+    function detachSide() {
+        if (sideHost && sideHost.parentNode) sideHost.parentNode.removeChild(sideHost);
+        sideHost = null;
+    }
+
+    function sideWarn(msg) {
+        sideNote = msg;
+        renderSide();
     }
 
     // -- wiring ---------------------------------------------------------------------
@@ -366,7 +495,38 @@
             start.disabled = true;
             const p = await fetchJSON(API + "/review/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: targetPath() }) });
             start.disabled = false;
-            if (!p.error) openReviewModal(p, true);
+            if (!p.error) await advance(p);
+            else console.error("[deslop] review start:", p.error);
+            return;
+        }
+
+        // side panel: marker row -> jump the editor to it (point index and
+        // marker index match: deslop specs get one nav point per marker)
+        const row = ev.target.closest("[data-deslop-marker]");
+        if (row && sideHost && sideHost.contains(row)) {
+            ev.preventDefault();
+            const i = parseInt(row.getAttribute("data-deslop-marker"), 10);
+            if (!isNaN(i) && session && session.markers && session.markers[i]) {
+                selIdx = i;
+                const panel = Alpine.store("coderPanel");
+                if (panel && panel.diffGoTo) panel.diffGoTo(i);
+                renderSide();
+            }
+            return;
+        }
+
+        // side panel actions
+        const side = ev.target.closest("[data-deslop-side]");
+        if (side && sideHost && sideHost.contains(side)) {
+            ev.preventDefault();
+            const action = side.getAttribute("data-deslop-side");
+            side.disabled = true;
+            if (action === "stamp") {
+                const m = session && session.markers ? session.markers[selIdx] : null;
+                await doAction("stamp", m ? m.line : null);
+            } else {
+                await doAction(action);
+            }
             return;
         }
 
@@ -375,13 +535,15 @@
             ev.preventDefault();
             const action = rv.getAttribute("data-deslop-rv");
             if (action === "open") {
-                openInCoder(rv.getAttribute("data-sandbox"), rv.getAttribute("data-rel"), parseInt(rv.getAttribute("data-line"), 10));
+                // modal -> editor handoff (the editor replaces the modal)
+                const p = await fetchJSON(API + "/review/current");
+                if (!p.error) await advance(p);
             } else if (action === "close") {
                 if (window.Alpine) Alpine.store("ui").closeModal();
                 refreshPanel(false);
             } else {
                 rv.disabled = true;
-                await reviewAction(action);
+                await doAction(action);
             }
             return;
         }
@@ -429,6 +591,41 @@
         });
     });
 
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    // -- side panel pump + caret sync -------------------------------------------
+    // the panel docks only beside the session's own file, so it follows the
+    // coder modal open/close (Alpine unmounts take it down with the modal).
+    setInterval(function () {
+        if (!window.Alpine) return;
+        const ui = Alpine.store("ui");
+        const panel = Alpine.store("coderPanel");
+        const want = !!(session && !session.done && session.sandbox
+            && ui && ui.currentModal === "coder_file"
+            && panel && panel.editor && panel.editor.path === session.rel);
+        if (!want) {
+            if (sideHost) detachSide();
+            return;
+        }
+        const marked = panel.diff.active && panel.diff.kind === "deslop";
+        if (!marked && panel.editor.cmReady && panel.editor.content && !panel.editor.dirty) {
+            // session file opened without marks (e.g. manually after a page
+            // reload): swap it back in with its markers as F8 nav points.
+            // only when fully loaded and clean, so no edits are ever lost.
+            openFileFor(session);
+            return;
+        }
+        if (attachSide()) renderSide();
+    }, SIDE_MS);
+
+    // coder.js broadcasts the active marker when the caret crosses one
+    window.addEventListener("deslop-caret", function (ev) {
+        if (!session || !session.markers) return;
+        const idx = ev.detail ? ev.detail.idx : -1;
+        if (idx == null || idx < 0 || idx >= session.markers.length || idx === selIdx) return;
+        selIdx = idx;
+        renderSide();
+    });
+
     async function boot() {
         observer.observe(document.body, { childList: true, subtree: true });
         document.querySelectorAll(PANEL_SEL).forEach((el) => { el.dataset.deslopDone = "1"; });
@@ -439,6 +636,10 @@
         paintTarget();
         refreshPanel(false);
         setInterval(() => refreshPanel(false), POLL_MS);
+        // a review session lives server-side and survives page reloads: pick
+        // it back up so the panel can re-dock once the file is opened again
+        const cur = await fetchJSON(API + "/review/current");
+        if (!cur.error && cur.active && !cur.done && cur.sandbox) session = cur;
     }
 
     if (document.readyState === "loading") {
