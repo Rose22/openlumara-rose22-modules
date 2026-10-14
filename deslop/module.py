@@ -33,6 +33,7 @@ class Deslop(core.module.Module):
     """Sweeps codebases for a special marker comment that identifies AI generated code, and lets you review and edit every AI generated code snippet that way."""
 
     category = "development"
+    header = "Extra coding guidelines"
 
     settings = {
         "scan_path": {
@@ -67,8 +68,8 @@ class Deslop(core.module.Module):
             return None
 
         return """
-        When writing code, ALWAYS prepend the code with a comment following this format:
-        - # -- AI GENERATED CODE (CURRENT_MODEL) :: (DATE) harness:openlumara
+When writing code, ALWAYS prepend the code with a comment following this format:
+- # -- AI GENERATED CODE (CURRENT_MODEL) :: (DATE) harness:openlumara
         """.strip()
     
     # ------------------------------------------------------------------
