@@ -753,29 +753,51 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         payload["truncated"] = truncated
         return payload
 
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
     def _list_dirs_blocking(self, root):
+        # true pre-order dfs: a folder's children are listed directly after
+        # the folder itself, which is what the dropdown's indented tree needs.
+        # os.walk can't do this (it yields every child of a node before
+        # descending into the first one), so siblings and cousins interleaved
+        # and the tree looked mangled.
         excludes = set(self.config.get("exclude_dirs") or DEFAULT_EXCLUDES)
         dirs = []
-        truncated = False
-        for dirpath, dirnames, _ in os.walk(root):
-            # prune hidden/excluded/symlinked branches (a symlinked folder
-            # could cycle the walk)
-            dirnames[:] = [
-                d for d in sorted(dirnames)
-                if not d.startswith(".")
-                and d not in excludes
-                and not d.endswith(".egg-info")
-                and not os.path.islink(os.path.join(dirpath, d))
-            ]
-            for d in dirnames:
+        state = {"truncated": False}
+
+        def walk(dirpath):
+            if state["truncated"]:
+                return
+            try:
+                with os.scandir(dirpath) as it:
+                    entries = sorted(it, key=lambda e: e.name)
+            except OSError:
+                return
+            keep = []
+            for e in entries:
+                try:
+                    # symlinks are pruned too: a linked folder could cycle
+                    # the walk or point outside the sandbox
+                    if not e.is_dir(follow_symlinks=False):
+                        continue
+                except OSError:
+                    continue
+                if e.name.startswith(".") or e.name in excludes or e.name.endswith(".egg-info"):
+                    continue
+                keep.append(e)
+            # each entry is followed immediately by its own subtree, so the
+            # flat list reads as a proper pre-order tree
+            for e in keep:
                 if len(dirs) >= DIR_CAP:
-                    truncated = True
-                    break
-                rel = os.path.relpath(os.path.join(dirpath, d), root).replace(os.sep, "/")
-                dirs.append({"path": rel, "name": d, "depth": rel.count("/") + 1})
-            if truncated:
-                break
-        return dirs, truncated
+                    state["truncated"] = True
+                    return
+                rel = os.path.relpath(e.path, root).replace(os.sep, "/")
+                dirs.append({"path": rel, "name": e.name, "depth": rel.count("/") + 1})
+                walk(e.path)
+                if state["truncated"]:
+                    return
+
+        walk(root)
+        return dirs, state["truncated"]
 
     @webui.route("review/start", method="POST")
     async def _route_review_start(self, body=None, query=None):
