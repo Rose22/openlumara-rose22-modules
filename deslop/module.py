@@ -730,9 +730,9 @@ When writing code, ALWAYS prepend the code with a comment following this format:
     # plus a folder inside it (folders only, never files) from two dropdowns.
     @webui.route("dirs")
     async def _route_dirs(self, body=None, query=None):
-        """the sandbox list is always included; with ?sandbox=<name> every
-        folder inside it comes back depth-first, so a <select> can render it
-        as an indented tree."""
+        """the sandbox list is always included; with ?sandbox=<name> the first
+        two folder levels inside it come back pre-order, so a <select> can
+        render it as an indented tree."""
         roots = await self._sandbox_roots()
         payload = {"sandboxes": sorted(roots.values()), "dirs": [], "truncated": False}
 
@@ -785,14 +785,18 @@ When writing code, ALWAYS prepend the code with a comment following this format:
                     continue
                 keep.append(e)
             # each entry is followed immediately by its own subtree, so the
-            # flat list reads as a proper pre-order tree
+            # flat list reads as a proper pre-order tree. the dropdown stays
+            # shallow: only two folder levels are listed, deeper ones are
+            # skipped entirely (they'd just bloat the list).
             for e in keep:
                 if len(dirs) >= DIR_CAP:
                     state["truncated"] = True
                     return
                 rel = os.path.relpath(e.path, root).replace(os.sep, "/")
-                dirs.append({"path": rel, "name": e.name, "depth": rel.count("/") + 1})
-                walk(e.path)
+                depth = rel.count("/") + 1
+                dirs.append({"path": rel, "name": e.name, "depth": depth})
+                if depth < 2:
+                    walk(e.path)
                 if state["truncated"]:
                     return
 
