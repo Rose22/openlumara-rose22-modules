@@ -1,0 +1,18 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+   deslop: auto-discovered review modal. simulates the CLI's interactive
+   mode one marker at a time; body content is rendered by deslop.js from
+   the /api/ext/deslop/review/* routes. #}
+
+<template x-if="$store.ui.currentModal === 'deslop_review'" x-cloak>
+    <div @keydown.escape.window="$store.ui.closeModal()">
+        <div class="modal deslop-modal">
+            <div class="header">
+                <h2>&#129529; deslop review</h2>
+                <button class="close" @click="$store.ui.closeModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="deslop-rv" data-deslop-rv>
+                <div class="deslop-loading">loading...</div>
+            </div>
+        </div>
+    </div>
+</template>
