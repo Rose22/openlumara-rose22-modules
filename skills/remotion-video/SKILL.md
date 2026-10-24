@@ -1,9 +1,8 @@
-<!-- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-02) harness:openlumara -->
 ---
 name: remotion-video
 description: Author complete, long-form Remotion films (kinetic typography, procedural audio, CSS-3D) from a sandboxed agent with no shell, collaborating with a human who runs npm itself.
 ---
-
+<!-- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-02) harness:openlumara -->
 # Remotion Video Authoring (Agent Edition)
 
 A field-tested playbook for building full music-driven videos in Remotion when **you write all the code but the human runs npm**. Everything here was learned building a 22-scene, 484-second kinetic-typography film with a fully procedural soundtrack — no audio files, no shell access.
