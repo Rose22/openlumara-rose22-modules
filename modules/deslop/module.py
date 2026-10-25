@@ -5,6 +5,7 @@ import channels.webui.api as webui
 import asyncio
 import datetime
 import hashlib
+import json
 import os
 import re
 import time
@@ -19,7 +20,8 @@ STATUS_REVIEWED = "reviewed"
 
 CACHE_SECONDS = 30
 LIST_CAP = 400
-DIR_CAP = 2000
+CHILD_CAP = 400 # max folders listed per tree level
+HISTORY_CAP = 500 # finished sessions kept in data/deslop/history.jsonl
 
 # marker grammar (ported from the deslop CLI):
 #   <MARKER> (MODEL) :: (YYYY-MM-DD) [harness:X] [session:ID] [status:reviewed]
@@ -395,7 +397,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             "text": text,
         }
 
-    def _finish_session(self, interrupted):
+    async def _finish_session(self, interrupted):
         s = self._session
         lines = [
             "deslop interrupted." if interrupted else "deslop complete.",
@@ -409,6 +411,27 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             lines.extend("    " + p for p in s["skipped"])
         summary = "\n".join(lines)
         self._last_summary = {"summary": summary, "interrupted": interrupted}
+
+        # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+        # session history: one JSONL record per finished session (complete
+        # AND interrupted ones), flushed to disk before the session dies.
+        now = time.time()
+        iso = lambda ts: datetime.datetime.fromtimestamp(ts).isoformat(timespec="seconds")
+        record = {
+            "started_at": iso(s.get("started_at") or now),
+            "ended_at": iso(now),
+            "duration_s": int(now - (s.get("started_at") or now)),
+            "root": s["root"],
+            "files_total": len(s["files"]),
+            "files_cleaned": s["cleaned"],
+            "files_skipped": len(s["skipped"]),
+            "markers_stamped": s["stamped"],
+            "markers_removed": s["removed"],
+            "interrupted": interrupted,
+            "events": s.get("events", []),
+        }
+        await asyncio.to_thread(self._append_history_blocking, record)
+
         self._session = None
         self._cache = None
         return {"active": True, "done": True, "summary": summary, "interrupted": interrupted}
@@ -436,10 +459,33 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             "verdict": "",
             "left": 0,
             "digest": None,
+            # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+            # session history bookkeeping: when the session started and a
+            # trail of what happened (stamped/cleaned/skipped/removed per
+            # file). flushed to data/deslop/history.jsonl by _finish_session.
+            "started_at": time.time(),
+            "events": [],
         }
         return await self._review_banner(), None
 
-    async def _review_banner(self):
+    @staticmethod
+    def _rel_path(root, path):
+        return os.path.relpath(path, root).replace(os.sep, "/")
+
+    def _log_event(self, event, **fields):
+        # fire-and-forget trail entry for the session history log
+        if self._session is None:
+            return
+        entry = {"event": event}
+        entry.update(fields)
+        self._session["events"].append(entry)
+
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    # stay=True is the live-refresh mode: when the current file has no
+    # pending markers left, the session does NOT roll forward - the banner
+    # reports the file as-is (empty marker list) so the webui can repaint
+    # the side panel while the user keeps working in the editor.
+    async def _review_banner(self, stay=False):
         s = self._session
         if not s:
             return {"active": False}
@@ -447,33 +493,41 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         marker_literal = self._marker_literal()
         while True:
             if s["index"] >= len(s["files"]):
-                return self._finish_session(interrupted=False)
+                return await self._finish_session(interrupted=False)
             path = s["files"][s["index"]]
             snap = await asyncio.to_thread(self._file_snapshot, path, marker_literal)
             if not snap["readable"]:
                 s["skipped"].append(path)
                 s["verdict"] = "unreadable, skipping"
+                self._log_event("skipped", file=self._rel_path(s["root"], path), reason="unreadable")
                 s["index"] += 1
                 continue
             if not snap["pending"]:
+                if stay:
+                    s["verdict"] = "no pending markers left here - press done editing to move on"
+                    break
                 s["cleaned"] += 1
                 s["verdict"] = "file cleaned!"
+                self._log_event("cleaned", file=self._rel_path(s["root"], path))
                 s["index"] += 1
                 s["streak"] = 0
                 continue
             break
 
-        first = snap["pending"][0]
-        s["left"] = len(snap["pending"])
+        pending = snap["pending"]
+        first = pending[0] if pending else None
+        s["left"] = len(pending)
         s["digest"] = snap["digest"]
 
         lines = snap["text"].splitlines()
-        lo = max(0, first["line_no"] - 3)
-        hi = min(len(lines), first["line_no"] + 2)
-        context = [
-            {"n": i + 1, "text": lines[i], "current": i == first["line_no"] - 1}
-            for i in range(lo, hi)
-        ]
+        context = []
+        if first is not None:
+            lo = max(0, first["line_no"] - 3)
+            hi = min(len(lines), first["line_no"] + 2)
+            context = [
+                {"n": i + 1, "text": lines[i], "current": i == first["line_no"] - 1}
+                for i in range(lo, hi)
+            ]
 
         roots = await self._sandbox_roots()
         sandbox, rel = self._locate(path, roots)
@@ -505,13 +559,13 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             "file_rel": os.path.relpath(path, s["root"]).replace(os.sep, "/"),
             "sandbox": sandbox,
             "rel": rel,
-            "line": first["line_no"],
-            "marker_raw": first["raw"].strip(),
-            "marker_model": first["model"],
-            "marker_date": first["date"],
-            "malformed": first["malformed"],
+            "line": first["line_no"] if first else 0,
+            "marker_raw": first["raw"].strip() if first else "",
+            "marker_model": first["model"] if first else None,
+            "marker_date": first["date"] if first else None,
+            "malformed": first["malformed"] if first else False,
             "markers": markers,
-            "markers_left": len(snap["pending"]),
+            "markers_left": len(pending),
             "file_index": s["index"] + 1,
             "file_total": len(s["files"]),
             "cleaned": s["cleaned"],
@@ -532,11 +586,39 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         path = s["files"][s["index"]] if s["index"] < len(s["files"]) else None
 
         if action == "quit":
-            return self._finish_session(interrupted=True), None
+            return await self._finish_session(interrupted=True), None
+
+        # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+        # live refresh while the file sits open in the editor (the webui
+        # fires this after every save): re-read the file, absorb marker
+        # removals into the session tally, and hand back the CURRENT file's
+        # banner without advancing (stay=True). the side panel + F8 marks
+        # then track deletions/edits made in the editor instead of going
+        # stale. "done editing" (continue) still decides when to move on.
+        if action == "refresh":
+            if path is None:
+                return await self._review_banner(), None
+            snap = await asyncio.to_thread(self._file_snapshot, path, marker_literal)
+            if snap["readable"] and snap["digest"] != s["digest"]:
+                s["streak"] = 0
+                if len(snap["pending"]) < s["left"]:
+                    removed = s["left"] - len(snap["pending"])
+                    s["removed"] += removed
+                    s["verdict"] = f"removed {removed} marker(s)"
+                elif not snap["pending"]:
+                    s["verdict"] = "file looks clean - press done editing to move on"
+                else:
+                    s["verdict"] = "edited; markers still pending here"
+                # only a real change busts the scan cache: the webui polls
+                # this action every few seconds and a cache-bust costs a
+                # full recursive sweep on the next /state call
+                self._cache = None
+            return await self._review_banner(stay=True), None
 
         if action == "skip":
             if path is not None:
                 s["skipped"].append(path)
+                self._log_event("skipped", file=self._rel_path(s["root"], path))
             s["verdict"] = "skipped"
             s["index"] += 1
             return await self._review_banner(), None
@@ -568,6 +650,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
                 if ok:
                     s["stamped"] += 1
                     s["verdict"] = "stamped as reviewed"
+                    self._log_event("stamped", file=self._rel_path(s["root"], path), line=first["line_no"])
                     # the stamp changed the file on disk. refresh the snapshot
                     # so a later "done editing" doesn't read it as a removal
                     after = await asyncio.to_thread(self._file_snapshot, path, marker_literal)
@@ -584,10 +667,12 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             if not snap["readable"]:
                 s["skipped"].append(path)
                 s["verdict"] = "unreadable, skipping"
+                self._log_event("skipped", file=self._rel_path(s["root"], path), reason="unreadable")
                 s["index"] += 1
             elif not snap["pending"]:
                 s["cleaned"] += 1
                 s["verdict"] = "file cleaned!"
+                self._log_event("cleaned", file=self._rel_path(s["root"], path))
                 s["index"] += 1
                 s["streak"] = 0
             elif snap["digest"] == s["digest"]:
@@ -598,6 +683,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
                 s["removed"] += removed
                 s["streak"] = 0
                 s["verdict"] = f"removed {removed} marker(s)"
+                self._log_event("removed", file=self._rel_path(s["root"], path), count=removed)
             else:
                 s["streak"] = 0
                 s["verdict"] = "edited, still dirty"
@@ -605,6 +691,71 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             return await self._review_banner(), None
 
         return None, f"unknown review action: {action}"
+
+    # ------------------------------------------------------------------
+    # session history log (data/deslop/history.jsonl, one record per line)
+    # ------------------------------------------------------------------
+
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    @staticmethod
+    def _history_file():
+        return core.get_data_path(os.path.join("deslop", "history.jsonl"))
+
+    def _append_history_blocking(self, record):
+        try:
+            path = self._history_file()
+            folder = os.path.dirname(path)
+            if not os.path.isdir(folder):
+                os.makedirs(folder, exist_ok=True)
+            with open(path, "a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+            # keep the log bounded: sessions are rare, so a full rewrite on
+            # every append is cheap and saves any rotation bookkeeping
+            with open(path, "r", encoding="utf-8") as handle:
+                lines = [ln for ln in handle.read().splitlines() if ln.strip()]
+            if len(lines) > HISTORY_CAP:
+                with open(path, "w", encoding="utf-8") as handle:
+                    handle.write("\n".join(lines[-HISTORY_CAP:]) + "\n")
+        except OSError as err:
+            self.log(self.name, f"could not write the session history log: {err}")
+
+    def _read_history_blocking(self, limit):
+        try:
+            with open(self._history_file(), "r", encoding="utf-8") as handle:
+                lines = handle.readlines()
+        except OSError:
+            return []
+        out = []
+        for raw in reversed(lines):
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                out.append(json.loads(raw))
+            except ValueError:
+                continue
+            if len(out) >= limit:
+                break
+        return out
+
+    async def _get_history(self, limit=20):
+        return await asyncio.to_thread(self._read_history_blocking, int(limit))
+
+    def _history_text(self, sessions):
+        if not sessions:
+            return "no deslop session history yet - finish or quit a review session and it lands here"
+        lines = [f"last {len(sessions)} deslop session(s), newest first:"]
+        for r in sessions:
+            dur = int(r.get("duration_s") or 0)
+            mins = f"{max(1, round(dur / 60))}m" if dur >= 60 else f"{dur}s"
+            tag = "interrupted" if r.get("interrupted") else "complete"
+            lines.append(
+                f"{r.get('started_at', '?')} [{tag}] {r.get('root', '?')} - "
+                f"{r.get('files_cleaned', 0)}/{r.get('files_total', 0)} files cleaned, "
+                f"{r.get('markers_stamped', 0)} stamped, {r.get('markers_removed', 0)} removed, "
+                f"{r.get('files_skipped', 0)} skipped ({mins})"
+            )
+        return "\n".join(lines)
 
     # ------------------------------------------------------------------
     # text renderers (shared by tools and the /deslop command)
@@ -704,6 +855,21 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         self._cache = None
         return self.result(f"stamped status:reviewed on {abs_path}:{line}")
 
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    async def deslop_history(self, limit: int = 10):
+        """
+        Recent finished deslop review sessions, newest first: start time, complete/interrupted, root, files cleaned, markers stamped/removed, files skipped and duration.
+
+        Args:
+            limit: number of sessions to show (1-200)
+        """
+        try:
+            n = int(limit)
+        except (TypeError, ValueError):
+            n = 10
+        sessions = await self._get_history(max(1, min(n, 200)))
+        return self.result(self._history_text(sessions))
+
     # ------------------------------------------------------------------
     # webui API routes (consumed by the sidebar tab)
     # ------------------------------------------------------------------
@@ -724,15 +890,15 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         state["session_active"] = self._session is not None
         return state
 
-    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
     # backing data for the panel's target pickers. deslop never inherits the
     # sandbox selected in the coder sidebar: the panel picks its own sandbox
-    # plus a folder inside it (folders only, never files) from two dropdowns.
+    # from a dropdown and the folder from a lazy tree view. each request
+    # returns ONE level of child folders (folders only, never files) for the
+    # given ?path=, each flagged with has_children, so the webui can expand
+    # to any depth on demand instead of capping a flat listing.
     @webui.route("dirs")
     async def _route_dirs(self, body=None, query=None):
-        """the sandbox list is always included; with ?sandbox=<name> the first
-        two folder levels inside it come back pre-order, so a <select> can
-        render it as an indented tree."""
         roots = await self._sandbox_roots()
         payload = {"sandboxes": sorted(roots.values()), "dirs": [], "truncated": False}
 
@@ -748,60 +914,85 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         if root is None:
             return {**payload, "error": f"unknown sandbox: {sandbox}"}
 
-        dirs, truncated = await asyncio.to_thread(self._list_dirs_blocking, root)
+        rel = str((query or {}).get("path", "") or "")
+        if rel:
+            # core.sandbox_path keeps the sub-path from climbing out
+            try:
+                folder = core.sandbox_path(root, rel)
+            except Exception:
+                return {**payload, "error": f"path not allowed inside sandbox {sandbox}: {rel}"}
+        else:
+            folder = root
+        if not os.path.isdir(folder):
+            return {**payload, "error": f"not a folder inside sandbox {sandbox}: {rel}"}
+
+        dirs, truncated = await asyncio.to_thread(self._list_children_blocking, root, folder)
         payload["dirs"] = dirs
         payload["truncated"] = truncated
         return payload
 
-    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
-    def _list_dirs_blocking(self, root):
-        # true pre-order dfs: a folder's children are listed directly after
-        # the folder itself, which is what the dropdown's indented tree needs.
-        # os.walk can't do this (it yields every child of a node before
-        # descending into the first one), so siblings and cousins interleaved
-        # and the tree looked mangled.
+    def _list_children_blocking(self, root, folder):
         excludes = set(self.config.get("exclude_dirs") or DEFAULT_EXCLUDES)
-        dirs = []
-        state = {"truncated": False}
+        try:
+            with os.scandir(folder) as it:
+                entries = sorted(it, key=lambda e: e.name)
+        except OSError:
+            return [], False
 
-        def walk(dirpath):
-            if state["truncated"]:
-                return
+        keep = []
+        for e in entries:
             try:
-                with os.scandir(dirpath) as it:
-                    entries = sorted(it, key=lambda e: e.name)
+                # symlinks are pruned: a linked folder could cycle the tree
+                # or point outside the sandbox
+                if not e.is_dir(follow_symlinks=False):
+                    continue
             except OSError:
-                return
-            keep = []
-            for e in entries:
-                try:
-                    # symlinks are pruned too: a linked folder could cycle
-                    # the walk or point outside the sandbox
-                    if not e.is_dir(follow_symlinks=False):
-                        continue
-                except OSError:
-                    continue
-                if e.name.startswith(".") or e.name in excludes or e.name.endswith(".egg-info"):
-                    continue
-                keep.append(e)
-            # each entry is followed immediately by its own subtree, so the
-            # flat list reads as a proper pre-order tree. the dropdown stays
-            # shallow: only two folder levels are listed, deeper ones are
-            # skipped entirely (they'd just bloat the list).
-            for e in keep:
-                if len(dirs) >= DIR_CAP:
-                    state["truncated"] = True
-                    return
-                rel = os.path.relpath(e.path, root).replace(os.sep, "/")
-                depth = rel.count("/") + 1
-                dirs.append({"path": rel, "name": e.name, "depth": depth})
-                if depth < 2:
-                    walk(e.path)
-                if state["truncated"]:
-                    return
+                continue
+            if e.name.startswith(".") or e.name in excludes or e.name.endswith(".egg-info"):
+                continue
+            keep.append(e)
 
-        walk(root)
-        return dirs, state["truncated"]
+        truncated = len(keep) > CHILD_CAP
+        out = []
+        for e in keep[:CHILD_CAP]:
+            rel = os.path.relpath(e.path, root).replace(os.sep, "/")
+            out.append({
+                "path": rel,
+                "name": e.name,
+                "depth": rel.count("/") + 1,
+                "has_children": self._has_subdirs(e.path, excludes),
+            })
+        return out, truncated
+
+    @staticmethod
+    def _has_subdirs(dirpath, excludes):
+        # quick probe for the tree caret: scan stops at the first visible
+        # non-excluded subfolder instead of listing the whole level
+        try:
+            with os.scandir(dirpath) as it:
+                for e in it:
+                    try:
+                        if not e.is_dir(follow_symlinks=False):
+                            continue
+                    except OSError:
+                        continue
+                    if e.name.startswith(".") or e.name in excludes or e.name.endswith(".egg-info"):
+                        continue
+                    return True
+        except OSError:
+            pass
+        return False
+
+    # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    # session history for the sidebar dashboard: newest-first JSONL records,
+    # one line per finished review session.
+    @webui.route("history")
+    async def _route_history(self, body=None, query=None):
+        try:
+            limit = int((query or {}).get("limit", 20))
+        except (TypeError, ValueError):
+            limit = 20
+        return {"sessions": await self._get_history(max(1, min(limit, 200)))}
 
     @webui.route("review/start", method="POST")
     async def _route_review_start(self, body=None, query=None):
@@ -844,10 +1035,19 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         "list": "list every unreviewed marker (path:line model date)",
         "scan": "force a fresh sweep, then show the dashboard",
         "stamp <path> <line>": "stamp a marker as reviewed",
+        "history [n]": "show the last n finished review sessions (default 10)",
     })
     async def deslop_command(self, args: list):
         args = list(args or [])
         sub = str(args[0]).strip().lower() if args else ""
+
+        if sub == "history":
+            try:
+                n = int(args[1]) if len(args) > 1 else 10
+            except (TypeError, ValueError):
+                return "usage: /deslop history [count]"
+            sessions = await self._get_history(max(1, min(n, 200)))
+            return self._history_text(sessions)
 
         if sub == "stamp":
             if len(args) < 3:

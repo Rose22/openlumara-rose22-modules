@@ -61,8 +61,8 @@
     filter: brightness(1.25);
 }
 
-/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
-   target pickers: sandbox dropdown + folders-only dropdown below it.
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+   target pickers: sandbox dropdown + lazy folder tree below it.
    mirrors the coder sidebar's sandbox dropdown (.coder-select) so the two
    sidebars read as siblings: same metrics, theme radius/bg vars, and a
    hand-drawn chevron instead of the chunky native arrow (appearance:none). */
@@ -109,6 +109,83 @@
 .deslop-select option {
     background: var(--bg-primary, #1e1e28);
     color: var(--text-primary, #ddd);
+}
+
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+   lazy folder tree: every expand is a /dirs roundtrip, so the whole tree
+   stays navigable at any depth without the old flat 2-level listing.
+   carets rotate open; rows ellipsize; the box scrolls. */
+.deslop-tree {
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-sm, 8px);
+    background: var(--bg-primary, rgba(0, 0, 0, 0.15));
+    max-height: 210px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.deslop-tree-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    color: var(--text-primary, #ddd);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 3px 8px;
+    cursor: pointer;
+    line-height: 1.45;
+}
+
+.deslop-tree-row:hover {
+    background: rgba(180, 140, 255, 0.1);
+}
+
+.deslop-tree-row.selected {
+    background: rgba(180, 140, 255, 0.18);
+    color: #fff;
+}
+
+.deslop-tree-row.root .deslop-tree-name {
+    font-weight: 600;
+}
+
+.deslop-tree-name {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deslop-caret {
+    flex: 0 0 14px;
+    width: 14px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-secondary, #889);
+    transition: transform 0.12s ease;
+}
+
+.deslop-caret.open {
+    transform: rotate(90deg);
+}
+
+.deslop-caret.pad {
+    visibility: hidden;
+}
+
+.deslop-tree-empty,
+.deslop-tree-note {
+    font-size: 11px;
+    color: var(--text-secondary, #889);
+    padding: 4px 10px;
+}
+
+.deslop-tree-note.err {
+    color: #ff7b9c;
 }
 
 .deslop-chips {
@@ -508,6 +585,53 @@
     color: var(--text-secondary, #999);
     text-align: center;
     padding: 6px 0;
+}
+
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+   session history rows in the sidebar dashboard: one line per finished
+   review session (date · root · outcome). interrupted sessions go pink
+   with a warning glyph (added by deslop.js). */
+.deslop-hist {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.deslop-hist-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+    font-size: 11px;
+}
+
+.deslop-hist-when {
+    font-family: var(--font-mono, monospace);
+    color: var(--text-secondary, #889);
+    white-space: nowrap;
+}
+
+.deslop-hist-root {
+    min-width: 0;
+    max-width: 42%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deslop-hist-sum {
+    flex: 1;
+    min-width: 0;
+    text-align: right;
+    color: var(--text-secondary, #aaa);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deslop-hist-row.interrupted .deslop-hist-when,
+.deslop-hist-row.interrupted .deslop-hist-root {
+    color: #ff9db5;
 }
 
 /* narrow screens: the side panel stacks under the editor instead */

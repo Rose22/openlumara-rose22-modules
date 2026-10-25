@@ -15,6 +15,7 @@
     const SIDE_MS = 500;
 
     let lastState = null;
+    let lastHistory = []; // finished review sessions (newest first)
 
     // review session: the latest banner from /review/*. the side panel and
     // the editor's marker highlights are both rendered from this.
@@ -23,15 +24,19 @@
     let sideHost = null; // element appended to the coder modal's .coder-editor-split
     let sideNote = "";   // transient warning line inside the panel
 
-    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
     // sweep target: deslop never inherits the sandbox selected in the coder
-    // sidebar. the panel picks its own sandbox + folder (folders only) from
-    // two dropdowns. targetSandbox "" = the server-side default scan_path.
+    // sidebar. the panel picks its own sandbox from a dropdown and the
+    // folder from a lazy tree: each level is fetched from /dirs on demand
+    // (with a has_children flag per row deciding the carets), so any depth
+    // is reachable without shipping - or navigating - the whole listing.
+    // targetSandbox "" = the server-side default scan_path.
     let sandboxes = [];
-    let dirsCache = {};     // sandbox -> { dirs, truncated }
     let targetSandbox = "";
     let targetDir = "";     // "" = whole sandbox
     let userPicked = false; // once the user picks, state stops steering
+    let treeKids = {};      // sandbox||rel -> { loaded, loading, dirs, truncated, error }
+    let treeOpen = {};      // sandbox||rel -> true while expanded
 
     function targetPath() {
         if (!targetSandbox) return "";
@@ -136,20 +141,79 @@
         html += rollup("by model", st.by_model);
         html += rollupMonths(st.by_month);
         html += rollup("worst dirs", st.by_dir);
+        html += historyHTML(lastHistory);
         return html;
     }
 
-    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+    // session history: one row per finished review session (complete or
+    // interrupted), served from data/deslop/history.jsonl. the tooltip
+    // unpacks duration + the per-file event trail.
+    function histWhen(iso) {
+        if (!iso) return "?";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return String(iso).slice(0, 16).replace("T", " ");
+        const p = function (n) { return String(n).padStart(2, "0"); };
+        return p(d.getMonth() + 1) + "/" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+
+    function histDur(sec) {
+        sec = parseInt(sec, 10) || 0;
+        if (sec < 60) return sec + "s";
+        const m = Math.floor(sec / 60);
+        if (m < 60) return m + "m";
+        return Math.floor(m / 60) + "h " + (m % 60) + "m";
+    }
+
+    function historyHTML(items) {
+        if (!items || !items.length) return "";
+        let html =
+            '<div class="deslop-group">' +
+            '<div class="deslop-sec">session history</div>' +
+            '<div class="deslop-hist">';
+        for (const r of items) {
+            const bits = [];
+            if (r.files_cleaned) bits.push(r.files_cleaned + " cleaned");
+            if (r.markers_stamped) bits.push(r.markers_stamped + " stamped");
+            if (r.markers_removed) bits.push(r.markers_removed + " removed");
+            if (r.files_skipped) bits.push(r.files_skipped + " skipped");
+            const rootShort = String(r.root || "").split("/").filter(Boolean).pop() || "?";
+            const events = r.events || [];
+            const evLines = events.slice(0, 12).map(function (e) {
+                return e.event + " " + (e.file || "") + (e.line ? ":" + e.line : "") + (e.count ? " x" + e.count : "");
+            });
+            const tip =
+                (r.root || "?") + "\n" +
+                (r.started_at || "?") + " \u2192 " + (r.ended_at || "?") + " (" + histDur(r.duration_s) + ")" +
+                (r.interrupted ? " \u00b7 interrupted" : "") +
+                (evLines.length ? "\n" + evLines.join("\n") : "") +
+                (events.length > 12 ? "\n\u2026 " + (events.length - 12) + " more" : "");
+            html +=
+                '<div class="deslop-hist-row' + (r.interrupted ? " interrupted" : "") + '" title="' + esc(tip) + '">' +
+                '<span class="deslop-hist-when">' + esc(histWhen(r.started_at)) + "</span>" +
+                '<span class="deslop-hist-root">' + (r.interrupted ? "&#9888; " : "") + esc(rootShort) + "</span>" +
+                '<span class="deslop-hist-sum">' + esc(bits.join(" \u00b7 ") || "no changes") + "</span>" +
+                "</div>";
+        }
+        html += "</div></div>";
+        return html;
+    }
+
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
     // -- target pickers ---------------------------------------------------------
-    // the dropdown chrome is built once per panel element and survives
-    // dashboard repaints (polling would otherwise wipe a half-open dropdown).
+    // the chrome is built once per panel element and survives dashboard
+    // repaints; the folder tree under the sandbox dropdown expands lazily,
+    // one /dirs roundtrip per freshly opened level, so any depth is
+    // reachable without turning the picker into a flat wall of names.
+
+    function treeKey(rel) { return targetSandbox + "||" + rel; }
 
     function ensureChrome(el) {
         if (el.querySelector(".deslop-target")) return;
         el.innerHTML =
             '<div class="deslop-target">' +
             '<select class="deslop-select" data-deslop-sandbox title="coder sandbox to sweep"></select>' +
-            '<select class="deslop-select" data-deslop-dir title="folder inside the sandbox"></select>' +
+            '<div class="deslop-tree" data-deslop-tree></div>' +
             "</div>" +
             '<div class="deslop-body"></div>';
         paintTarget();
@@ -159,7 +223,6 @@
         document.querySelectorAll(PANEL_SEL).forEach((el) => {
             if (!el.querySelector(".deslop-target")) { ensureChrome(el); return; }
             const sb = el.querySelector("[data-deslop-sandbox]");
-            const dir = el.querySelector("[data-deslop-dir]");
 
             let html = '<option value="">default scan path</option>';
             for (const name of sandboxes) {
@@ -168,25 +231,92 @@
             sb.innerHTML = html;
             sb.value = targetSandbox;
 
-            const cached = dirsCache[targetSandbox];
-            let dhtml = '<option value="">whole sandbox</option>';
-            if (cached) {
-                for (const d of cached.dirs) {
-                    dhtml += '<option value="' + esc(d.path) + '">' + "· ".repeat(Math.max(0, d.depth - 1)) + esc(d.name) + "</option>";
-                }
-                if (cached.truncated) dhtml += '<option disabled>(folder list capped)</option>';
-            }
-            dir.innerHTML = dhtml;
-            dir.value = targetDir;
-            dir.disabled = !targetSandbox;
+            const tree = el.querySelector("[data-deslop-tree]");
+            if (tree) tree.innerHTML = paintTreeHtml();
         });
     }
 
-    async function loadDirs(sandbox) {
-        if (!sandbox || dirsCache[sandbox]) return;
-        const data = await fetchJSON(API + "/dirs?sandbox=" + encodeURIComponent(sandbox));
-        if (data.error) { console.error("[deslop] dirs:", data.error); return; }
-        dirsCache[sandbox] = { dirs: data.dirs || [], truncated: !!data.truncated };
+    // depth-first rows of every expanded node, starting at rel's children.
+    // carets only exist where the server saw a subfolder, so leaf folders
+    // stay clean and clicking a caret can never open an empty node.
+    function treeRows(rel, depth, out) {
+        const node = treeKids[treeKey(rel)];
+        if (!node || !node.loaded) return;
+        for (const d of node.dirs) {
+            const open = !!treeOpen[treeKey(d.path)];
+            out.push(
+                '<button type="button" class="deslop-tree-row' + (d.path === targetDir ? " selected" : "") + '"' +
+                ' data-deslop-dir="' + esc(d.path) + '" style="padding-left:' + (depth * 14 + 6) + 'px"' +
+                ' title="' + esc(d.path) + '">' +
+                (d.has_children
+                    ? '<span class="deslop-caret' + (open ? " open" : "") + '" data-deslop-toggle="' + esc(d.path) + '">&#9656;</span>'
+                    : '<span class="deslop-caret pad"></span>') +
+                '<span class="deslop-tree-name">' + esc(d.name) + "</span>" +
+                "</button>");
+            if (open) treeRows(d.path, depth + 1, out);
+        }
+    }
+
+    function paintTreeHtml() {
+        if (!targetSandbox) {
+            return '<div class="deslop-tree-empty">pick a sandbox to browse folders</div>';
+        }
+        const out = [
+            '<button type="button" class="deslop-tree-row root' + (targetDir === "" ? " selected" : "") + '"' +
+            ' data-deslop-dir="" style="padding-left:6px" title="whole sandbox">' +
+            '<span class="deslop-caret pad"></span><span class="deslop-tree-name">whole sandbox</span></button>',
+        ];
+        const root = treeKids[treeKey("")];
+        if (!root || root.loading) {
+            out.push('<div class="deslop-tree-note" style="padding-left:8px">loading folders...</div>');
+        } else if (root.error) {
+            out.push('<div class="deslop-tree-note err" style="padding-left:8px">' + esc(root.error) + "</div>");
+        } else {
+            treeRows("", 1, out);
+            if (!root.dirs.length) out.push('<div class="deslop-tree-note" style="padding-left:8px">no subfolders</div>');
+            if (root.truncated) out.push('<div class="deslop-tree-note" style="padding-left:8px">(level list capped)</div>');
+        }
+        return out.join("");
+    }
+
+    function paintTree() {
+        document.querySelectorAll(PANEL_SEL).forEach((el) => {
+            const host = el.querySelector("[data-deslop-tree]");
+            if (host) host.innerHTML = paintTreeHtml();
+        });
+    }
+
+    async function loadChildren(rel) {
+        if (!targetSandbox) return;
+        const key = treeKey(rel);
+        const cached = treeKids[key];
+        if (cached && (cached.loaded || cached.loading)) return;
+        treeKids[key] = { loading: true, dirs: [], truncated: false };
+        // the sandbox is frozen from the key: switching mid-flight must not
+        // make a late reply paint another sandbox's folder into this slot
+        const data = await fetchJSON(
+            API + "/dirs?sandbox=" + encodeURIComponent(key.split("||")[0]) +
+            "&path=" + encodeURIComponent(rel)
+        );
+        treeKids[key] = data.error
+            ? { loaded: true, dirs: [], truncated: false, error: data.error }
+            : { loaded: true, dirs: data.dirs || [], truncated: !!data.truncated };
+        paintTree();
+    }
+
+    // load the root level; when a folder is already picked (e.g. the panel
+    // mirrored a server-side root) also expand + preload its whole ancestor
+    // chain so the selection is visible instead of hidden behind carets
+    function ensureTreeRoot() {
+        loadChildren("");
+        if (!targetDir) return;
+        const parts = targetDir.split("/");
+        let acc = "";
+        for (let i = 0; i < parts.length; i++) {
+            acc = i === 0 ? parts[0] : acc + "/" + parts[i];
+            treeOpen[treeKey(acc)] = true;
+            loadChildren(acc);
+        }
     }
 
     function renderPanel(st) {
@@ -195,7 +325,7 @@
         if (st && !userPicked && st.root_sandbox && st.root_sandbox !== targetSandbox) {
             targetSandbox = st.root_sandbox;
             targetDir = st.root_rel || "";
-            loadDirs(targetSandbox).then(paintTarget);
+            ensureTreeRoot();
         }
         document.querySelectorAll(PANEL_SEL).forEach((el) => {
             ensureChrome(el);
@@ -216,6 +346,10 @@
         } else {
             st = await fetchJSON(API + "/state" + (path ? "?path=" + encodeURIComponent(path) : ""));
         }
+        // session history rides along with every repaint; on failure keep
+        // whatever was on screen rather than blanking the section
+        const h = await fetchJSON(API + "/history?limit=6");
+        if (!h.error) lastHistory = h.sessions || [];
         renderPanel(st);
     }
 
@@ -314,9 +448,18 @@
     async function openFileFor(p) {
         const panel = Alpine.store("coderPanel");
         if (!panel) return false;
-        // assign directly: switchSandbox() no-ops while the store's sandbox
-        // list is still empty (it only loads when the coder tab mounts). the
-        // tree reload is fire-and-forget: openFile doesn't need it.
+
+        // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+        // coder only fetches its module settings (vim/emacs/... keymap,
+        // autosave) when the coder sidebar first mounts - deslop is often
+        // the very first thing to open a file, which left the editor on
+        // the standard keymap. bootstrap the settings before the editor
+        // gets created so the editing-mode setting is always respected.
+        if (!panel.sandboxes.length) await panel.loadSandboxes();
+
+        // assign directly: the sandbox may not be in the store's list yet
+        // (switchSandbox would no-op on an unknown name). the tree reload
+        // is fire-and-forget: openFile doesn't need it.
         if (panel.sandbox !== p.sandbox) {
             panel.sandbox = p.sandbox;
             panel.onSandboxChange();
@@ -500,6 +643,35 @@
             return;
         }
 
+        // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+        // folder tree: the caret opens/closes a level (children fetched on
+        // first open), the rest of the row picks it as the sweep target.
+        const caret = ev.target.closest("[data-deslop-toggle]");
+        if (caret && caret.closest("[data-deslop-tree]")) {
+            ev.preventDefault();
+            const rel = caret.getAttribute("data-deslop-toggle");
+            const key = treeKey(rel);
+            if (treeOpen[key]) {
+                delete treeOpen[key];
+                paintTree();
+            } else {
+                treeOpen[key] = true;
+                paintTree();
+                loadChildren(rel);
+            }
+            return;
+        }
+
+        const dirRow = ev.target.closest("[data-deslop-dir]");
+        if (dirRow && dirRow.closest("[data-deslop-tree]")) {
+            ev.preventDefault();
+            userPicked = true;
+            targetDir = dirRow.getAttribute("data-deslop-dir") || "";
+            paintTree();
+            refreshPanel(true);
+            return;
+        }
+
         // side panel: marker row -> jump the editor to it (point index and
         // marker index match: deslop specs get one nav point per marker)
         const row = ev.target.closest("[data-deslop-marker]");
@@ -556,28 +728,19 @@
         }
     });
 
-    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-14
-    // dropdown picks: sandbox first, folder second. changing the sandbox
-    // resets the folder pick and loads that sandbox's folder list; either
-    // pick triggers a fresh sweep of the new target.
-    document.addEventListener("change", async (ev) => {
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    // sandbox dropdown pick: reset the folder, load the tree's root level
+    // and sweep the new target. folder picks ride the tree rows instead
+    // (click handler above), so only the sandbox lives here now.
+    document.addEventListener("change", (ev) => {
         const sb = ev.target.closest("[data-deslop-sandbox]");
-        if (sb) {
-            userPicked = true;
-            targetSandbox = sb.value;
-            targetDir = "";
-            paintTarget();
-            if (targetSandbox) await loadDirs(targetSandbox);
-            paintTarget();
-            refreshPanel(true);
-            return;
-        }
-        const dir = ev.target.closest("[data-deslop-dir]");
-        if (dir) {
-            userPicked = true;
-            targetDir = dir.value;
-            refreshPanel(true);
-        }
+        if (!sb) return;
+        userPicked = true;
+        targetSandbox = sb.value;
+        targetDir = "";
+        paintTarget();
+        ensureTreeRoot();
+        refreshPanel(true);
     });
 
     // the sidebar tab may mount after our first fetch: repaint it when it shows up
@@ -607,7 +770,11 @@
             return;
         }
         const marked = panel.diff.active && panel.diff.kind === "deslop";
-        if (!marked && panel.editor.cmReady && panel.editor.content && !panel.editor.dirty) {
+        // (session.markers).length guard: after a live refresh absorbs the
+        // last marker, the file legitimately shows zero marks - without it
+        // the pump would reopen the file every tick trying to re-apply an
+        // empty spec.
+        if (!marked && (session.markers || []).length && panel.editor.cmReady && panel.editor.content && !panel.editor.dirty) {
             // session file opened without marks (e.g. manually after a page
             // reload): swap it back in with its markers as F8 nav points.
             // only when fully loaded and clean, so no edits are ever lost.
@@ -616,6 +783,103 @@
         }
         if (attachSide()) renderSide();
     }, SIDE_MS);
+
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+    // live sync: coder.js broadcasts "coder-saved" after every successful
+    // save (and revert). when the session's own file was the one written,
+    // ask the server to refresh it: the refresh action re-snapshots the
+    // file (absorbing marker removals into the session tally) WITHOUT
+    // advancing, so the side panel list, the "x left" badge and the F8
+    // nav points all track what just happened in the editor. the session
+    // only moves on when the user presses "done editing".
+    let syncing = false;
+    let lastMarkerSig = "";
+
+    async function refreshSession() {
+        if (syncing) return;
+        if (!session || session.done || !session.rel) return;
+        syncing = true;
+        let p;
+        try {
+            p = await fetchJSON(API + "/review/action", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "refresh" }),
+            });
+        } finally {
+            syncing = false;
+        }
+        if (p.error) {
+            // loud on purpose: a silent return here used to hide server-side
+            // rejections (e.g. a module that was never restarted and does
+            // not know the refresh action yet)
+            console.error("[deslop] live refresh failed:", p.error);
+            return;
+        }
+        if (p.done || !p.active) {
+            // the session ended elsewhere (quit from another tab): drop the
+            // panel and repaint the dashboard instead of leaving it stale
+            session = null;
+            detachSide();
+            refreshPanel(false);
+            return;
+        }
+        session = p;
+        selIdx = Math.min(selIdx, Math.max(0, (p.markers || []).length - 1));
+
+        // the 3s poll also runs this call - only repaint + re-mark when the
+        // marker picture actually changed (and always right after the file
+        // itself switched, where lastMarkerSig belongs to another file)
+        // the sig covers line AND marker text, so an in-place edit of a
+        // marker (model name, date, ...) repaints too, not just removals
+        const sig = p.rel + "|" + (p.markers_left || 0) + "|" + (p.markers || []).map((m) => m.line + ":" + (m.raw || "")).join(";");
+        const changed = sig !== lastMarkerSig;
+        lastMarkerSig = sig;
+        if (!changed) return;
+
+        // re-mark the open buffer in place (same file: a reload would eat
+        // the caret position and the undo history)
+        const panel = window.Alpine ? Alpine.store("coderPanel") : null;
+        if (panel && panel.setDiffMarks && panel.editor && panel.editor.path === p.rel) {
+            const lines = (p.markers || []).map((m) => m.line);
+            panel.setDiffMarks(lines.length ? {
+                adds: lines,
+                dels: [],
+                label: "deslop markers",
+                kind: "deslop",
+            } : null);
+        }
+        renderSide();
+        refreshPanel(false);
+    }
+
+    window.addEventListener("coder-saved", function (ev) {
+        const d = ev.detail || {};
+        if (!session || session.done) return;
+        if (session.sandbox && d.sandbox && d.sandbox !== session.sandbox) return;
+        if (d.path !== session.rel) return;
+        lastMarkerSig = ""; // force a repaint of whatever just changed
+        refreshSession();
+    });
+
+    // -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25)
+    // poll fallback for the save event: while the session file is open and
+    // CLEAN, ask the server for a refresh every few seconds. saves normally
+    // fire coder-saved (near-instant sync); this catches everything the
+    // event can miss - and thanks to the server-side digest check plus the
+    // marker-sig guard above, an unchanged file costs one small read and
+    // zero repaints. never runs while the buffer is dirty (disk is mid-
+    // edit territory; a save always clears dirty before we'd poll again).
+    setInterval(function () {
+        if (!window.Alpine) return;
+        if (!session || session.done || syncing) return;
+        const ui = Alpine.store("ui");
+        const panel = Alpine.store("coderPanel");
+        if (!ui || ui.currentModal !== "coder_file") return;
+        if (!panel || !panel.editor || panel.editor.path !== session.rel) return;
+        if (panel.editor.dirty || panel.editor.saving || !panel.editor.cmReady) return;
+        refreshSession();
+    }, 3000);
 
     // coder.js broadcasts the active marker when the caret crosses one
     window.addEventListener("deslop-caret", function (ev) {
