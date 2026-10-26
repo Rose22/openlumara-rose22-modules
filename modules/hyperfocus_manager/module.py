@@ -91,6 +91,7 @@ class hyperfocus_manager(core.module.Module):
     #   AI TOOLS
     # -------------------------
 
+    @core.module.tool
     async def start_session(self, interval_minutes: int = None):
         """
         Start a hyperfocus session. The AI should call this when it notices the user
@@ -128,6 +129,7 @@ class hyperfocus_manager(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def stop_session(self):
         """
         Stop the current hyperfocus session. Sends a final check-in message.
@@ -167,6 +169,7 @@ class hyperfocus_manager(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def session_status(self):
         """
         Check the status of the current hyperfocus session.

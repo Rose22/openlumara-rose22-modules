@@ -148,6 +148,7 @@ class GitModule(core.module.Module):
     #   AI TOOLS
     # -------------------------
 
+    @core.module.tool
     async def git_status(self, repo: str = ""):
         """
         Get a clean, friendly summary of a repo's state: current branch, ahead/behind,
@@ -167,6 +168,7 @@ class GitModule(core.module.Module):
         clean = not (summary["staged"] or summary["unstaged"] or summary["untracked"] or summary["conflicts"])
         return self.result({"repo": path, "clean": clean, **summary})
 
+    @core.module.tool
     async def git_add(self, files: list = None, stage_all: bool = True, repo: str = ""):
         """
         Stage files for commit.
@@ -189,6 +191,7 @@ class GitModule(core.module.Module):
             return self.result(f"git add failed: {serr}", success=False)
         return self.result("Staged successfully." + (f" Output: {out}" if out else ""))
 
+    @core.module.tool
     async def git_commit(self, message: str, repo: str = "", stage_all: bool = True):
         """
         Commit changes with the given message. Stages everything first by default,
@@ -213,6 +216,7 @@ class GitModule(core.module.Module):
         _, branch, _ = self._git(path, ["rev-parse", "--abbrev-ref", "HEAD"])
         return self.result(f"Committed on '{branch}': {out.splitlines()[0] if out else message}")
 
+    @core.module.tool
     async def git_push(self, repo: str = "", branch: str = "", force: bool = False):
         """
         Push commits to the remote. Sets upstream automatically for new branches.
@@ -237,6 +241,7 @@ class GitModule(core.module.Module):
             return self.result(f"push failed: {serr or out}", success=False)
         return self.result(f"Pushed '{branch}' to origin successfully.")
 
+    @core.module.tool
     async def git_pull(self, repo: str = "", rebase: bool = False):
         """
         Pull latest changes from the remote.
@@ -260,6 +265,7 @@ class GitModule(core.module.Module):
             return self.result("Pulled successfully. Already up to date.")
         return self.result(out or "Pulled successfully.")
 
+    @core.module.tool
     async def git_fetch(self, repo: str = ""):
         """
         Fetch remote changes without merging (safe way to see what's new).
@@ -275,6 +281,7 @@ class GitModule(core.module.Module):
             return self.result(f"fetch failed: {serr or out}", success=False)
         return self.result(out or "Fetched. Nothing new.")
 
+    @core.module.tool
     async def git_log(self, repo: str = "", limit: int = 15):
         """
         Show recent commit history.
@@ -291,6 +298,7 @@ class GitModule(core.module.Module):
             return self.result(f"git log failed: {serr or out}", success=False)
         return self.result(out)
 
+    @core.module.tool
     async def git_diff(self, repo: str = "", staged: bool = False, file: str = ""):
         """
         Show uncommitted changes (or staged changes). Great for writing commit messages
@@ -312,6 +320,7 @@ class GitModule(core.module.Module):
             return self.result(f"git diff failed: {serr or out}", success=False)
         return self.result(out or "No changes.")
 
+    @core.module.tool
     async def git_show(self, repo: str = "", ref: str = "HEAD"):
         """
         Show the details of a commit (or branch/tag).
@@ -328,6 +337,7 @@ class GitModule(core.module.Module):
             return self.result(f"git show failed: {serr or out}", success=False)
         return self.result(out)
 
+    @core.module.tool
     async def git_branches(self, repo: str = ""):
         """
         List all local and remote branches with tracking info.
@@ -343,6 +353,7 @@ class GitModule(core.module.Module):
             return self.result(f"git branch failed: {serr or out}", success=False)
         return self.result(out)
 
+    @core.module.tool
     async def git_checkout(self, branch: str, repo: str = "", create: bool = False):
         """
         Switch to a branch (or create a new one and switch to it).
@@ -363,6 +374,7 @@ class GitModule(core.module.Module):
             return self.result(f"checkout failed: {serr or out}", success=False)
         return self.result(f"Now on branch '{branch}'.")
 
+    @core.module.tool
     async def git_delete_branch(self, branch: str, repo: str = "", force: bool = False):
         """
         Delete a local branch.
@@ -382,6 +394,7 @@ class GitModule(core.module.Module):
             return self.result(f"delete failed: {serr or out}", success=False)
         return self.result(out)
 
+    @core.module.tool
     async def git_stash(self, repo: str = "", message: str = ""):
         """
         Stash uncommitted changes (tuck them away safely for later).
@@ -399,6 +412,7 @@ class GitModule(core.module.Module):
             return self.result(f"stash failed: {serr or out}", success=False)
         return self.result(out or "Stashed.")
 
+    @core.module.tool
     async def git_stash_pop(self, repo: str = ""):
         """
         Bring back the most recently stashed changes.
@@ -414,6 +428,7 @@ class GitModule(core.module.Module):
             return self.result(f"stash pop failed: {serr or out}", success=False)
         return self.result(out or "Stash restored.")
 
+    @core.module.tool
     async def git_stash_list(self, repo: str = ""):
         """
         List all stashes.
@@ -429,6 +444,7 @@ class GitModule(core.module.Module):
             return self.result(f"stash list failed: {serr or out}", success=False)
         return self.result(out or "No stashes.")
 
+    @core.module.tool
     async def git_undo_last_commit(self, repo: str = ""):
         """
         Undo the last commit but KEEP all the changes (soft reset). The safe 'oops' button.
@@ -444,6 +460,7 @@ class GitModule(core.module.Module):
             return self.result(f"undo failed: {serr or out}", success=False)
         return self.result("Last commit undone - all changes are kept and re-staged.")
 
+    @core.module.tool
     async def git_merge(self, branch: str, repo: str = ""):
         """
         Merge a branch into the current branch.
@@ -465,6 +482,7 @@ class GitModule(core.module.Module):
             return self.result(f"merge failed: {combined}", success=False)
         return self.result(combined)
 
+    @core.module.tool
     async def git_merge_abort(self, repo: str = ""):
         """
         Abort an in-progress merge and get back to a clean state.
@@ -480,6 +498,7 @@ class GitModule(core.module.Module):
             return self.result(f"abort failed: {serr or out}", success=False)
         return self.result("Merge aborted. Back to safety.")
 
+    @core.module.tool
     async def git_rebase(self, onto: str, repo: str = ""):
         """
         Rebase the current branch onto another branch (e.g. 'origin/main').
@@ -502,6 +521,7 @@ class GitModule(core.module.Module):
             return self.result(f"rebase failed: {combined}", success=False)
         return self.result(combined or "Rebased successfully.")
 
+    @core.module.tool
     async def git_rebase_continue(self, repo: str = ""):
         """
         Continue an in-progress rebase after resolving conflicts.
@@ -517,6 +537,7 @@ class GitModule(core.module.Module):
             return self.result(f"rebase --continue failed (conflicts remaining?): {serr or out}", success=False)
         return self.result(out or "Rebase finished.")
 
+    @core.module.tool
     async def git_rebase_abort(self, repo: str = ""):
         """
         Abort an in-progress rebase and get back to the pre-rebase state.
@@ -532,6 +553,7 @@ class GitModule(core.module.Module):
             return self.result(f"rebase abort failed: {serr or out}", success=False)
         return self.result("Rebase aborted. Back to safety.")
 
+    @core.module.tool
     async def git_reset(self, ref: str = "HEAD", hard: bool = False, repo: str = ""):
         """
         Reset the current branch to a point in history. Soft/mixed keep changes;
@@ -553,6 +575,7 @@ class GitModule(core.module.Module):
             return self.result(f"reset failed: {serr or out}", success=False)
         return self.result(f"Reset to {ref} ({mode}).")
 
+    @core.module.tool
     async def git_clean(self, repo: str = "", dry_run: bool = True):
         """
         Remove untracked files. ALWAYS run with dry_run=True first to preview!
@@ -573,6 +596,7 @@ class GitModule(core.module.Module):
             return self.result(f"clean failed: {serr or out}", success=False)
         return self.result(out or "Nothing to clean.")
 
+    @core.module.tool
     async def git_remote_list(self, repo: str = ""):
         """
         List remotes with their URLs.
@@ -588,6 +612,7 @@ class GitModule(core.module.Module):
             return self.result(f"remote list failed: {serr or out}", success=False)
         return self.result(out or "No remotes.")
 
+    @core.module.tool
     async def git_remote_add(self, name: str, url: str, repo: str = ""):
         """
         Add a remote (e.g. origin).
@@ -605,6 +630,7 @@ class GitModule(core.module.Module):
             return self.result(f"remote add failed: {serr or out}", success=False)
         return self.result(f"Added remote '{name}' -> {url}")
 
+    @core.module.tool
     async def git_clone(self, url: str, dest: str):
         """
         Clone a repository from a URL.
@@ -620,6 +646,7 @@ class GitModule(core.module.Module):
             return self.result(f"clone failed: {serr or out}", success=False)
         return self.result(f"Cloned {url} into {dest}")
 
+    @core.module.tool
     async def git_init(self, path: str):
         """
         Initialize a new git repository at the given path.
@@ -635,6 +662,7 @@ class GitModule(core.module.Module):
                 return self.result(f"init failed: {serr2 or serr}", success=False)
         return self.result(f"Initialized new repo at {path}")
 
+    @core.module.tool
     async def git_create_pr(self, title: str, repo: str = "", body: str = "", base: str = ""):
         """
         Create a GitHub pull request from the current branch (requires the `gh` CLI, logged in).

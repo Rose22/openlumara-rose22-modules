@@ -457,6 +457,7 @@ class Meditation(core.module.Module):
     # AI tools
     # ------------------------------------------------------------------
 
+    @core.module.tool
     async def start(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0, mode: str = "calm", shape: str = "circle", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", dust: bool = False, horizon: bool = False, ambient_track: str = "", music_track: str = "", music_volume: int = 0, beats: bool = True, depth: int = 0):
         """
         Start (or re-shape) the guided meditation overlay with a breathing pattern YOU choose for this session. The center breathes with the pattern and the overlay counts every phase on screen, so the subject never has to count.
@@ -553,6 +554,7 @@ class Meditation(core.module.Module):
                 + m_note
                 + ". Begin the guided meditation now: slow, soft, short lines." + self._nudge())
 
+    @core.module.tool
     async def set_breathing(self, breath_in: int, breath_hold: int, breath_out: int, breath_hold_out: int = 0):
         """
         Change the breathing pattern mid-session - the new rhythm is applied at the START of the next breath cycle, never mid-breath, so the circle glides into it instead of jumping. Use it to shift the session's energy (calmer, grounding, energizing).
@@ -574,6 +576,7 @@ class Meditation(core.module.Module):
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
     # the standalone ambient tool is gone - the scene tool's
     # ambient_track / ambient_volume args cover soundscape control now.
+    @core.module.tool
     async def binaural(self, action: str, mode: str = "binaural", base_hz: int = 220, beat_hz: float = 10.0, volume: int = 0, manual: bool = False, bilateral: bool = False):
         """
         Control the binaural beat audio: binaural (left/right carriers, headphones ideal), isochronic (pulsing tone, fine on speakers) or both. By default the beat FOLLOWS her relaxation depth - alpha around depth 0, theta through the 50s, drifting toward delta past 85 - so your depth tool is the throttle. Set manual=true to pin an exact frequency yourself, or action=stop to silence it.
@@ -623,6 +626,7 @@ class Meditation(core.module.Module):
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
     # synthesized singing bowl: one struck-tone event, or a repeating
     # mode where every change of breath direction strikes the bowl.
+    @core.module.tool
     async def bowl(self, action: str = "", volume: int = 60, pitch_hz: int = 210, decay: float = 6.0):
         """
         Strike the singing bowl: one long shimmering tone rings out through the headphones or speakers. Beautiful at session start, to mark a phase change, or as the session closes. With action='on' the bowl keeps ringing itself instead: a strike on every change of breath direction, the breath becoming a slow bell.
@@ -674,6 +678,7 @@ class Meditation(core.module.Module):
     # slow bilateral gaze-following: one soft light drifting left-right
     # with a blurred trail, eyes (or attention) riding along like a
     # gentle pendulum. processing sessions, EMDR-ish, or pure trance.
+    @core.module.tool
     async def eye_cues(self, action: str, sweep_seconds: int = 4):
         """
         Bilateral eye cues: a single soft light drifts slowly from the left edge of the screen to the right and back, a blurred trail of glow streaming behind it - she lets her eyes (or just her attention) follow it, no head movement needed. It lingers at the edges and glides quickest through the middle, so the turns come as gentle pauses. A gentle bilateral stimulation: lovely for processing something emotional, for grounding a session inward, or simply as something soft to chase. Say very little while it runs; the eyes have work now.
@@ -701,6 +706,7 @@ class Meditation(core.module.Module):
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
     # practice modes: trataka (soft gaze) and color breathing.
     # (pmr, descent, grounding and the mbsr arc all came and went)
+    @core.module.tool
     async def soft_gaze(self, action: str, color: str = ""):
         """
         Trataka, the candle-gazing practice: the breathing shape is replaced by a single steady candle flame and everything else gets out of the way. The practice is simply to gaze without straining - say very little while it runs, let the flame hold the attention.
@@ -722,6 +728,7 @@ class Meditation(core.module.Module):
         self._sg["on"] = True
         return "Soft gaze on: a single " + self._sg["color"] + " flame holds the center. Whisper, don't narrate." + self._nudge()
 
+    @core.module.tool
     async def color_breathe(self, action: str, in_color: str = "", in_word: str = "", out_color: str = "", out_word: str = ""):
         """
         Color breathing: she inhales a color that carries a meaning and exhales a color that carries another - the center fills with the in-color on the inhale and drains the out-color on the exhale, a glowing ring pulsing with the breath and both colors tinting the whole screen at their moments, each word floating up at its turn. Choose the colors WITH her so they mean something personal (ask what color calm is for her).
@@ -759,6 +766,7 @@ class Meditation(core.module.Module):
     # relaxation depth:
     # the ceiling setting and the on-screen bar - the AI sets it at will
     # and the scene simply grows cozier around it.
+    @core.module.tool
     async def depth(self, depth: int):
         """
         Slide the relaxation depth (0 to 100) while a session runs. Pure atmosphere: the deeper she goes, the more enveloping the scene becomes - a deeper vignette, a warmer bloom - so your words feel like they land further in. Raise it gradually as the session unfolds, ease it back down as she returns.
@@ -775,6 +783,7 @@ class Meditation(core.module.Module):
         return "Depth " + str(self._depth) + "/100 - the scene wraps a little closer around her." + self._nudge()
 
     # -- AI GENERATED CODE (Qwen3.8-Flash-Next-Q4) :: (2026-10-10)
+    @core.module.tool
     async def countdown(self, from_number: int, seconds: int, depth_to: int, landing_word: str = ""):
         """
         Run a calm deepening countdown - the module's way to walk her down (the staircase tool is gone): numbers glide down one at a time inside the breathing circle while the depth slides to its target automatically, and at zero the center blooms once like a long slow breath out with an optional soft word glowing for a few seconds. This call WAITS until the count has actually landed on her screen (or reports a cancellation if the session fades or dies mid-count) - so whatever you do next lands in perfect time. Go quiet while it works: the count is the voice right now.
@@ -836,6 +845,7 @@ class Meditation(core.module.Module):
     # the playful attention game: shapes bloom around the screen and she
     # pops them by tracing over them; sound, shape and burst all follow
     # the current scene (deepsea bubbles pop like bubbles).
+    @core.module.tool
     async def shapes(self, action: str, interval: int = 6):
         """
         Shape popping: a gentle attention game. Little shapes bloom into the scene around her - themed to whatever scene is showing, one shape type per scene - and when she traces over one with the cursor or a fingertip it answers with a sound that belongs to that scene (underwater bubbles blip and pop, stars chime, runes hum...) and bursts in its own way. Nothing to score, nothing to fail: missed shapes just drift away. Lovely for restless days, fidgety minds, or turning watching-the-breath into watching-with-fingers. Explain it softly when you start it, then let it play under your voice.
@@ -861,6 +871,7 @@ class Meditation(core.module.Module):
                 + str(iv) + "s or so, waiting for her fingertip. Tell her softly what to do - "
                 "trace them, pop them, no rush, no score." + self._nudge())
 
+    @core.module.tool
     async def scene(self, mode: str = "", shape: str = "", theme: str = "", color_core: str = "", color_glow: str = "", color_bg: str = "", color_text: str = "", particles: float = 0, vignette: int = -2, bloom: int = -2, dust: int = -2, horizon: int = -2, ambient_track: str = "", ambient_volume: int = 0, music_track: str = "", music_volume: int = 0):
         """
         Live-tune the scene: environments and shapes crossfade, colors glide smoothly. All args optional - empty string / -2 keeps the current value.
@@ -1028,6 +1039,7 @@ class Meditation(core.module.Module):
             await asyncio.sleep(0.3)
         return "ok" if not self._speak_busy else "busy"
 
+    @core.module.tool
     async def speak(self, text: str, rate: int = 92, voice: str = ""):
         """
         Speak out loud through the browser in the guide voice. This call waits until the line has FINISHED playing in her browser before returning - your words always land in order, never overlapping, and the voice stays exactly in step with your narration. Make each line a full sentence or two: tiny lines leave silence while the next one is written. Engine is a setting: kokoro (neural in-browser voice, stock Kokoro-82M v1.0; a slow soothing pace around 85-95 works beautifully) or the browser's native speech synthesis.
@@ -1080,6 +1092,7 @@ class Meditation(core.module.Module):
             warn = " NOTE: voice was still speaking when the wait window ended."
         return "That line has played out." + warn + self._nudge()
 
+    @core.module.tool
     async def end(self, speed_seconds: int, final_words: str):
         """
         Gently end the meditation: everything fades out smoothly over N seconds - the circle settles, the beats soften away, the ambience dissolves - then the overlay stops itself. final_words surface softly as the subject returns.

@@ -162,6 +162,7 @@ class System(core.module.Module):
     # SYSTEM INFO TOOLS
     # ============================
 
+    @core.module.tool
     async def get_overview(self):
         data = {
             "os": OS,
@@ -208,6 +209,7 @@ class System(core.module.Module):
 
         return self.result(data)
 
+    @core.module.tool
     async def get_cpu_info(self):
         if OS == "linux":
             cpu_info_filtered = {}
@@ -229,6 +231,7 @@ class System(core.module.Module):
 
         return self.result(data)
 
+    @core.module.tool
     async def get_running_processes(self, limit: int = 10, show_system_processes: bool = False):
         try:
             import psutil
@@ -266,6 +269,7 @@ class System(core.module.Module):
         results.sort(key=lambda x: float(x["mem_usage"].rstrip('%')), reverse=True)
         return self.result(results[:limit])
 
+    @core.module.tool
     async def get_memory_usage(self):
         data = {}
         if OS == "linux":
@@ -275,6 +279,7 @@ class System(core.module.Module):
                 data['gpu_mem'] = _sh("nvtop -s")
         return self.result(data)
 
+    @core.module.tool
     async def get_disk_usage(self):
         if OS in ("linux", "darwin"):
             return self.result(_sh("df -h"))
@@ -282,12 +287,15 @@ class System(core.module.Module):
             return self.result(_sh("wmic logicaldisk"))
         return self.result("Unsupported OS", False)
 
+    @core.module.tool
     async def get_home_dir_path(self):
         return self.result(os.path.expanduser("~"))
 
+    @core.module.tool
     async def get_env_vars(self):
         return self.result(dict(os.environ))
 
+    @core.module.tool
     async def get_linux_distro(self):
         if OS != "linux":
             return self.result("Not a Linux system", False)
@@ -299,6 +307,7 @@ class System(core.module.Module):
         except Exception as e:
             return self.result(f"Error: {e}", False)
 
+    @core.module.tool
     async def get_diagnostic_info(self):
         if OS != "linux":
             return self.result("Linux only", False)
@@ -311,12 +320,14 @@ class System(core.module.Module):
             "lsipc": _sh("lsipc")
         })
 
+    @core.module.tool
     async def get_man_page(self, cmd: str):
         if OS not in ("linux", "darwin"):
             return self.result("Man pages not available on this OS", False)
         cmd = cmd.split(" ")[0]
         return self.result(_sh(f"man --pager '' {cmd}"))
 
+    @core.module.tool
     async def get_logged_in_users(self):
         if OS != "linux":
             return self.result("Linux only", False)
@@ -326,6 +337,7 @@ class System(core.module.Module):
     # SYSTEM CONTROL TOOLS
     # ============================
 
+    @core.module.tool
     async def kill_process(self, pid: int = None, process_name: str = None):
         if OS == "linux":
             if pid:
@@ -345,6 +357,7 @@ class System(core.module.Module):
 
         return self.result("Unsupported OS", False)
 
+    @core.module.tool
     async def lock_screen(self):
         if OS == "linux":
             return self.result(_sh("loginctl lock-session"))
@@ -358,6 +371,7 @@ class System(core.module.Module):
     # PACKAGE MANAGEMENT
     # ============================
 
+    @core.module.tool
     async def get_installed_packages(self):
         if OS != "linux":
             return self.result("Linux only", False)
@@ -379,6 +393,7 @@ class System(core.module.Module):
 
         return self.result(result)
 
+    @core.module.tool
     async def search_linux_packages(self, query: str):
         if OS != "linux":
             return self.result("Linux only", False)
@@ -400,6 +415,7 @@ class System(core.module.Module):
 
         return self.result(result)
 
+    @core.module.tool
     async def flatpak_install_package(self, name: str):
         if not self.config.get("allow_flatpak_install", default=False):
             return self.result("flatpak_install is disabled. Enable in module settings.", False)
@@ -407,6 +423,7 @@ class System(core.module.Module):
             return self.result("Flatpak not installed", False)
         return self.result(_sh(f"flatpak install --noninteractive {name}"))
 
+    @core.module.tool
     async def flatpak_remove_package(self, name: str):
         if not self.config.get("allow_flatpak_remove", default=False):
             return self.result("flatpak_remove is disabled. Enable in module settings.", False)
@@ -418,51 +435,61 @@ class System(core.module.Module):
     # SYSTEMD SERVICES
     # ============================
 
+    @core.module.tool
     async def list_user_services(self):
         if not shutil.which("systemctl"):
             return self.result("systemctl not available", False)
         return self.result(_sh("systemctl --user list-unit-files --type service"))
 
+    @core.module.tool
     async def list_system_services(self):
         if not shutil.which("systemctl"):
             return self.result("systemctl not available", False)
         return self.result(_sh("systemctl list-unit-files --type service"))
 
+    @core.module.tool
     async def get_system_service_status(self, name: str):
         return self.result({
             "status": _sh(f"systemctl status {name}"),
             "journal": _sh(f"journalctl -I -n 50 -u {name}")
         })
 
+    @core.module.tool
     async def get_user_service_status(self, name: str):
         return self.result({
             "status": _sh(f"systemctl --user status {name}"),
             "journal": _sh(f"journalctl --user -I -n 50 -u {name}")
         })
 
+    @core.module.tool
     async def start_user_service(self, name: str):
         if not self.config.get("allow_systemd_control", default=False):
             return self.result("systemd_control is disabled. Enable in module settings.", False)
         return self.result(_sh(f"systemctl --user -v start {name}"))
 
+    @core.module.tool
     async def restart_user_service(self, name: str):
         if not self.config.get("allow_systemd_control", default=False):
             return self.result("systemd_control is disabled. Enable in module settings.", False)
         return self.result(_sh(f"systemctl --user -v restart {name}"))
 
+    @core.module.tool
     async def stop_user_service(self, name: str):
         if not self.config.get("allow_systemd_control", default=False):
             return self.result("systemd_control is disabled. Enable in module settings.", False)
         return self.result(_sh(f"systemctl --user -v stop {name}"))
 
+    @core.module.tool
     async def kill_user_service(self, name: str):
         if not self.config.get("allow_systemd_control", default=False):
             return self.result("systemd_control is disabled. Enable in module settings.", False)
         return self.result(_sh(f"systemctl --user kill {name}"))
 
+    @core.module.tool
     async def get_systemd_user_logs(self):
         return self.result(_sh("journalctl --user -b -n1000"))
 
+    @core.module.tool
     async def get_systemd_kernel_logs(self):
         return self.result(_sh("journalctl -k"))
 
@@ -470,6 +497,7 @@ class System(core.module.Module):
     # NETWORK CONTROL
     # ============================
 
+    @core.module.tool
     async def turn_network_off(self):
         if not self.config.get("allow_network_control", default=False):
             return self.result("network_control is disabled. Enable in module settings.", False)
@@ -477,6 +505,7 @@ class System(core.module.Module):
             return self.result("Linux only (requires nmcli)", False)
         return self.result(_sh("nmcli network off"))
 
+    @core.module.tool
     async def turn_network_on(self):
         if not self.config.get("allow_network_control", default=False):
             return self.result("network_control is disabled. Enable in module settings.", False)
@@ -488,31 +517,37 @@ class System(core.module.Module):
     # MEDIA CONTROL
     # ============================
 
+    @core.module.tool
     async def get_media_currently_playing(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)
         return self.result(_sh("playerctl metadata"))
 
+    @core.module.tool
     async def toggle_media_pause(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)
         return self.result(_sh("playerctl play-pause"))
 
+    @core.module.tool
     async def media_next(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)
         return self.result(_sh("playerctl next"))
 
+    @core.module.tool
     async def media_previous(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)
         return self.result(_sh("playerctl previous"))
 
+    @core.module.tool
     async def toggle_media_shuffle(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)
         return self.result(_sh("playerctl shuffle Toggle"))
 
+    @core.module.tool
     async def media_stop(self):
         if not shutil.which("playerctl"):
             return self.result("playerctl not installed", False)

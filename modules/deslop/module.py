@@ -795,6 +795,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
     # AI tools
     # ------------------------------------------------------------------
 
+    @core.module.tool
     async def deslop_stats(self, path: str = ""):
         """
         Dashboard of AI-generated code markers under a folder: totals, by model, by month, worst directories.
@@ -807,6 +808,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             return self.result(err, success=False)
         return self.result(self._stats_text(state))
 
+    @core.module.tool
     async def deslop_list(self, path: str = ""):
         """
         List every unreviewed AI-generated code marker as path:line with model and date (malformed markers included).
@@ -819,6 +821,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
             return self.result(err, success=False)
         return self.result(self._list_text(state))
 
+    @core.module.tool
     async def deslop_stamp(self, path: str, line: int):
         """
         Stamp the AI-generated code marker on a given line with status:reviewed, so it stays marked as AI code but is skipped by future sweeps. Only files inside a coder sandbox or the last scanned root can be stamped.
@@ -856,6 +859,7 @@ When writing code, ALWAYS prepend the code with a comment following this format:
         return self.result(f"stamped status:reviewed on {abs_path}:{line}")
 
     # -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-25) harness:openlumara
+    @core.module.tool
     async def deslop_history(self, limit: int = 10):
         """
         Recent finished deslop review sessions, newest first: start time, complete/interrupted, root, files cleaned, markers stamped/removed, files skipped and duration.

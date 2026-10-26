@@ -397,6 +397,7 @@ def test_push():
     #   AI TOOLS
     # -------------------------
 
+    @core.module.tool
     async def run_all_tests(self):
         """
         Run all push notification tests.
@@ -417,6 +418,7 @@ def test_push():
         
         return self.result(summary, success=True)
 
+    @core.module.tool
     async def run_specific_test(self, test_name: str):
         """
         Run a specific push notification test.
@@ -447,6 +449,7 @@ def test_push():
         else:
             return self.result(f"Unknown test: {test_name}. Available tests: {', '.join(test_methods.keys())}", success=False)
 
+    @core.module.tool
     async def get_test_status(self):
         """
         Get the current status of push notification tests.
@@ -466,6 +469,7 @@ def test_push():
         
         return self.result(status, success=True)
 
+    @core.module.tool
     async def clear_test_results(self):
         """
         Clear all test results and reset counters.

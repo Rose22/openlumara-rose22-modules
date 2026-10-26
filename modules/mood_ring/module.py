@@ -541,6 +541,7 @@ class MoodRing(core.module.Module):
 
     # --- TOOLS (available to AI) ---
 
+    @core.module.tool
     async def check_mood(self):
         """
         Check the current mood of the AI.
@@ -557,6 +558,7 @@ class MoodRing(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def get_random_mood(self):
         """
         Get a completely random mood from the available moods.
@@ -573,6 +575,7 @@ class MoodRing(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def set_mood(self, mood_name: str):
         """
         Set the AI to a specific mood.
@@ -603,6 +606,7 @@ class MoodRing(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def get_mood_compatibility(self, user_mood: str):
         """
         Check compatibility between user mood and AI mood.
@@ -645,6 +649,7 @@ class MoodRing(core.module.Module):
             success=True
         )
 
+    @core.module.tool
     async def get_mood_history(self):
         """
         View the history of mood changes.

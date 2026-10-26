@@ -130,6 +130,7 @@ class ChatOrganizer(core.module.Module):
     #   AI TOOLS
     # -------------------------
 
+    @core.module.tool
     async def list_unorganized(self, limit: int = 15, offset: int = 0, include_all: bool = False, category: str = None):
         """Lists chats in the current channel that still need organizing, with a snippet of their opening conversation so you can decide a title, category and tags for each."""
         if limit < 1:
@@ -183,6 +184,7 @@ class ChatOrganizer(core.module.Module):
             "remaining_after_this_page": max(0, matched - offset - len(entries)),
         })
 
+    @core.module.tool
     async def batch_organize(self, updates: list):
         """Applies a batch of organization decisions to chats in the current channel"""
         if not isinstance(updates, list):
@@ -235,6 +237,7 @@ class ChatOrganizer(core.module.Module):
 
         return self.result({"applied": applied, "failed": failed}, success=applied > 0 or not failed)
 
+    @core.module.tool
     async def chat_preview(self, chat_id: str, max_chars: int = 2000):
         """Fetches more of a single chat's conversation"""
         chan_name = self.channel.name
