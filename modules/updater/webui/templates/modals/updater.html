@@ -1,0 +1,41 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: 2026-10-13
+   updater modal: runs ./update.sh on the server, then the process re-execs
+   itself. watches for the fresh server coming back and reloads the page.
+   opened via $store.ui.openModal('updater'). #}
+<template x-if="$store.ui.currentModal === 'updater' && $store.updater" x-cloak>
+    <div class="modal updater-modal" @keydown.escape.window="$store.updater.close()">
+        <div class="header">
+            <h2>update openlumara</h2>
+            <button class="close" @click="$store.updater.close()" aria-label="Close updater">&times;</button>
+        </div>
+
+        <div class="updater-body">
+            <p class="updater-note" x-show="$store.updater.phase === 'idle'">
+                runs <code>./update.sh</code> (git pull + dependencies), then fully restarts
+                the server by re-execing the process. this page reloads itself once the
+                new one answers.
+            </p>
+
+            <pre class="updater-output" x-show="$store.updater.output" x-text="$store.updater.output"></pre>
+
+            <div class="updater-status" x-show="$store.updater.phase === 'running'">
+                updating&hellip; this can take a minute when dependencies change.
+            </div>
+            <div class="updater-status" x-show="$store.updater.phase === 'restarting'">
+                update done &mdash; restarting openlumara&hellip; back in a few seconds.
+            </div>
+
+            <div class="updater-error" x-show="$store.updater.error" x-text="$store.updater.error"></div>
+        </div>
+
+        <div class="updater-actions">
+            <button
+                type="button"
+                class="updater-btn"
+                :disabled="$store.updater.running"
+                @click="$store.updater.run()"
+                x-text="$store.updater.running ? 'running&hellip;' : 'update &amp; restart'"
+            ></button>
+        </div>
+    </div>
+</template>
