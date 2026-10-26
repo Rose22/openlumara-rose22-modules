@@ -1,0 +1,1053 @@
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-26) harness:openlumara
+   crt_terminal: replaces the entire webui look with a phosphor CRT terminal.
+   Everything is gated behind html.crt-on (set pre-paint by the module's head
+   script), so disabling the module or typing 'crt off' restores the normal UI. */
+
+/* ---------- phosphor palettes ---------- */
+
+/* backgrounds are pure black on every phosphor: tinted "off" pixels were
+   what made the whole screen read as washed-out grey-green */
+html.crt-green {
+    --crt: #3aff6e;
+    --crt-dim: #1d9c45;
+    --crt-faint: #0d5a26;
+    --crt-bg: #000000;
+    --crt-bg2: #040404;
+}
+html.crt-amber {
+    --crt: #ffb640;
+    --crt-dim: #b57a1b;
+    --crt-faint: #6b4610;
+    --crt-bg: #000000;
+    --crt-bg2: #040404;
+}
+html.crt-cyan {
+    --crt: #4ff4ff;
+    --crt-dim: #259aa3;
+    --crt-faint: #126167;
+    --crt-bg: #000000;
+    --crt-bg2: #040404;
+}
+html.crt-white {
+    --crt: #e9f2e9;
+    --crt-dim: #93a393;
+    --crt-faint: #4c584c;
+    --crt-bg: #000000;
+    --crt-bg2: #040404;
+}
+
+/* ---------- global skin ---------- */
+
+html.crt-on body {
+    background: var(--crt-bg) !important;
+    color: var(--crt) !important;
+}
+
+html.crt-on body,
+html.crt-on body * {
+    font-family: "Cascadia Mono", "IBM Plex Mono", "JetBrains Mono", Consolas,
+        "DejaVu Sans Mono", "Liberation Mono", Menlo, monospace !important;
+    letter-spacing: 0.02em;
+}
+
+html.crt-on * {
+    border-radius: 0 !important;
+}
+
+/* terminals never glide: kill smooth scrolling everywhere. real CRTs
+   snap their beam instantly, and the smooth scroll elsewhere in the
+    webui fights the relocated prompt's jump-to-bottom */
+html.crt-on,
+html.crt-on * {
+    scroll-behavior: auto !important;
+}
+
+html.crt-on ::selection {
+    background: var(--crt) !important;
+    color: #000 !important;
+}
+
+html.crt-on ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+html.crt-on ::-webkit-scrollbar-track {
+    background: var(--crt-bg) !important;
+}
+html.crt-on ::-webkit-scrollbar-thumb {
+    background: var(--crt-faint) !important;
+    border: 1px solid var(--crt-dim);
+}
+
+/* phosphor bloom */
+html.crt-glow .message,
+html.crt-glow #user-input,
+html.crt-glow #send,
+html.crt-glow #stop,
+html.crt-glow #crt-status,
+html.crt-glow .crt-response,
+html.crt-glow .welcome-panel {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt);
+}
+
+/* ---------- hide the non-terminal chrome ---------- */
+
+html.crt-on #sidebar {
+    display: none !important;
+}
+html.crt-on #chat-window > header {
+    display: none !important;
+}
+html.crt-on .message-buttons {
+    display: none !important;
+}
+html.crt-on #upload,
+html.crt-on .context-pill,
+html.crt-on #context-pill {
+    display: none !important;
+}
+
+/* ---------- chat becomes a shell listing ---------- */
+
+html.crt-on #messages {
+    padding: 14px 18px 40px !important; /* bottom room for the fixed status bar */
+    background: transparent !important;
+}
+
+html.crt-on .message-wrapper {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 4px 0 !important;
+    max-width: 100% !important;
+}
+
+html.crt-on .message {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: var(--crt) !important;
+    max-width: 100% !important;
+}
+
+/* shell prompt on user lines; the assistant reads as raw terminal
+   output below it (no prefix). float keeps the first line of block
+   content flowing on the SAME line as the prompt instead of a newline */
+html.crt-on .message-wrapper.user > .message::before {
+    content: "USER@lumara$ ";
+    color: var(--crt);
+    float: left;
+}
+
+html.crt-on .message-wrapper.user > .message {
+    color: var(--crt-dim) !important;
+}
+
+/* a real terminal has one prompt column: user lines left-align like
+   the assistant's (core styles push them to flex-end) */
+html.crt-on .message-wrapper.user {
+    align-items: flex-start !important;
+}
+
+/* headings, quotes and hr get the terminal treatment */
+html.crt-on .message h1::before { content: "== "; color: var(--crt-dim); }
+html.crt-on .message h2::before { content: "-- "; color: var(--crt-dim); }
+html.crt-on .message h3::before { content: "- ";  color: var(--crt-dim); }
+html.crt-on .message blockquote {
+    border-left: 2px solid var(--crt-faint) !important;
+    background: transparent !important;
+    color: var(--crt-dim) !important;
+}
+html.crt-on .message hr {
+    border: none !important;
+    border-top: 1px dashed var(--crt-faint) !important;
+}
+
+/* code blocks: bordered terminal panes */
+html.crt-on .message pre {
+    background: var(--crt-bg2) !important;
+    border: 1px solid var(--crt-faint) !important;
+    box-shadow: none !important;
+}
+html.crt-on .message code {
+    background: var(--crt-bg2) !important;
+    color: var(--crt) !important;
+}
+html.crt-on .message a {
+    color: var(--crt) !important;
+    text-decoration: underline;
+}
+
+/* media gets desaturated like a monochrome monitor */
+html.crt-on .message img {
+    filter: saturate(0.35) contrast(1.15) brightness(0.85);
+    border: 1px solid var(--crt-faint);
+}
+
+/* ---------- agent chain = plain-text process log ---------- */
+
+/* no gear, no spine, no node dots, no finish flag: labels only */
+html.crt-on .agent-chain-header svg,
+html.crt-on .agent-chain .node-dot,
+html.crt-on .agent-chain .chain-dot,
+html.crt-on .chain-end svg {
+    display: none !important;
+}
+
+html.crt-on .agent-chain {
+    background: transparent !important;
+    border: none !important;
+}
+
+html.crt-on .agent-chain-header {
+    color: var(--crt-dim) !important;
+    background: transparent !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+html.crt-on .agent-chain-header .label::before { content: "-- "; }
+html.crt-on .agent-chain-header .label::after { content: " --"; }
+html.crt-on .agent-chain-header .activity {
+    color: var(--crt-faint) !important;
+}
+
+/* the timeline rail becomes a simple '>' gutter per step */
+html.crt-on .chain-station {
+    gap: 0.5em !important;
+}
+html.crt-on .chain-rail {
+    width: auto !important;
+    min-width: 1.2em;
+    position: static !important;
+}
+html.crt-on .chain-rail::before {
+    content: ">" !important;
+    position: static !important;
+    display: inline !important;
+    width: auto !important;
+    height: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    background: none !important;
+    color: var(--crt-dim);
+}
+
+html.crt-on .chain-end {
+    color: var(--crt-dim) !important;
+    background: transparent !important;
+}
+html.crt-on .chain-end-label::before { content: "-- "; }
+html.crt-on .chain-end-label::after { content: " --"; }
+
+/* tool cards and reasoning blocks: flat text, dim borders only where needed */
+html.crt-on .tool-call-card,
+html.crt-on .reasoning-wrapper,
+html.crt-on .combined-block {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* welcome panel becomes a login banner */
+html.crt-on .welcome-panel {
+    background: transparent !important;
+    border: none !important;
+    color: var(--crt-dim) !important;
+}
+
+/* ---------- input = shell prompt line inside the transcript ----------
+   the JS relocates #input into #messages; here it loses every trace of
+   the boxed input bar and becomes one more line of the terminal listing */
+
+html.crt-on #input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 2px 0 4px !important;
+    margin: 2px 0 0 !important;
+    width: 100% !important;
+}
+
+html.crt-on .input-wrapper {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html.crt-on .input-wrapper {
+    position: relative; /* anchor for the fake underscore cursor */
+}
+
+html.crt-on .input-wrapper::before {
+    content: "USER@lumara$ ";
+    color: var(--crt);
+    white-space: pre;
+    flex: none;
+    display: flex;
+    align-items: center;
+}
+
+/* the real textarea goes invisible (text + caret); the mirror pane
+   layered behind it shows the text with the underscore cursor inline */
+html.crt-on #user-input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    caret-color: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+.crt-mirror {
+    position: absolute;
+    display: none;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    color: var(--crt, #3aff6e);
+}
+
+.crt-cursor {
+    animation: crt-caret-blink 1.1s steps(1) infinite;
+}
+@keyframes crt-caret-blink {
+    50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .crt-cursor { animation: none !important; }
+}
+
+html.crt-on.crt-glow .crt-mirror {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt);
+}
+html.crt-on #user-input::placeholder {
+    color: var(--crt-faint) !important;
+}
+
+html.crt-on #send,
+html.crt-on #stop {
+    background: transparent !important;
+    border: 1px solid var(--crt-dim) !important;
+    color: var(--crt) !important;
+    box-shadow: none !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+html.crt-on #send:hover,
+html.crt-on #stop:hover {
+    background: var(--crt) !important;
+    color: #000 !important;
+}
+
+/* stop lives in the terminal now: type 'stop' (the button vanishes) */
+html.crt-on #stop {
+    visibility: hidden !important;
+}
+
+/* send too: Enter sends, like a real terminal */
+html.crt-on #send {
+    visibility: hidden !important;
+}
+
+/* ---------- buttons everywhere else ---------- */
+
+html.crt-on button {
+    text-shadow: inherit;
+}
+
+/* ---------- command output lines (local, never sent) ---------- */
+
+.crt-response {
+    color: var(--crt, #3aff6e);
+    white-space: pre-wrap;
+    padding: 3px 0;
+    margin: 0;
+}
+.crt-response::before {
+    content: "[system] ";
+    color: var(--crt-dim, #1d9c45);
+}
+
+/* ---------- screen effect layers ---------- */
+
+#crt-scanlines,
+#crt-vignette,
+#crt-flicker,
+#crt-bezel,
+#crt-glare,
+#crt-roll,
+#crt-interlace,
+#crt-converge,
+#crt-testcard,
+#crt-osd {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+html.crt-on #crt-vignette {
+    display: block;
+    z-index: 2147483642;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 65%,
+        rgba(0, 0, 0, 0.15) 88%,
+        rgba(0, 0, 0, 0.45) 100%
+    );
+}
+
+html.crt-on.crt-scan-low #crt-scanlines { display: block; }
+html.crt-on.crt-scan-medium #crt-scanlines { display: block; }
+html.crt-on.crt-scan-high #crt-scanlines { display: block; }
+
+#crt-scanlines {
+    z-index: 2147483644;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.22) 3px,
+        rgba(0, 0, 0, 0) 4px
+    );
+}
+html.crt-on.crt-scan-low #crt-scanlines { opacity: 0.4; }
+html.crt-on.crt-scan-medium #crt-scanlines { opacity: 0.8; }
+html.crt-on.crt-scan-high #crt-scanlines {
+    opacity: 1;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 1px,
+        rgba(0, 0, 0, 0.38) 2px,
+        rgba(0, 0, 0, 0.1) 3px
+    );
+}
+
+/* flicker dips the screen dark for a moment instead of laying a constant
+   green tint over it (the old version washed everything out 24/7) */
+html.crt-on.crt-flicker #crt-flicker {
+    display: block;
+    z-index: 2147483643;
+    background: #000000;
+    opacity: 0;
+    animation: crt-flicker-anim 4s infinite;
+}
+@keyframes crt-flicker-anim {
+    0%   { opacity: 0; }
+    3%   { opacity: 0.13; }
+    6%   { opacity: 0.02; }
+    9%   { opacity: 0.09; }
+    15%  { opacity: 0; }
+    25%  { opacity: 0.11; }
+    35%  { opacity: 0.03; }
+    45%  { opacity: 0.07; }
+    60%  { opacity: 0; }
+    70%  { opacity: 0.1; }
+    85%  { opacity: 0.02; }
+    100% { opacity: 0.05; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html.crt-on.crt-flicker #crt-flicker {
+        display: none !important;
+    }
+}
+
+/* ---------- CRT monitor distortion ---------- */
+
+/* curved glass bezel: elliptical corners + deep edge darkening sell the
+   tube curvature without warping (and blurring) live text */
+html.crt-on.crt-dist-subtle #crt-bezel,
+html.crt-on.crt-dist-classic #crt-bezel,
+html.crt-on.crt-dist-heavy #crt-bezel {
+    display: block;
+    z-index: 2147483641;
+}
+
+html.crt-on.crt-dist-subtle #crt-bezel {
+    border-radius: 1.4% / 2%;
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.9),
+        inset 0 0 14px 5px rgba(0, 0, 0, 0.7),
+        inset 0 0 55px 14px rgba(0, 0, 0, 0.55),
+        inset 0 0 12px 4px rgba(0, 0, 0, 0.35);
+}
+
+html.crt-on.crt-dist-classic #crt-bezel {
+    border-radius: 2.4% / 3.4%;
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.9),
+        inset 0 0 14px 5px rgba(0, 0, 0, 0.7),
+        inset 0 0 110px 36px rgba(0, 0, 0, 0.8),
+        inset 0 0 30px 10px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.025);
+}
+
+html.crt-on.crt-dist-heavy #crt-bezel {
+    border-radius: 3.6% / 5.2%;
+    box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.9),
+        inset 0 0 14px 5px rgba(0, 0, 0, 0.7),
+        inset 0 0 170px 62px rgba(0, 0, 0, 0.92),
+        inset 0 0 45px 16px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.035),
+        inset 0 0 260px 110px rgba(0, 0, 0, 0.35);
+}
+
+/* glass reflection streak */
+html.crt-on.crt-dist-classic #crt-glare,
+html.crt-on.crt-dist-heavy #crt-glare {
+    display: block;
+    z-index: 2147483640;
+    background: linear-gradient(
+        115deg,
+        transparent 22%,
+        rgba(255, 255, 255, 0.03) 32%,
+        rgba(255, 255, 255, 0.05) 36%,
+        transparent 47%
+    );
+}
+
+/* rolling refresh band (heavy only) */
+html.crt-on.crt-dist-heavy #crt-roll {
+    display: block;
+    z-index: 2147483640;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(170, 255, 200, 0.04) 42%,
+        rgba(170, 255, 200, 0.09) 50%,
+        rgba(170, 255, 200, 0.04) 58%,
+        transparent 100%
+    );
+    animation: crt-roll-anim 9s linear infinite;
+}
+@keyframes crt-roll-anim {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    html.crt-on.crt-dist-heavy #crt-roll {
+        animation: none !important;
+        display: none !important;
+    }
+}
+
+/* chromatic aberration: red/blue fringing on the phosphor; combined rules
+   keep the glow bloom when both glow and distortion are active */
+html.crt-on.crt-dist-subtle .message,
+html.crt-on.crt-dist-subtle #user-input,
+html.crt-on.crt-dist-subtle #send,
+html.crt-on.crt-dist-subtle #stop,
+html.crt-on.crt-dist-subtle #crt-status,
+html.crt-on.crt-dist-subtle .crt-response,
+html.crt-on.crt-dist-subtle .welcome-panel {
+    text-shadow: 0.8px 0 rgba(255, 60, 90, 0.28), -0.8px 0 rgba(60, 160, 255, 0.28);
+}
+html.crt-on.crt-dist-classic .message,
+html.crt-on.crt-dist-classic #user-input,
+html.crt-on.crt-dist-classic #send,
+html.crt-on.crt-dist-classic #stop,
+html.crt-on.crt-dist-classic #crt-status,
+html.crt-on.crt-dist-classic .crt-response,
+html.crt-on.crt-dist-classic .welcome-panel {
+    text-shadow: 1.3px 0 rgba(255, 60, 90, 0.34), -1.3px 0 rgba(60, 160, 255, 0.34);
+}
+html.crt-on.crt-dist-heavy .message,
+html.crt-on.crt-dist-heavy #user-input,
+html.crt-on.crt-dist-heavy #send,
+html.crt-on.crt-dist-heavy #stop,
+html.crt-on.crt-dist-heavy #crt-status,
+html.crt-on.crt-dist-heavy .crt-response,
+html.crt-on.crt-dist-heavy .welcome-panel {
+    text-shadow: 2px 0 rgba(255, 50, 85, 0.42), -2px 0 rgba(55, 165, 255, 0.42);
+}
+
+html.crt-on.crt-glow.crt-dist-subtle .message,
+html.crt-on.crt-glow.crt-dist-subtle #user-input,
+html.crt-on.crt-glow.crt-dist-subtle #send,
+html.crt-on.crt-glow.crt-dist-subtle #stop,
+html.crt-on.crt-glow.crt-dist-subtle #crt-status,
+html.crt-on.crt-glow.crt-dist-subtle .crt-response,
+html.crt-on.crt-glow.crt-dist-subtle .welcome-panel {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt),
+        0.8px 0 rgba(255, 60, 90, 0.28), -0.8px 0 rgba(60, 160, 255, 0.28);
+}
+html.crt-on.crt-glow.crt-dist-classic .message,
+html.crt-on.crt-glow.crt-dist-classic #user-input,
+html.crt-on.crt-glow.crt-dist-classic #send,
+html.crt-on.crt-glow.crt-dist-classic #stop,
+html.crt-on.crt-glow.crt-dist-classic #crt-status,
+html.crt-on.crt-glow.crt-dist-classic .crt-response,
+html.crt-on.crt-glow.crt-dist-classic .welcome-panel {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt),
+        1.3px 0 rgba(255, 60, 90, 0.34), -1.3px 0 rgba(60, 160, 255, 0.34);
+}
+html.crt-on.crt-glow.crt-dist-heavy .message,
+html.crt-on.crt-glow.crt-dist-heavy #user-input,
+html.crt-on.crt-glow.crt-dist-heavy #send,
+html.crt-on.crt-glow.crt-dist-heavy #stop,
+html.crt-on.crt-glow.crt-dist-heavy #crt-status,
+html.crt-on.crt-glow.crt-dist-heavy .crt-response,
+html.crt-on.crt-glow.crt-dist-heavy .welcome-panel {
+    text-shadow: 0 0 8px var(--crt-dim), 0 0 2px var(--crt),
+        2px 0 rgba(255, 50, 85, 0.42), -2px 0 rgba(55, 165, 255, 0.42);
+}
+
+/* ---------- prompt processing = ASCII loading bar ---------- */
+
+/* strip the card, the conic spinny border and the shimmer sweep */
+html.crt-on .prompt-processing-indicator-wrapper,
+html.crt-on .pp-prompt,
+html.crt-on .pp-tool,
+html.crt-on .prompt-processing-indicator {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+}
+html.crt-on .pp-prompt::before,
+html.crt-on .prompt-progress-bar-fill::after {
+    display: none !important;
+}
+
+html.crt-on .progress-header {
+    color: var(--crt-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* the bar: dim dashes for the track, bright blocks for the fill,
+   wrapped in literal brackets. background-origin aligns the fill's
+   block pattern with the track's dash pattern */
+html.crt-on .prompt-progress-bar {
+    position: relative;
+    height: 1em !important;
+    padding: 0 0.9em;
+    box-sizing: border-box;
+    overflow: visible;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: repeating-linear-gradient(to right,
+        var(--crt-faint) 0 7px, transparent 7px 10px) !important;
+    background-origin: content-box !important;
+}
+html.crt-on .prompt-progress-bar::before {
+    content: "[";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--crt-dim);
+}
+html.crt-on .prompt-progress-bar::after {
+    content: "]";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--crt-dim);
+}
+html.crt-on .prompt-progress-bar-fill {
+    background: repeating-linear-gradient(to right,
+        var(--crt) 0 7px, transparent 7px 10px) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* ---------- interlace field ---------- */
+
+html.crt-on.crt-interlace #crt-interlace {
+    display: block;
+    z-index: 2147483639;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.26) 2px,
+        rgba(0, 0, 0, 0.26) 4px
+    );
+}
+
+/* ---------- convergence drift: color fringing that worsens at the edges ---------- */
+
+html.crt-on.crt-dist-classic #crt-converge,
+html.crt-on.crt-dist-heavy #crt-converge {
+    display: block;
+    z-index: 2147483638;
+    mix-blend-mode: screen;
+}
+html.crt-on.crt-dist-classic #crt-converge {
+    background:
+        radial-gradient(ellipse at 49.6% 50%, transparent 55%, rgba(255, 0, 64, 0.025) 100%),
+        radial-gradient(ellipse at 50.4% 50%, transparent 55%, rgba(0, 110, 255, 0.025) 100%);
+}
+html.crt-on.crt-dist-heavy #crt-converge {
+    background:
+        radial-gradient(ellipse at 49.2% 50%, transparent 48%, rgba(255, 0, 64, 0.05) 100%),
+        radial-gradient(ellipse at 50.8% 50%, transparent 48%, rgba(0, 110, 255, 0.05) 100%);
+}
+
+/* ---------- service test pattern ---------- */
+
+html.crt-testcard-open #crt-testcard {
+    display: block;
+    z-index: 2147483637;
+    background: #000;
+}
+#crt-testcard-bars {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 48px;
+    background: linear-gradient(to right,
+        rgba(120, 255, 160, 0.85) 0 12.5%,
+        rgba(120, 255, 160, 0.65) 12.5% 25%,
+        rgba(120, 255, 160, 0.45) 25% 37.5%,
+        rgba(120, 255, 160, 0.3) 37.5% 50%,
+        rgba(120, 255, 160, 0.2) 50% 62.5%,
+        rgba(120, 255, 160, 0.12) 62.5% 75%,
+        rgba(120, 255, 160, 0.06) 75% 87.5%,
+        #000 87.5% 100%);
+}
+#crt-testcard-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    text-align: center;
+    color: #3aff6e;
+    font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 6px #1d9c45;
+}
+
+/* ---------- on-screen display (OSD) menu ---------- */
+
+html.crt-osd-open #crt-osd {
+    display: block;
+    z-index: 2147483636;
+}
+#crt-osd {
+    position: fixed;
+    inset: auto;
+    right: 8%;
+    top: 12%;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.88);
+    border: 1px solid var(--crt-dim);
+    box-shadow: 0 0 10px rgba(58, 255, 110, 0.12), inset 0 0 24px rgba(0, 0, 0, 0.8);
+    color: #3aff6e;
+    font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 12px 16px;
+    text-shadow: 0 0 4px rgba(29, 156, 69, 0.8);
+}
+.crt-osd-title {
+    letter-spacing: 0.25em;
+    margin-bottom: 6px;
+}
+.crt-osd-item.crt-osd-selected {
+    background: rgba(58, 255, 110, 0.18);
+}
+.crt-osd-help {
+    margin-top: 8px;
+    opacity: 0.6;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+/* the OSD is drawn BY the tube, not pasted on top of it: same phosphor
+   bloom and chromatic aberration as messages. its z-index already sits
+   below the scanline/flicker/vignette/bezel stack, so those render over
+   it too. */
+html.crt-glow #crt-osd {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt);
+}
+html.crt-on.crt-dist-subtle #crt-osd {
+    text-shadow: 0.8px 0 rgba(255, 60, 90, 0.28), -0.8px 0 rgba(60, 160, 255, 0.28);
+}
+html.crt-on.crt-dist-classic #crt-osd {
+    text-shadow: 1.3px 0 rgba(255, 60, 90, 0.34), -1.3px 0 rgba(60, 160, 255, 0.34);
+}
+html.crt-on.crt-dist-heavy #crt-osd {
+    text-shadow: 2px 0 rgba(255, 50, 85, 0.42), -2px 0 rgba(55, 165, 255, 0.42);
+}
+html.crt-on.crt-glow.crt-dist-subtle #crt-osd {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt),
+        0.8px 0 rgba(255, 60, 90, 0.28), -0.8px 0 rgba(60, 160, 255, 0.28);
+}
+html.crt-on.crt-glow.crt-dist-classic #crt-osd {
+    text-shadow: 0 0 6px var(--crt-dim), 0 0 1px var(--crt),
+        1.3px 0 rgba(255, 60, 90, 0.34), -1.3px 0 rgba(60, 160, 255, 0.34);
+}
+html.crt-on.crt-glow.crt-dist-heavy #crt-osd {
+    text-shadow: 0 0 8px var(--crt-dim), 0 0 2px var(--crt),
+        2px 0 rgba(255, 50, 85, 0.42), -2px 0 rgba(55, 165, 255, 0.42);
+}
+
+/* ---------- power on/off + cold-cathode warmup ---------- */
+
+html.crt-warmup #main {
+    animation: crt-warmup-anim 2.6s ease-out;
+}
+@keyframes crt-warmup-anim {
+    0%   { clip-path: inset(49.6% 0 49.6% 0); filter: brightness(7) saturate(0); }
+    10%  { clip-path: inset(0); filter: brightness(2.6) saturate(0.2); }
+    30%  { clip-path: inset(0); filter: brightness(0.4) saturate(0.5); }
+    60%  { clip-path: inset(0); filter: brightness(0.75) saturate(0.85); }
+    100% { clip-path: inset(0); filter: none; }
+}
+
+html.crt-poweroff #main {
+    animation: crt-poweroff-anim 0.7s ease-in forwards;
+}
+@keyframes crt-poweroff-anim {
+    0%   { clip-path: inset(0); filter: brightness(1.7); }
+    35%  { clip-path: inset(46% 0 46% 0); filter: brightness(3); }
+    70%  { clip-path: inset(49.8% 0 49.8% 0); filter: brightness(6); }
+    100% { clip-path: inset(50% 0 50% 0); filter: brightness(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.crt-warmup #main,
+    html.crt-poweroff #main {
+        animation: none !important;
+    }
+}
+
+/* ---------- step headers: ASCII spinner instead of pulsing dots ----------
+   the JS cycles crt-spin-0..3 on <html>; the pulsing nbsp dots are hidden
+   and replaced by the classic | / - \ rotating-bar cursor */
+html.crt-on .combined-block .dots > span {
+    display: none !important;
+    animation: none !important;
+}
+html.crt-on .combined-block .dots::after {
+    color: var(--crt);
+}
+html.crt-on.crt-spin-0 .combined-block .dots::after { content: "|"; }
+html.crt-on.crt-spin-1 .combined-block .dots::after { content: "/"; }
+html.crt-on.crt-spin-2 .combined-block .dots::after { content: "-"; }
+html.crt-on.crt-spin-3 .combined-block .dots::after { content: "\\"; }
+
+/* the active chain station's > gutter spins too */
+html.crt-on.crt-spin-0 .agent-chain.is-streaming .chain-station:last-child > .chain-rail::before { content: "|" !important; }
+html.crt-on.crt-spin-1 .agent-chain.is-streaming .chain-station:last-child > .chain-rail::before { content: "/" !important; }
+html.crt-on.crt-spin-2 .agent-chain.is-streaming .chain-station:last-child > .chain-rail::before { content: "-" !important; }
+html.crt-on.crt-spin-3 .agent-chain.is-streaming .chain-station:last-child > .chain-rail::before { content: "\\" !important; }
+
+/* ---------- simple status (setting: simple_chain) ----------
+   the whole process chain collapses into one rotating bar, same
+   | / - \\ style as the thinking indicator. gone when the reply
+   is done — a finished chain has nothing to say. */
+html.crt-on.crt-simple-status .agent-chain-header,
+html.crt-on.crt-simple-status .chain-station {
+    display: none !important;
+}
+html.crt-on.crt-simple-status .agent-chain:not(.is-streaming) {
+    display: none !important;
+}
+html.crt-on.crt-simple-status .agent-chain.is-streaming::after {
+    content: "|";
+    color: var(--crt);
+}
+html.crt-on.crt-simple-status.crt-spin-1 .agent-chain.is-streaming::after { content: "/"; }
+html.crt-on.crt-simple-status.crt-spin-2 .agent-chain.is-streaming::after { content: "-"; }
+html.crt-on.crt-simple-status.crt-spin-3 .agent-chain.is-streaming::after { content: "\\"; }
+
+/* ---------- 4:3 monitor screen ---------- */
+
+/* the transform makes #main the containing block for every fixed descendant:
+   scanline/vignette/bezel overlays, the boot screen, the status bar and the
+   modals layer all get confined to the 4:3 box automatically */
+
+html.crt-on.crt-43 body {
+    background: #000 !important;
+}
+
+html.crt-on.crt-43 #main {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* 90% of the viewport in both directions, aspect ratio preserved */
+    width: min(90vw, calc(90vh * 4 / 3));
+    height: min(90vh, calc(90vw * 3 / 4));
+    box-sizing: border-box;
+    background: var(--crt-bg);
+    overflow: hidden;
+    border-radius: 8px / 18px;
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.9),
+        0 0 0 1px #000000;
+}
+
+/* the bezel frame is painted by the overlay, NOT by a border on #main:
+   with the border on #main, the overflow clip (border-radius + transform
+   + filter together) leaked a few pixels of message text past the frame
+   edge. now the frame sits on top of the screen and content scrolls
+   underneath it, like the bezel of a real tube. */
+html.crt-on.crt-43 #crt-bezel {
+    display: block;
+    /* the frame is matte plastic, not glass: it must sit ABOVE the
+       scanline/flicker/vignette layers (2147483642-44) so no tube
+       effect paints on it */
+    z-index: 2147483645;
+    border: 26px solid #050506;
+    border-color: #09090a #060607 #020203 #070708;
+    border-radius: 34px / 44px;
+}
+
+/* the glass overlay layers follow the actual screen corners */
+html.crt-on.crt-43 #crt-vignette,
+html.crt-on.crt-43 #crt-glare,
+html.crt-on.crt-43 #crt-scanlines,
+html.crt-on.crt-43 #crt-flicker,
+html.crt-on.crt-43 #crt-roll,
+html.crt-on.crt-43 #crt-boot {
+    border-radius: 8px / 18px;
+}
+
+/* content keeps its distance from the frame band it now scrolls under */
+html.crt-on.crt-43 #messages {
+    padding: 40px 44px 66px !important;
+}
+html.crt-on.crt-43 #crt-status {
+    left: 26px;
+    right: 26px;
+    bottom: 26px;
+}
+
+/* dialogs must fit the screen box, not the viewport */
+html.crt-on.crt-43 #modals [class*="modal"]:not(.modal-overlay) {
+    max-height: 88% !important;
+    max-width: 94% !important;
+}
+
+/* ---------- BIOS boot screen ---------- */
+
+/* z-index sits BELOW the effect layers (scanlines, flicker, vignette,
+   bezel, glare...) so the boot screen is rendered through the tube too */
+#crt-boot {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483630;
+    background: #000;
+    color: #3aff6e;
+    padding: 32px 40px;
+    cursor: pointer;
+}
+#crt-boot.crt-boot-running {
+    display: block;
+}
+#crt-boot-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #3aff6e;
+    text-shadow: 0 0 6px #1d9c45;
+    white-space: pre-wrap;
+}
+#crt-boot-skip {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #1d9c45;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    animation: crt-boot-blink 1.2s steps(2) infinite;
+}
+@keyframes crt-boot-blink {
+    50% { opacity: 0; }
+}
+
+/* ---------- status bar ---------- */
+
+#crt-status {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 900; /* below the modal layer (1000+) so dialogs cover it */
+    height: 24px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 12px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--crt);
+    background: var(--crt-bg2);
+    border-top: 1px solid var(--crt-dim);
+}
+html.crt-on #crt-status {
+    display: flex;
+}
+.crt-status-mid {
+    color: var(--crt-dim);
+}
+.crt-status-right {
+    color: var(--crt-faint);
+}
+
+/* ---------- settings modal stays usable, terminal-styled ---------- */
+
+html.crt-on .modal-overlay {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+html.crt-on #modals [class*="modal"] {
+    background-color: var(--crt-bg2) !important;
+    color: var(--crt) !important;
+    border-color: var(--crt-dim) !important;
+}
+html.crt-on #modals input,
+html.crt-on #modals textarea,
+html.crt-on #modals select {
+    background: var(--crt-bg) !important;
+    color: var(--crt) !important;
+    border: 1px solid var(--crt-faint) !important;
+    caret-color: var(--crt);
+}
+html.crt-on #modals button:hover {
+    background: var(--crt-dim) !important;
+    color: #000 !important;
+}
+
+/* ---------- 'crt off' toast (visible in normal mode too) ---------- */
+
+#crt-off-toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483646;
+    background: #000;
+    color: #3aff6e;
+    border: 1px solid #3aff6e;
+    padding: 10px 18px;
+    font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    white-space: pre;
+    box-shadow: 0 0 18px rgba(58, 255, 110, 0.35);
+}

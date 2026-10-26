@@ -1,0 +1,101 @@
+<!-- -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-10-26) harness:openlumara
+     crt_terminal chrome: screen-effect overlays and status bar, plus the
+     BIOS boot screen. All hidden unless html.crt-on is set, which the head
+     script below does before first paint so the normal UI never flashes. -->
+
+{# inlines module settings + restores the live mode/phosphor choices, applied before first paint #}
+{% macro head() %}
+<script>
+/* crt_terminal: pre-paint config + mode restore */
+window.CRT_CONFIG = {
+    enabled: {{ 'true' if module_config.get('enabled', true) else 'false' }},
+    phosphor: "{{ module_config.get('phosphor', 'green') }}",
+    scanlines: "{{ module_config.get('scanlines', 'medium') }}",
+    flicker: {{ 'true' if module_config.get('flicker', true) else 'false' }},
+    glow: {{ 'true' if module_config.get('glow', true) else 'false' }},
+    boot_sequence: "{{ module_config.get('boot_sequence', 'firstrun') }}",
+    sounds: {{ 'true' if module_config.get('sounds', true) else 'false' }},
+    distortion: "{{ module_config.get('distortion', 'heavy') }}",
+    aspect_4_3: {{ 'true' if module_config.get('aspect_4_3', true) else 'false' }},
+    interlace: {{ 'true' if module_config.get('interlace', false) else 'false' }},
+    whine: {{ 'true' if module_config.get('whine', false) else 'false' }},
+    simple_chain: {{ 'true' if module_config.get('simple_chain', true) else 'false' }}
+};
+(function () {
+    function ls(key) {
+        try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+    }
+    var mode = ls("crt_mode");
+    if (mode === null) mode = window.CRT_CONFIG.enabled !== false;
+
+    /* OSD brightness/contrast is a property of the tube: paint its rule
+       pre-paint so the screen is never un-dimmed, on any mode state.
+       the rule is gated on html.crt-on, so it activates and deactivates
+       with the mode itself. */
+    var osdSaved = ls("crt_osd");
+    var ob = osdSaved && typeof osdSaved.b === "number" ? Math.min(10, Math.max(0, osdSaved.b)) : 5;
+    var oc = osdSaved && typeof osdSaved.c === "number" ? Math.min(10, Math.max(0, osdSaved.c)) : 5;
+    var osdStyle = document.createElement("style");
+    osdStyle.id = "crt-osd-style";
+    osdStyle.textContent = ob === 5 && oc === 5 ? ""
+        : "html.crt-on #main-wrapper, html.crt-on #crt-boot { filter: brightness("
+          + (0.6 + ob * 0.08).toFixed(2) + ") contrast(" + (0.7 + oc * 0.06).toFixed(2) + "); }";
+    document.head.appendChild(osdStyle);
+
+    if (!mode) return;
+
+    var phosphor = ls("crt_phosphor") || window.CRT_CONFIG.phosphor || "green";
+    var root = document.documentElement;
+    root.classList.add("crt-on", "crt-" + phosphor);
+    if (window.CRT_CONFIG.scanlines && window.CRT_CONFIG.scanlines !== "off") {
+        root.classList.add("crt-scan-" + window.CRT_CONFIG.scanlines);
+    }
+    if (window.CRT_CONFIG.flicker) root.classList.add("crt-flicker");
+    if (window.CRT_CONFIG.glow) root.classList.add("crt-glow");
+    if (window.CRT_CONFIG.distortion && window.CRT_CONFIG.distortion !== "off") {
+        root.classList.add("crt-dist-" + window.CRT_CONFIG.distortion);
+    }
+    if (window.CRT_CONFIG.aspect_4_3) root.classList.add("crt-43");
+    if (window.CRT_CONFIG.interlace) root.classList.add("crt-interlace");
+    if (window.CRT_CONFIG.simple_chain) root.classList.add("crt-simple-status");
+})();
+</script>
+{% endmacro %}
+
+{% macro below_page() %}
+<!-- screen effect layers: scanlines + vignette + flicker, pointer-transparent -->
+<div id="crt-scanlines" aria-hidden="true"></div>
+<div id="crt-vignette" aria-hidden="true"></div>
+<div id="crt-flicker" aria-hidden="true"></div>
+
+<!-- CRT monitor distortion layers: curved glass bezel, glare, rolling band -->
+<div id="crt-bezel" aria-hidden="true"></div>
+<div id="crt-glare" aria-hidden="true"></div>
+<div id="crt-roll" aria-hidden="true"></div>
+
+<!-- interlace field + convergence drift -->
+<div id="crt-interlace" aria-hidden="true"></div>
+<div id="crt-converge" aria-hidden="true"></div>
+
+<!-- service test pattern (command: testcard, close: ESC or Q) -->
+<div id="crt-testcard" aria-hidden="true">
+    <div id="crt-testcard-bars"></div>
+    <div id="crt-testcard-label">LUMARA CRT TEST PATTERN :: PRESS ESC OR Q TO EXIT</div>
+</div>
+
+<!-- on-screen display menu (command: osd) -->
+<div id="crt-osd" aria-hidden="true"></div>
+
+<!-- BIOS boot screen, shown once per session by the module JS -->
+<div id="crt-boot" aria-hidden="true">
+    <pre id="crt-boot-text"></pre>
+    <div id="crt-boot-skip">CLICK OR PRESS ANY KEY TO SKIP</div>
+</div>
+
+<!-- terminal status bar -->
+<div id="crt-status" aria-hidden="true">
+    <span class="crt-status-left">[F1] SETTINGS &nbsp;[F2] HELP &nbsp;[ESC] CLOSE</span>
+    <span class="crt-status-mid" id="crt-status-phosphor"></span>
+    <span class="crt-status-right">CRT-TERMINAL v3.2 :: OPENLUMARA</span>
+</div>
+{% endmacro %}
